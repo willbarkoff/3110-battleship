@@ -1,9 +1,7 @@
-(* TODO: Modify description of module *)
-(** Representation of the game, Battleship 
+(** Representation of the game, Battleship
 
-    This module represents the data stored in adventure files, including
-    the rooms and exits. It handles loading of that data from JSON as
-    well as querying the data. *)
+    This module defines the rules of the game Battleship. The module
+    also creates the boards and ships for each Player. *)
 
 (** The abstract type of board. *)
 type board
@@ -16,5 +14,3 @@ type hit_or_miss
 
 (** Raised when an unknown ship is called. *)
 exception UnknownShip of ship
-
-
