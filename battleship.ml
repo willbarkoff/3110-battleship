@@ -2,7 +2,7 @@
 
 (* LIST [(0, 0), (0, 1), ...] [(1, 0), (1, 1), ...] *)
 
-type board = ()
+(* type board = () *)
 
 type ship = ()
 
