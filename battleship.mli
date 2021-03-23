@@ -47,7 +47,8 @@ type board = block_tile array array
 (** The type of ship. *)
 type ship = {
   ship : ship_type;
-  positions : block_tile list;
+  mutable positions : block_tile list;
+  size : int;
 }
 
 (** The list of ships in the game. *)
@@ -55,10 +56,6 @@ type ships = ship list
 
 (** Creates an empty board. *)
 val empty_board : int -> int -> board
-
-(** Checks if the board position is valid and if ship can be fit inside
-    the board. *)
-val valid_pos : position -> ship -> board -> bool
 
 (** Places the ship onto the board. *)
 val place_ship : ship -> position -> board -> direction -> board

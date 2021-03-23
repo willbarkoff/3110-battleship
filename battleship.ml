@@ -32,20 +32,21 @@ type board = block_tile array array
 
 type ship = {
   ship : ship_type;
+  mutable positions : block_tile list;
   size : int;
 }
 
 type ships = ship list
 
-let carrier = { ship = Carrier; size = 5 }
+let carrier = { ship = Carrier; positions = []; size = 5 }
 
-let battleship = { ship = Battleship; size = 4 }
+let battleship = { ship = Battleship; positions = []; size = 4 }
 
-let cruiser = { ship = Cruiser; size = 3 }
+let cruiser = { ship = Cruiser; positions = []; size = 3 }
 
-let submarine = { ship = Submarine; size = 3 }
+let submarine = { ship = Submarine; positions = []; size = 3 }
 
-let destroyer = { ship = Destroyer; size = 2 }
+let destroyer = { ship = Destroyer; positions = []; size = 2 }
 
 let ships = [ carrier; battleship; cruiser; submarine; destroyer ]
 
@@ -65,6 +66,8 @@ let empty_board no_of_rows no_of_cols : board =
   in
   Array.init no_of_cols row
 
+(* [valid_pos pos ship board] checks if the board position is valid and
+   if ship can be fit inside the board. *)
 let valid_pos (pos : position) (ship : ship) (board : board) =
   failwith "Unimplemented"
 
