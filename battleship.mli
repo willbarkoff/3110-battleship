@@ -14,7 +14,7 @@ type ship_type =
   | Destroyer
 
 (** A position in Battleship. *)
-type position = char * int
+type position
 
 (** Determines whether block has been occupied or not *)
 type block_occupation =
@@ -35,27 +35,19 @@ type direction =
   | Down
 
 (** Defines one specific block tile *)
-type block_tile = {
-  position : position;
-  occupied : block_occupation;
-  attack : attack_type;
-}
+type block_tile
 
 (** The abstract type of board. *)
-type board = block_tile array array
+type board
 
 (** The type of ship. *)
-type ship = {
-  ship : ship_type;
-  mutable positions : block_tile list;
-  size : int;
-}
+type ship
 
 (** The list of ships in the game. *)
-type ships = ship list
+type ships
 
 (** Creates an empty board. *)
-val empty_board : int -> int -> board
+val empty_board : board
 
 (** Places the ship onto the board. *)
 val place_ship : ship -> position -> board -> direction -> board

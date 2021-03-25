@@ -1,4 +1,4 @@
-MODULES=battleship test main author
+MODULES=battleship test main author utils
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
