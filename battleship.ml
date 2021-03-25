@@ -28,7 +28,7 @@ type block_tile = {
   attack : attack_type;
 }
 
-type board = block_tile list list
+type board = block_tile array array
 
 type ship = {
   ship : ship_type;
@@ -55,10 +55,10 @@ let no_of_cols = 10
 
 let empty_board : board =
   let rows =
-    List.init no_of_rows (fun ascii -> Char.chr (ascii + 65))
+    Array.init no_of_rows (fun ascii -> Char.chr (ascii + 65))
   in
   let row idx =
-    List.map
+    Array.map
       (fun letter ->
         {
           position = (letter, idx);
@@ -67,7 +67,7 @@ let empty_board : board =
         })
       rows
   in
-  List.init no_of_cols row
+  Array.init no_of_cols row
 
 (* [check_idx ] *)
 let check_idx (idx : int) : bool = idx >= 0 && idx < no_of_rows
