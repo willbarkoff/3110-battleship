@@ -54,7 +54,7 @@ let no_of_rows = 10
 
 let no_of_cols = 10
 
-let ship_board : board =
+let generate_board : board =
   let rows =
     Array.init no_of_rows (fun ascii -> Char.chr (ascii + 65))
   in
@@ -70,21 +70,9 @@ let ship_board : board =
   in
   Array.init no_of_cols row
 
-let shoot_board : board =
-  let rows =
-    Array.init no_of_rows (fun ascii -> Char.chr (ascii + 65))
-  in
-  let row idx =
-    Array.map
-      (fun letter ->
-        {
-          position = (letter, idx);
-          occupied = Unoccupied;
-          attack = Untargeted;
-        })
-      rows
-  in
-  Array.init no_of_cols row
+let ship_board : board = generate_board
+
+let shoot_board : board = generate_board
 
 (* [check_idx ] *)
 let check_idx (idx : int) : bool = idx >= 0 && idx < no_of_cols
