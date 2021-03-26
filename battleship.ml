@@ -50,9 +50,9 @@ let destroyer = { ship_type = Destroyer; positions = []; size = 2 }
 
 let ships = [ carrier; battleship; cruiser; submarine; destroyer ]
 
-let no_of_rows = 3
+let no_of_rows = 10
 
-let no_of_cols = 2
+let no_of_cols = 10
 
 let ship_board : board =
   let rows =
