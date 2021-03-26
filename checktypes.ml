@@ -15,9 +15,11 @@ module type BattleshipSig = sig
 
   type block_occupation
 
-  val empty_board : board
+  val ship_board : board
 
-  val place_ship : ship -> position -> board -> direction -> board
+  val shoot_board : board
+
+  val place_ship : ship -> position -> board -> direction -> unit
 
   val attack : ships -> position -> board -> board
 
