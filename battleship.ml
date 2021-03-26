@@ -113,7 +113,7 @@ let gen_end_position (pos : position) (ship : ship) =
 let valid_pos (pos : position) (direction : direction) (ship : ship) =
   assert (check_char (fst pos) && check_idx (snd pos));
   let end_pos = gen_end_position pos ship direction in
-  check_idx (snd end_pos) && check_char (fst end_pos)
+  check_char (fst end_pos) && check_idx (snd end_pos)
 
 (* [modify_occupied] *)
 let modify_occupied
