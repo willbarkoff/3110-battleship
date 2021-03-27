@@ -60,3 +60,6 @@ val attack : ships -> position -> board -> board
 
 (** Checks if the game is finished. *)
 val finished_game : ships -> bool
+
+(** [print_board b] prints the board b *)
+val print_board : board -> unit

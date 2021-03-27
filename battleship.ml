@@ -137,3 +137,22 @@ let attack (ships : ships) (position : position) (board : board) : board
   failwith "Unimplemented"
 
 let finished_game (ships : ships) : bool = failwith "Unimplemented"
+
+let print_board (b : board) =
+  print_endline ("--" ^ String.make (Array.length b) '=' ^ "-");
+  Array.iteri
+    (fun i row ->
+      print_string (String.make 1 (Char.chr (i + 65)));
+      Array.iter
+        (fun tile ->
+          match tile.attack with
+          | Hit -> print_string "H"
+          | Miss -> print_string "M"
+          | Untargeted -> print_string "•")
+        row)
+    b;
+  print_string " |";
+  for i = 1 to Array.length b do
+    print_int i
+  done;
+  print_newline ()
