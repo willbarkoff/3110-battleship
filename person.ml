@@ -3,10 +3,10 @@ type t = {
   oppponent_board : Battleship.board;
 }
 
-type action = 
-    | Place of (Battleship.ship_type, Battleship.block_tile)
-    | Attack of Battleship.block_tile
-    | Quit
+type action =
+  | Place of Battleship.ship_type * Battleship.block_tile
+  | Attack of Battleship.block_tile
+  | Quit
 
 (** Raised when an empty command is parsed. *)
 exception Empty
@@ -18,16 +18,13 @@ let rec remove_empty (lst : string list) =
   match lst with
   | [] -> raise Empty
   | h :: t ->
-      if String.equal "" h then remove_empty_strings t
-      else h :: remove_empty_strings t
+      if String.equal "" h then remove_empty t else h :: remove_empty t
 
-let create_place_command lst = 
-  match lst with
-  | 
+let create_place_command lst =
+  match lst with _ -> failwith "Unimplemented"
 
-let create_attack_command lst = 
-  match lst with
-  |
+let create_attack_command lst =
+  match lst with _ -> failwith "Unimplemented"
 
 let parse_input input =
   let words = String.split_on_char ' ' input in
