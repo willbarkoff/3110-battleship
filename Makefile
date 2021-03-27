@@ -1,4 +1,4 @@
-MODULES=battleship main person utils
+MODULES=battleship main person
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
