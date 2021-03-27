@@ -1,8 +1,10 @@
 type t
 
+type position = char * int
+
 type action =
-  | Place of Battleship.ship_type * Battleship.block_tile
-  | Attack of Battleship.block_tile
+  | Place of string * position
+  | Attack of position
   | Quit
 
 (** Raised when an empty command is parsed. *)

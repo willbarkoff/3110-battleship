@@ -3,9 +3,11 @@ type t = {
   oppponent_board : Battleship.board;
 }
 
+type position = char * int
+
 type action =
-  | Place of Battleship.ship_type * Battleship.block_tile
-  | Attack of Battleship.block_tile
+  | Place of string * position
+  | Attack of position
   | Quit
 
 (** Raised when an empty command is parsed. *)
@@ -20,11 +22,23 @@ let rec remove_empty (lst : string list) =
   | h :: t ->
       if String.equal "" h then remove_empty t else h :: remove_empty t
 
-let create_place_command lst =
-  match lst with _ -> failwith "Unimplemented"
+(** [explode s] takes the string [s] and returns it as a list of chars.
+    inspired by
+    https://stackoverflow.com/questions/10068713/string-to-list-of-char *)
+let explode s = List.init (String.length s) (String.get s)
 
-let create_attack_command lst =
-  match lst with _ -> failwith "Unimplemented"
+let location_of_string_list s =
+  try
+    (List.hd (explode (List.hd s)), int_of_string (List.hd (List.tl s)))
+  with _ -> raise Malformed
+
+let create_place_command = function
+  | h :: t -> Place (h, location_of_string_list t)
+  | _ -> raise Malformed
+
+let create_attack_command = function
+  | [] -> raise Malformed
+  | lst -> Attack (location_of_string_list lst)
 
 let parse_input input =
   let words = String.split_on_char ' ' input in
