@@ -162,12 +162,15 @@ let place_ship
   done;
   ()
 
-(* [check_shot ships position board] checks whether the shot fired has
-   hit a ship or not. *)
-let check_shot (ships : ships) (shot_pos : position) (board : board) :
-    bool =
-  failwith "Unimplemented"
+(* [check_shot ships shot_pos] checks whether the shot fired has hit a
+   ship or not. *)
+let check_shot (ships : ships) (shot_pos : position) : bool =
+  assert (check_char (fst shot_pos) && check_idx (snd shot_pos));
+  let ship_pos = List.map (fun x -> x.positions) ships in
+  List.mem shot_pos (List.flatten ship_pos)
 
+(* [attack ships shot_pos board] modify the board so that the block tile
+   is either marked as hit or missed. *)
 let attack (ships : ships) (shot_pos : position) (board : board) : board
     =
   failwith "Unimplemented"

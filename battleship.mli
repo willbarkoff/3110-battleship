@@ -53,7 +53,7 @@ val board : unit -> board
 val place_ship : ship -> position -> board -> direction -> unit
 
 (** Performs an attack on the opponent. *)
-val attack : ships -> position -> board -> board
+val attack : ships -> position -> board -> unit
 
 (** Checks if the game is finished. *)
 val finished_game : ships -> bool
