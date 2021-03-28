@@ -46,11 +46,8 @@ type ship
 (** The list of ships in the game. *)
 type ships
 
-(** Creates an empty ship board. *)
-val ship_board : board
-
-(** Creates an empty shoot board *)
-val shoot_board : board
+(** Creates an empty board. *)
+val board : unit -> board
 
 (** Places the ship onto the board. *)
 val place_ship : ship -> position -> board -> direction -> unit
