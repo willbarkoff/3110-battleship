@@ -37,6 +37,9 @@ type direction =
 (** Defines one specific block tile *)
 type block_tile
 
+(** Raised when ship collides with another ship *)
+exception ShipCollision
+
 (** The abstract type of board. *)
 type board
 
@@ -49,7 +52,8 @@ type ships
 (** Creates an empty board. *)
 val board : unit -> board
 
-(** Places the ship onto the board. *)
+(** Places the ship onto the board. Raises [ShipCollision] if the ship
+    placed collides with another ship *)
 val place_ship : ship -> position -> board -> direction -> unit
 
 (** Performs an attack on the opponent. *)

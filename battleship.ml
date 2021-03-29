@@ -20,6 +20,8 @@ type direction =
   | Up
   | Down
 
+exception ShipCollision
+
 type position = char * int
 
 type block_tile = {
@@ -81,17 +83,25 @@ let board () : board =
   in
   Array.init no_of_cols row
 
-(* [check_idx ] *)
+(* [check_idx idx] checks whether the second value in position is a
+   valid value within the board. *)
 let check_idx (idx : int) : bool = idx >= 0 && idx < no_of_cols
 
-(* [check_char ] *)
+(* [check_char letter] checks whether the first value in position is a
+   valid value within the board. *)
 let check_char (letter : char) : bool =
   let ascii = Char.code letter in
   ascii >= 65 && ascii < 65 + no_of_rows
 
+(* [char_generation op start start_idx offset] is the abstract function
+   that generates the different letters when [direction] of ship is [Up]
+   or [Down] *)
 let char_generation op (start : int) (start_idx : int) (offset : int) =
   (Char.chr (op start offset), start_idx)
 
+(* [int_generation op start_idx start_letter offset] is the abstract
+   function that generates the different letters when [direction] of
+   ship is [Left] or [Right] *)
 let int_generation
     op
     (start_idx : int)
@@ -99,7 +109,8 @@ let int_generation
     (offset : int) =
   (start_letter, op start_idx offset)
 
-(* [gen_positions] *)
+(* [gen_positions pos ship direction] generates the ship positions based
+   on a specific direction *)
 let gen_positions (pos : position) (ship : ship) =
   let ship_size = ship.size in
   let start_letter, start_idx = pos in
@@ -122,21 +133,33 @@ let valid_pos (pos : position) (direction : direction) (ship : ship) =
   let end_pos = List.hd (List.rev (gen_positions pos ship direction)) in
   check_char (fst end_pos) && check_idx (snd end_pos)
 
-(* [check_collision ] *)
+(* [find arr pos idx] returns the index in which [arr] position matches
+   [pos] *)
+let rec find arr pos idx =
+  if idx >= Array.length arr then None
+  else if arr.(idx).position = pos then Some idx
+  else find arr pos (idx + 1)
+
+(* [check_collision arr ship pos direction] checks if [ship] is going to
+   collide with another ship. *)
 let check_collision
     (arr : block_tile array)
     (ship : ship)
     (pos : position)
     (direction : direction) : bool =
-  let positions = gen_positions pos ship direction in
-  Array.for_all
-    (fun tile ->
-      if List.mem tile.position positions then
-        tile.occupied = Unoccupied
-      else true)
-    arr
+  let ship_pos = gen_positions pos ship direction in
+  let result = ref true in
+  for i = 0 to List.length ship_pos - 1 do
+    let result_idx = find arr (List.nth ship_pos i) 0 in
+    match result_idx with
+    | None -> ()
+    | Some idx ->
+        if arr.(idx).occupied <> Unoccupied then result := false
+  done;
+  !result
 
-(* [modify_occupied] *)
+(* [modify_occupied arr ship pos direction] modifies the board when
+   placing [ship] onto the board and gives those positions to the ship. *)
 let modify_occupied
     (arr : block_tile array)
     (ship : ship)
@@ -155,12 +178,23 @@ let place_ship
     (start_pos : position)
     (board : board)
     (direction : direction) =
-  assert (valid_pos start_pos direction ship);
-  assert (List.length ship.positions = 0);
-  for i = 0 to Array.length board - 1 do
-    modify_occupied board.(i) ship start_pos direction
-  done;
-  ()
+  assert (
+    let cond = valid_pos start_pos direction ship in
+    if not cond then print_endline "Not a valid position";
+    cond);
+  assert (
+    let cond = List.length ship.positions = 0 in
+    if not cond then
+      print_endline "Ship has already been placed on board";
+    cond);
+  try
+    for i = 0 to Array.length board - 1 do
+      if check_collision board.(i) ship start_pos direction then
+        modify_occupied board.(i) ship start_pos direction
+      else raise ShipCollision
+    done;
+    ()
+  with ShipCollision -> print_endline "Ship Collision!"
 
 (* [check_shot ships shot_pos] checks whether the shot fired has hit a
    ship or not. *)
@@ -169,10 +203,7 @@ let check_shot (ships : ships) (shot_pos : position) : bool =
   let ship_pos = List.map (fun x -> x.positions) ships in
   List.mem shot_pos (List.flatten ship_pos)
 
-(* [attack ships shot_pos board] modify the board so that the block tile
-   is either marked as hit or missed. *)
-let attack (ships : ships) (shot_pos : position) (board : board) : board
-    =
+let attack (ships : ships) (shot_pos : position) (board : board) =
   failwith "Unimplemented"
 
 let finished_game (ships : ships) : bool =
