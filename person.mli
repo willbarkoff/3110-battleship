@@ -9,7 +9,7 @@ type direction =
   | Down
 
 type action =
-  | Place of string * position
+  | Place of string * position * direction
   | Attack of position
   | Quit
 
