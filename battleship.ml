@@ -210,20 +210,23 @@ let finished_game (ships : ships) : bool =
   List.for_all (fun ship -> ship.destroyed) ships
 
 let print_board (b : board) =
-  print_endline ("--" ^ String.make (Array.length b) '=' ^ "-");
+  print_string ("--" ^ String.make (Array.length b * 3) '=' ^ "-");
   Array.iteri
     (fun i row ->
-      print_string (String.make 1 (Char.chr (i + 65)));
+      print_string ("\n" ^ String.make 1 (Char.chr (i + 65)));
       Array.iter
         (fun tile ->
           match tile.attack with
-          | Hit -> print_string "H"
-          | Miss -> print_string "M"
-          | Untargeted -> print_string "•")
+          | Hit -> print_string " H "
+          | Miss -> print_string " M "
+          | Untargeted -> print_string " • ")
         row)
     b;
-  print_string " |";
+  print_endline "";
+  print_string "|";
   for i = 1 to Array.length b do
-    print_int i
+    print_string " ";
+    print_int i;
+    print_string " "
   done;
   print_newline ()

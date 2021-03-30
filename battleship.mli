@@ -1,7 +1,7 @@
 (** Representation of the game, Battleship
 
-    This module defines the rules of the game Battleship. The module
-    also creates the boards and ships for each Player. *)
+    This module defines the rules of the game Battleship and creates the
+    boards and ships for each Player. *)
 
 (* TODO: Fix/Revise all the comments *)
 
@@ -17,9 +17,7 @@ type ship_type =
 type position
 
 (** Determines whether block has been occupied or not *)
-type block_occupation =
-  | Occupied of ship_type
-  | Unoccupied
+type block_occupation
 
 (** The type of attack *)
 type attack_type =
