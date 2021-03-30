@@ -47,8 +47,14 @@ module type PersonSig = sig
 
   type position = char * int
 
+  type direction =
+    | Left
+    | Right
+    | Up
+    | Down
+
   type action =
-    | Place of string * position
+    | Place of string * position * direction
     | Attack of position
     | Quit
 
