@@ -67,6 +67,16 @@ let no_of_rows = 10
 
 let no_of_cols = 10
 
+let create_ship = function
+  | "cruiser" -> cruiser
+  | "destroyer" -> destroyer
+  | "battleship" -> battleship
+  | "submarine" -> submarine
+  | "carrier" -> carrier
+  | _ -> failwith "Ship does not exist"
+
+let create_position (tple : char * int) : position = tple
+
 let board () : board =
   let rows =
     Array.init no_of_rows (fun ascii -> Char.chr (ascii + 65))

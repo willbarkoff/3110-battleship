@@ -2,4 +2,4 @@
 
    val create_state : Person.t -> Person.t -> t
 
-   val advance_state : String -> t *)
+   val advance_state : string -> t *)

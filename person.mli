@@ -1,16 +1,16 @@
-type t
+type player = {
+  board : Battleship.board;
+  ships : Battleship.ships;
+}
 
-type position = char * int
-
-type direction =
-  | Left
-  | Right
-  | Up
-  | Down
+type t = {
+  player : player;
+  opponent : player;
+}
 
 type action =
-  | Place of string * position * direction
-  | Attack of position
+  | Place of string * Battleship.position * Battleship.direction
+  | Attack of Battleship.position
   | Quit
 
 (** Raised when an empty input is encountered *)
