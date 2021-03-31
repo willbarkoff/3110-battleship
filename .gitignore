@@ -31,3 +31,6 @@ _opam/
 #docs
 _doc*
 .DS_Store
+
+#compiled
+battleship.zip

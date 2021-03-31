@@ -16,19 +16,19 @@ BLUE="\033[0;34m"
 RED="\033[0;31m"
 NOCOLOR="\033[0m"
 
-print_meta () {
+print_meta() {
   printf "\n🐫 $BLUE<><> $1 <><>$NOCOLOR\n\n"
 }
 
-print_info () {
+print_info() {
   printf "$1\n"
 }
 
-print_err () {
+print_err() {
   printf "$RED$1$NOCOLOR\n"
 }
 
-print_fatal () {
+print_fatal() {
   print_err "\n$1\n"
 }
 
@@ -89,32 +89,10 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-print_meta "Checking for required definitions"
-
-$OCAMLBUILD checktypes.byte
-if [[ $? -ne 0 ]]; then
-  print_fatal "Your code does not provide some required definitions."
-  exit 1
-fi
-
 print_meta "Congratulations! You have passed [make check]."
 
 if [[ $1 != "final" ]]; then
   exit 0
-fi
-
-print_meta "Checking [hours_worked]"
-
-$OCAMLBUILD checkhours.byte
-if [[ $? -ne 0 ]]; then
-  print_fatal "Your code does not compile."
-  exit 1
-fi
-
-./checkhours.byte
-if [[ $? -ne 0 ]]; then
-  print_fatal "You have not set [hours_worked]."
-  exit 1
 fi
 
 print_meta "Checking for zip file"
