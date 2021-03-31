@@ -196,16 +196,47 @@ let place_ship
     ()
   with ShipCollision -> print_endline "Ship Collision!"
 
-(* [check_shot ships shot_pos] checks whether the shot fired has hit a
-   ship or not. *)
+(* [check_shot ships shot_pos] checks whether the shot has hit a ship or
+   not. *)
 let check_shot (ships : ships) (shot_pos : position) : bool =
   assert (check_char (fst shot_pos) && check_idx (snd shot_pos));
   let ship_pos = List.map (fun x -> x.positions) ships in
   List.mem shot_pos (List.flatten ship_pos)
 
-let attack (ships : ships) (shot_pos : position) (board : board) =
-  failwith "Unimplemented"
+(* [modify attack] *)
+let modify_attack
+    (arr : block_tile array)
+    (ships : ships)
+    (shot_pos : position)
+    (board : board) : unit =
+  Array.iter
+    (fun tile ->
+      if check_shot ships shot_pos then tile.attack <- Hit
+      else tile.attack <- Miss)
+    arr
 
+(* [modify destroyed] changes destroyed to be true if the ship was hit*)
+let modify_destroyed (ships : ships) (shot_pos : position) (ship : ship)
+    : unit =
+  let ship_pos = List.map (fun x -> x.positions) ships in
+  if List.mem shot_pos (List.flatten ship_pos) then
+    ship.destroyed <- true
+
+let attack
+    (ships : ships)
+    (shot_pos : position)
+    (ship : ship)
+    (board : board) : unit =
+  let row = board.(snd shot_pos) in
+  for i = 0 to Array.length row - 1 do
+    modify_attack board.(i) ships shot_pos board
+  done;
+  modify_destroyed ships shot_pos ship;
+  ()
+
+(* Modify the board so that the block tile is either marked as hit or
+   missed. Update ship.destroyed status 2. Check if all the ship
+   position has been hit, modify ship.destroyed to be true *)
 let finished_game (ships : ships) : bool =
   List.for_all (fun ship -> ship.destroyed) ships
 
