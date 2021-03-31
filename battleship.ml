@@ -271,3 +271,5 @@ let print_opponent_board (b : board) =
     print_string " "
   done;
   print_newline ()
+
+let print_player_board board = failwith "Unimplemented"
