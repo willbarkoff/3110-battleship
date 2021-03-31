@@ -5,8 +5,14 @@ type t = {
 
 type position = char * int
 
+type direction =
+  | Left
+  | Right
+  | Up
+  | Down
+
 type action =
-  | Place of string * position
+  | Place of string * position * direction
   | Attack of position
   | Quit
 
@@ -32,14 +38,27 @@ let location_of_string_list s =
     (List.hd (explode (List.hd s)), int_of_string (List.hd (List.tl s)))
   with _ -> raise Malformed
 
+let direction_of_string_list s =
+  try
+    match List.hd (List.tl (List.tl s)) with
+    | "Left" -> Left
+    | "Right" -> Right
+    | "Down" -> Down
+    | "Up" -> Up
+    | _ -> raise Malformed
+  with _ -> raise Malformed
+
 let create_place_command = function
-  | h :: t -> Place (h, location_of_string_list t)
+  | h :: t ->
+      Place (h, location_of_string_list t, direction_of_string_list t)
   | _ -> raise Malformed
 
 let create_attack_command = function
   | [] -> raise Malformed
   | lst -> Attack (location_of_string_list lst)
 
+(** [parse_input input] turns the string [input] into an [action]
+    corresponding to that input *)
 let parse_input input =
   let words = String.split_on_char ' ' input in
   let no_empty = remove_empty words in
