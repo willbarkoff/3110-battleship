@@ -250,7 +250,7 @@ let attack
 let finished_game (ships : ships) : bool =
   List.for_all (fun ship -> ship.destroyed) ships
 
-let print_board (b : board) =
+let print_opponent_board (b : board) =
   print_string ("--" ^ String.make (Array.length b * 3) '=' ^ "-");
   Array.iteri
     (fun i row ->

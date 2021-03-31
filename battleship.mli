@@ -67,4 +67,7 @@ val attack : ships -> position -> ship -> board -> unit
 val finished_game : ships -> bool
 
 (** [print_board b] prints the board b *)
-val print_board : board -> unit
+val print_opponent_board : board -> unit
+
+(* TODO: NEEDS TO BE IMPLEMENTED *)
+val print_player_board : board -> unit
