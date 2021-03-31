@@ -6,6 +6,36 @@ type t = {
 let create_state person1 person2 =
   { player1 = person1; player2 = person2 }
 
+let assign_player (player_A : Person.t) (player_B : Person.t) =
+  {
+    player1 =
+      {
+        player =
+          {
+            board = player_A.player.board;
+            ships = player_A.player.ships;
+          };
+        opponent =
+          {
+            board = player_B.player.board;
+            ships = player_B.player.ships;
+          };
+      };
+    player2 =
+      {
+        player =
+          {
+            board = player_B.player.board;
+            ships = player_B.player.ships;
+          };
+        opponent =
+          {
+            board = player_A.player.board;
+            ships = player_A.player.ships;
+          };
+      };
+  }
+
 let advance_state current_state (player_check : int) input =
   assert (player_check = 1 || player_check = 2);
   let in_player =
@@ -29,61 +59,5 @@ let advance_state current_state (player_check : int) input =
           in_player.player.board
     | Quit -> ()
   in
-  if player_check = 1 then
-    {
-      player1 =
-        {
-          player =
-            {
-              board = in_player.player.board;
-              ships = in_player.player.ships;
-            };
-          opponent =
-            {
-              board = other_player.player.board;
-              ships = other_player.player.ships;
-            };
-        };
-      player2 =
-        {
-          player =
-            {
-              board = other_player.player.board;
-              ships = other_player.player.ships;
-            };
-          opponent =
-            {
-              board = in_player.player.board;
-              ships = in_player.player.ships;
-            };
-        };
-    }
-  else
-    {
-      player1 =
-        {
-          player =
-            {
-              board = other_player.player.board;
-              ships = other_player.player.ships;
-            };
-          opponent =
-            {
-              board = in_player.player.board;
-              ships = in_player.player.ships;
-            };
-        };
-      player2 =
-        {
-          player =
-            {
-              board = in_player.player.board;
-              ships = in_player.player.ships;
-            };
-          opponent =
-            {
-              board = other_player.player.board;
-              ships = other_player.player.ships;
-            };
-        };
-    }
+  if player_check = 1 then assign_player in_player other_player
+  else assign_player other_player in_player
