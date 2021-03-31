@@ -1,19 +1,19 @@
-type t = {
-  player_board : Battleship.board;
-  oppponent_board : Battleship.board;
+type player = {
+  board : Battleship.board;
+  ships : Battleship.ships;
 }
 
-type position = char * int
+type t = {
+  player : player;
+  opponent : player;
+}
 
-type direction =
-  | Left
-  | Right
-  | Up
-  | Down
+(* let create_person () = { player_board = Battleship.board ();
+   opponent_board = Battleship.board (); } *)
 
 type action =
-  | Place of string * position * direction
-  | Attack of position
+  | Place of string * Battleship.position * Battleship.direction
+  | Attack of Battleship.position
   | Quit
 
 (** Raised when an empty command is parsed. *)
@@ -41,21 +41,25 @@ let location_of_string_list s =
 let direction_of_string_list s =
   try
     match List.hd (List.tl (List.tl s)) with
-    | "Left" -> Left
-    | "Right" -> Right
-    | "Down" -> Down
-    | "Up" -> Up
+    | "Left" -> Battleship.Left
+    | "Right" -> Battleship.Right
+    | "Down" -> Battleship.Down
+    | "Up" -> Battleship.Up
     | _ -> raise Malformed
   with _ -> raise Malformed
 
 let create_place_command = function
   | h :: t ->
-      Place (h, location_of_string_list t, direction_of_string_list t)
+      Place
+        ( h,
+          Battleship.create_position (location_of_string_list t),
+          direction_of_string_list t )
   | _ -> raise Malformed
 
 let create_attack_command = function
   | [] -> raise Malformed
-  | lst -> Attack (location_of_string_list lst)
+  | lst ->
+      Attack (Battleship.create_position (location_of_string_list lst))
 
 (** [parse_input input] turns the string [input] into an [action]
     corresponding to that input *)

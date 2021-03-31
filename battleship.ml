@@ -67,6 +67,16 @@ let no_of_rows = 10
 
 let no_of_cols = 10
 
+let create_ship = function
+  | "cruiser" -> cruiser
+  | "destroyer" -> destroyer
+  | "battleship" -> battleship
+  | "submarine" -> submarine
+  | "carrier" -> carrier
+  | _ -> failwith "Ship does not exist"
+
+let create_position (tple : char * int) : position = tple
+
 let board () : board =
   let rows =
     Array.init no_of_rows (fun ascii -> Char.chr (ascii + 65))
@@ -240,7 +250,7 @@ let attack
 let finished_game (ships : ships) : bool =
   List.for_all (fun ship -> ship.destroyed) ships
 
-let print_board (b : board) =
+let print_opponent_board (b : board) =
   print_string ("--" ^ String.make (Array.length b * 3) '=' ^ "-");
   Array.iteri
     (fun i row ->

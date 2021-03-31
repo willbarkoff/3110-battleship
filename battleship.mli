@@ -50,6 +50,12 @@ type ships
 (** Creates an empty board. *)
 val board : unit -> board
 
+(** TODO: Add specification *)
+val create_ship : string -> ship
+
+(** TODO: Add Specificationq *)
+val create_position : char * int -> position
+
 (** Places the ship onto the board. Raises [ShipCollision] if the ship
     placed collides with another ship *)
 val place_ship : ship -> position -> board -> direction -> unit
@@ -61,4 +67,7 @@ val attack : ships -> position -> ship -> board -> unit
 val finished_game : ships -> bool
 
 (** [print_board b] prints the board b *)
-val print_board : board -> unit
+val print_opponent_board : board -> unit
+
+(* TODO: NEEDS TO BE IMPLEMENTED *)
+val print_player_board : board -> unit
