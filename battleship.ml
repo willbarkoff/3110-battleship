@@ -213,7 +213,7 @@ let check_shot (ships : ships) (shot_pos : position) : bool =
   let ship_pos = List.map (fun x -> x.positions) ships in
   List.mem shot_pos (List.flatten ship_pos)
 
-(* [modify attack] *)
+(* [modify attack] modifies the tile's attack as Hit, Miss *)
 let modify_attack
     (arr : block_tile array)
     (ships : ships)
@@ -225,12 +225,19 @@ let modify_attack
       else tile.attack <- Miss)
     arr
 
-(* [modify destroyed] changes destroyed to be true if the ship was hit*)
-let modify_destroyed (ships : ships) (shot_pos : position) (ship : ship)
-    : unit =
-  let ship_pos = List.map (fun x -> x.positions) ships in
-  if List.mem shot_pos (List.flatten ship_pos) then
-    ship.destroyed <- true
+(* [modify destroyed] modifies ship's destroyed to be true when the ship
+   was hit *)
+let modify_destroyed
+    (arr : block_tile array)
+    (shot_pos : position)
+    (ship : ship) : unit =
+  ship.destroyed <-
+    Array.for_all
+      (fun tile -> if tile.attack = Hit then true else false)
+      arr;
+  ()
+
+(* how to check if all the tile in one ship is destroyed *)
 
 let attack
     (ships : ships)
@@ -239,9 +246,9 @@ let attack
     (board : board) : unit =
   let row = board.(snd shot_pos) in
   for i = 0 to Array.length row - 1 do
-    modify_attack board.(i) ships shot_pos board
+    modify_attack board.(i) ships shot_pos board;
+    modify_destroyed board.(i) shot_pos ship
   done;
-  modify_destroyed ships shot_pos ship;
   ()
 
 (* Modify the board so that the block tile is either marked as hit or
