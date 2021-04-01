@@ -29,6 +29,29 @@ let quit () =
     "Thanks for playing!\n";
   exit 0
 
+let place_ships state =
+  List.fold_left Selectlocation.place state Battleship.ships
+
+let toggle_player state =
+  ANSITerminal.erase ANSITerminal.Screen;
+  Util.plfs
+    [
+      ( [ ANSITerminal.Bold ],
+        "\n\nPass the computer to the next player.\n" );
+      ([], "Press enter when you're ready to continue.");
+    ];
+  ANSITerminal.save_cursor ();
+  ANSITerminal.set_cursor 1 1;
+  read_line () |> ignore;
+  ANSITerminal.restore_cursor ();
+  State.toggle_player state
+
+let new_game () =
+  State.create_state
+    (Person.create_player (Battleship.board ()) [])
+    (Person.create_player (Battleship.board ()) [])
+  |> place_ships |> toggle_player |> place_ships
+
 let _ =
   if not (Unix.isatty Unix.stdin) then begin
     print_endline "Currently, this game is only supported on ttys";
@@ -38,6 +61,6 @@ let _ =
     ANSITerminal.erase ANSITerminal.Screen;
     print_title ();
     match Menu.show_menu "Main menu" main_menu with
-    | NewGame -> failwith "Newgame"
+    | NewGame -> new_game ()
     | Quit -> quit ()
   end
