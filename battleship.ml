@@ -160,14 +160,8 @@ let gen_positions (pos : position) (ship : ship) =
 (* [valid_pos pos ship board] checks if the board position is valid and
    if ship can be fit inside the board. *)
 let valid_pos (pos : position) (direction : direction) (ship : ship) =
-  assert (
-    let char_cond = check_char (fst pos) in
-    let int_cond = check_idx (snd pos) in
-    if not char_cond then
-      print_endline "First input position is incorrect"
-    else if not int_cond then
-      print_endline "Second input position is incorrect";
-    char_cond && int_cond);
+  if not (check_char (fst pos) && check_idx (snd pos)) then
+    raise InvalidPosition;
   let end_pos = List.hd (List.rev (gen_positions pos ship direction)) in
   check_char (fst end_pos) && check_idx (snd end_pos)
 
@@ -222,37 +216,6 @@ let place_ship
       modify_occupied board.(i) ship start_pos direction
     else raise ShipCollision
   done;
-  ()
-
-(* [check_shot ships shot_pos] checks whether the shot has hit a ship or
-   not. *)
-let check_shot (ships : ships) (shot_pos : position) : bool =
-  assert (check_char (fst shot_pos) && check_idx (snd shot_pos));
-  let ship_pos = List.map (fun x -> x.positions) ships in
-  List.mem shot_pos (List.flatten ship_pos)
-
-(* [modify attack] modifies the tile's attack as Hit, Miss *)
-let modify_attack
-    (arr : block_tile array)
-    (ships : ships)
-    (shot_pos : position)
-    (board : board) : unit =
-  Array.iter
-    (fun tile ->
-      if check_shot ships shot_pos then tile.attack <- Hit
-      else tile.attack <- Miss)
-    arr
-
-(* [modify destroyed] modifies ship's destroyed to be true when the ship
-   was hit *)
-let modify_destroyed
-    (arr : block_tile array)
-    (shot_pos : position)
-    (ship : ship) : unit =
-  ship.destroyed <-
-    Array.for_all
-      (fun tile -> if tile.attack = Hit then true else false)
-      arr;
   ()
 
 let attack pos (board : board) =
