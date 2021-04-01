@@ -255,8 +255,6 @@ let modify_destroyed
       arr;
   ()
 
-(* how to check if all the tile in one ship is destroyed *)
-
 let attack pos (board : board) =
   try
     let row, col = indicies_of_position pos in
@@ -268,12 +266,6 @@ let attack pos (board : board) =
         board.(row).(col).attack <- Miss;
         ()
   with _ -> raise InvalidPosition
-
-(* Modify the board so that the block tile is either marked as hit or
-   missed. Update ship.destroyed status 2. Check if all the ship
-   position has been hit, modify ship.destroyed to be true *)
-(* let finished_game (ships : ships) : bool = List.for_all (fun ship ->
-   ship.destroyed) ships *)
 
 let finished_game (board : board) =
   Array.fold_left
