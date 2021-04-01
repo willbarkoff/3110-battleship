@@ -10,39 +10,20 @@ let create_state person1 person2 =
 let get_current_player s =
   if s.current_player = 1 then s.player1 else s.player2
 
+let get_opponent s =
+  if s.current_player = 0 then s.player1 else s.player2
+
 let toggle_player s =
   { s with current_player = (s.current_player + 1) mod 2 }
-
-let advance_state current_state input =
-  assert (
-    current_state.current_player = 0 || current_state.current_player = 1);
-  let current_player =
-    if current_state.current_player = 0 then current_state.player1
-    else current_state.player2
-  in
-  let next_action = Person.parse_input input in
-  let () =
-    match next_action with
-    | Place (ship_string, position, direction) ->
-        Battleship.place_ship
-          (Battleship.create_ship ship_string)
-          position
-          (Person.get_board current_player)
-          direction
-    | Attack position ->
-        Battleship.attack
-          (Person.get_ships current_player)
-          position
-          (Battleship.create_ship "cruiser")
-          (Person.get_board current_player)
-    | Quit -> ()
-  in
-  {
-    current_state with
-    current_player = (current_state.current_player + 1) mod 2;
-  }
 
 let place_ship state pos ship dir =
   let board = get_current_player state |> Person.get_board in
   Battleship.place_ship ship pos board dir;
   state
+
+let attack s pos =
+  Battleship.attack pos (get_opponent s |> Person.get_board);
+  s
+
+let finished_game s =
+  get_opponent s |> Person.get_board |> Battleship.finished_game

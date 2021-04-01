@@ -37,8 +37,11 @@ let rec place (state : State.t) (ship : Battleship.ship) =
         ship |> Battleship.get_ship_size |> string_of_int );
       ([], ".\n");
     ];
-  try State.place_ship state (read_pos ()) ship (read_orientation ())
-  with exn ->
+  try
+    let pos = read_pos () in
+    let ori = read_orientation () in
+    State.place_ship state pos ship ori
+  with _ ->
     Util.plfs
       [
         ( [ ANSITerminal.red ],

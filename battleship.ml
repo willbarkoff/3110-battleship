@@ -34,6 +34,8 @@ exception InvalidPosition
 
 type position = char * int
 
+let indicies_of_position (c, i) = (int_of_char c - 65, i - 1)
+
 type block_tile = {
   position : position;
   mutable occupied : block_occupation;
@@ -255,23 +257,37 @@ let modify_destroyed
 
 (* how to check if all the tile in one ship is destroyed *)
 
-let attack
-    (ships : ships)
-    (shot_pos : position)
-    (ship : ship)
-    (board : board) : unit =
-  let row = board.(snd shot_pos) in
-  for i = 0 to Array.length row - 1 do
-    modify_attack board.(i) ships shot_pos board;
-    modify_destroyed board.(i) shot_pos ship
-  done;
-  ()
+let attack pos (board : board) =
+  try
+    let row, col = indicies_of_position pos in
+    print_endline (string_of_int row);
+    print_endline (string_of_int col);
+    match board.(row).(col).occupied with
+    | Occupied _ -> board.(row).(col).attack <- Hit
+    | Unoccupied ->
+        board.(row).(col).attack <- Miss;
+        ()
+  with _ -> raise InvalidPosition
 
 (* Modify the board so that the block tile is either marked as hit or
    missed. Update ship.destroyed status 2. Check if all the ship
    position has been hit, modify ship.destroyed to be true *)
-let finished_game (ships : ships) : bool =
-  List.for_all (fun ship -> ship.destroyed) ships
+(* let finished_game (ships : ships) : bool = List.for_all (fun ship ->
+   ship.destroyed) ships *)
+
+let finished_game (board : board) =
+  Array.fold_left
+    (fun acc arr ->
+      Array.fold_left
+        (fun acc i ->
+          if not acc then false
+          else
+            match i.occupied with
+            | Occupied _ -> (
+                match i.attack with Hit -> true | _ -> false)
+            | Unoccupied -> true)
+        acc arr)
+    true board
 
 (** [map_board f b] is the equivilent of [List.map] on a board, [b]*)
 let map_board f = Array.map (Array.map f)
