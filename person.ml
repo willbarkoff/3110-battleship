@@ -11,6 +11,14 @@ type t = {
 (* let create_person () = { player_board = Battleship.board ();
    opponent_board = Battleship.board (); } *)
 
+let get_player (t : t) : player = t.player
+
+let get_opponent t = t.opponent
+
+let get_board p = p.board
+
+let get_ships p = p.ships
+
 type action =
   | Place of string * Battleship.position * Battleship.direction
   | Attack of Battleship.position
