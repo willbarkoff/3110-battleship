@@ -34,8 +34,6 @@ exception InvalidPosition
 
 type position = char * int
 
-let indicies_of_position (c, i) = (int_of_char c - 65, i - 1)
-
 type block_tile = {
   position : position;
   mutable occupied : block_occupation;
@@ -113,6 +111,10 @@ let board () : board =
       cols
   in
   Array.init no_of_cols row
+
+(* [indices_of_position (c, i)] returns the array location of the
+   position on the board *)
+let indicies_of_position (c, i) = (int_of_char c - 65, i - 1)
 
 (* [check_idx idx] checks whether the second value in position is a
    valid value within the board. *)
@@ -244,7 +246,7 @@ let finished_game (board : board) =
         acc arr)
     true board
 
-(** [map_board f b] is the equivilent of [List.map] on a board, [b]*)
+(** [map_board f b] is the equivalent of [List.map] on a board, [b]*)
 let map_board f = Array.map (Array.map f)
 
 let get_player_board =

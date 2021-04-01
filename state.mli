@@ -1,5 +1,12 @@
+(** An instance of the game, Battleship
+
+    This module stores a state of the game, defines the methods to
+    transition to a new state, and checks if the game is complete. *)
+
+(** A instance of the game *)
 type t
 
+(** [create_state person1 person2] creates a state of type [t] *)
 val create_state : Person.player -> Person.player -> t
 
 (** [get_current_player state] gets the current player in the state. *)

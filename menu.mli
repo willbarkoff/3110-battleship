@@ -1,3 +1,6 @@
+(** menu handles all the UI of the game, including converting input from
+    the user to information the game can use. *)
+
 (** ['a prompt] represents a menu item of type ['a]. *)
 type 'a prompt
 
