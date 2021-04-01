@@ -42,4 +42,7 @@ let advance_state current_state input =
     current_player = (current_state.current_player + 1) mod 2;
   }
 
-let place_ship state pos ship = failwith "TODO"
+let place_ship state pos ship dir =
+  let board = get_current_player state |> Person.get_board in
+  Battleship.place_ship ship pos board dir;
+  state
