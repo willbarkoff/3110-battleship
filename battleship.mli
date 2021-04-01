@@ -3,8 +3,6 @@
     This module defines the rules of the game Battleship and creates the
     boards and ships for each Player. *)
 
-(* TODO: Fix/Revise all the comments *)
-
 (* Variant for type of ship *)
 type ship_type =
   | Carrier
@@ -38,6 +36,9 @@ type block_tile
 (** Raised when ship collides with another ship *)
 exception ShipCollision
 
+(** Raised when there is an unknown ship *)
+exception UnknownShip
+
 (** The abstract type of board. *)
 type board
 
@@ -50,10 +51,11 @@ type ships
 (** Creates an empty board. *)
 val board : unit -> board
 
-(** TODO: Add specification *)
+(** Returns a ship in Battleship. Raises [UnknownShip] if the string is
+    not one of the ships. *)
 val create_ship : string -> ship
 
-(** TODO: Add Specificationq *)
+(** Creates a Battleship.position from an input *)
 val create_position : char * int -> position
 
 (** Places the ship onto the board. Raises [ShipCollision] if the ship
@@ -66,8 +68,8 @@ val attack : ships -> position -> ship -> board -> unit
 (** Checks if the game is finished. *)
 val finished_game : ships -> bool
 
-(** [print_board b] prints the board b *)
+(** Prints the opponent's board (the shots that have been hit or missed) *)
 val print_opponent_board : board -> unit
 
-(* TODO: NEEDS TO BE IMPLEMENTED *)
+(** Prints the player board and all its ships *)
 val print_player_board : board -> unit

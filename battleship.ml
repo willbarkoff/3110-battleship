@@ -22,6 +22,8 @@ type direction =
 
 exception ShipCollision
 
+exception UnknownShip
+
 type position = char * int
 
 type block_tile = {
