@@ -39,7 +39,6 @@ let advance_state current_state (player_check : int) input =
         Battleship.attack
           (Person.get_ships (Person.get_player in_player))
           position
-          (Battleship.create_ship "cruiser")
           (Person.get_board (Person.get_player in_player))
     | Quit -> ()
   in
