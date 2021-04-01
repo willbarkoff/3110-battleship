@@ -19,3 +19,10 @@ let print_board_legend () =
   ANSITerminal.print_string [] "Miss\t";
   ANSITerminal.print_string [] "\t•\t";
   ANSITerminal.print_string [] "Untargeted square\n\n"
+
+let print_lots_of_fancy_strings =
+  List.iter (fun (format, str) -> ANSITerminal.print_string format str)
+
+let plfs = print_lots_of_fancy_strings
+
+let explode s = List.init (String.length s) (String.get s)

@@ -1,21 +1,10 @@
 type player
 
-type t
-
-val create_player :
-  Battleship.board ->
-  Battleship.ships ->
-  Battleship.board ->
-  Battleship.ships ->
-  t
-
-val get_player : t -> player
-
-val get_opponent : t -> player
+val create_player : Battleship.board -> Battleship.ship list -> player
 
 val get_board : player -> Battleship.board
 
-val get_ships : player -> Battleship.ships
+val get_ships : player -> Battleship.ship list
 
 type action =
   | Place of string * Battleship.position * Battleship.direction

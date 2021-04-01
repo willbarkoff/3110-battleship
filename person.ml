@@ -1,29 +1,9 @@
 type player = {
   board : Battleship.board;
-  ships : Battleship.ships;
+  ships : Battleship.ship list;
 }
 
-type t = {
-  player : player;
-  opponent : player;
-}
-
-(* let create_person () = { player_board = Battleship.board ();
-   opponent_board = Battleship.board (); } *)
-
-let create_player
-    (p_board : Battleship.board)
-    (p_ships : Battleship.ships)
-    (o_board : Battleship.board)
-    (o_ships : Battleship.ships) =
-  {
-    player = { board = p_board; ships = p_ships };
-    opponent = { board = o_board; ships = o_ships };
-  }
-
-let get_player (t : t) : player = t.player
-
-let get_opponent t = t.opponent
+let create_player board ships = { board; ships }
 
 let get_board p = p.board
 
@@ -46,14 +26,10 @@ let rec remove_empty (lst : string list) =
   | h :: t ->
       if String.equal "" h then remove_empty t else h :: remove_empty t
 
-(** [explode s] takes the string [s] and returns it as a list of chars.
-    inspired by
-    https://stackoverflow.com/questions/10068713/string-to-list-of-char *)
-let explode s = List.init (String.length s) (String.get s)
-
 let location_of_string_list s =
   try
-    (List.hd (explode (List.hd s)), int_of_string (List.hd (List.tl s)))
+    ( List.hd (Util.explode (List.hd s)),
+      int_of_string (List.hd (List.tl s)) )
   with _ -> raise Malformed
 
 let direction_of_string_list s =

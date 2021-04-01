@@ -21,3 +21,16 @@ val pretty_string_of_list : string list -> string
     - an untargeted ship
     - an untargeted part of water *)
 val print_board_legend : unit -> unit
+
+(** [print_lots_of_fancy_strings s] prints the list of strings and
+    format styles s *)
+val print_lots_of_fancy_strings :
+  (ANSITerminal.style list * string) list -> unit
+
+(** [plfs s] is an alias for [print_lots_of_fancy_strings s] *)
+val plfs : (ANSITerminal.style list * string) list -> unit
+
+(** [explode s] takes the string [s] and returns it as a list of chars.
+    inspired by
+    https://stackoverflow.com/questions/10068713/string-to-list-of-char *)
+val explode : string -> char list

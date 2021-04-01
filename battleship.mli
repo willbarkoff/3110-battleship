@@ -30,6 +30,13 @@ type direction =
   | Up
   | Down
 
+(** Block display specifies how a block should be displayed *)
+type block_display =
+  | DisplayHit
+  | DisplayMiss
+  | DisplayShip
+  | DisplaySea
+
 (** Defines one specific block tile *)
 type block_tile
 
@@ -39,6 +46,9 @@ exception ShipCollision
 (** Raised when there is an unknown ship *)
 exception UnknownShip
 
+(** Raised when the given position is invalid *)
+exception InvalidPosition
+
 (** The abstract type of board. *)
 type board
 
@@ -46,7 +56,7 @@ type board
 type ship
 
 (** The list of ships in the game. *)
-type ships
+val ships : ship list
 
 (** Creates an empty board. *)
 val board : unit -> board
@@ -66,10 +76,23 @@ val place_ship : ship -> position -> board -> direction -> unit
 val attack : ships -> position -> board -> unit
 
 (** Checks if the game is finished. *)
-val finished_game : ships -> bool
+val finished_game : ship list -> bool
 
-(** Prints the opponent's board (the shots that have been hit or missed) *)
-val print_opponent_board : board -> unit
+(** [get_opponent_board b] gets the display of the opponent's board, [b]*)
+val get_opponent_board : board -> block_display array array
 
-(** Prints the player board and all its ships *)
-val print_player_board : board -> unit
+(** [get_player_board b] gets the display of the player's board, [b]*)
+val get_player_board : board -> block_display array array
+
+(** [print_tile settings t] prints a tile [t] with the additional
+    settings [settings.]*)
+val print_tile : ANSITerminal.style list -> block_display -> unit
+
+(** [print_board b] prints the board [b] *)
+val print_board : block_display array array -> unit
+
+(** [get_ship_name s] gets the name of ship [s] *)
+val get_ship_name : ship -> string
+
+(** [get_ship_size s] gets the size of ship [s] *)
+val get_ship_size : ship -> int
