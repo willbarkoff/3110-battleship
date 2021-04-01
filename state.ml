@@ -60,7 +60,7 @@ let advance_state current_state (player_check : int) input =
           (Person.get_ships (Person.get_player in_player))
           position
           (Battleship.create_ship "cruiser")
-          (Person.get_ships (Person.get_player in_player))
+          (Person.get_board (Person.get_player in_player))
     | Quit -> ()
   in
   if player_check = 1 then assign_player in_player other_player
