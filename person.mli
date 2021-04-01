@@ -1,17 +1,6 @@
 type player
 
-type t
-
-val create_player :
-  Battleship.board ->
-  Battleship.ships ->
-  Battleship.board ->
-  Battleship.ships ->
-  t
-
-val get_player : t -> player
-
-val get_opponent : t -> player
+val create_player : Battleship.board -> Battleship.ships -> player
 
 val get_board : player -> Battleship.board
 
