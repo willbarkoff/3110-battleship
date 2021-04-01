@@ -46,6 +46,9 @@ exception ShipCollision
 (** Raised when there is an unknown ship *)
 exception UnknownShip
 
+(** Raised when the given position is invalid *)
+exception InvalidPosition
+
 (** The abstract type of board. *)
 type board
 

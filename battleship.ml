@@ -30,6 +30,8 @@ exception ShipCollision
 
 exception UnknownShip
 
+exception InvalidPosition
+
 type position = char * int
 
 type block_tile = {
@@ -212,23 +214,13 @@ let place_ship
     (start_pos : position)
     (board : board)
     (direction : direction) =
-  assert (
-    let cond = valid_pos start_pos direction ship in
-    if not cond then print_endline "Not a valid position";
-    cond);
-  assert (
-    let cond = List.length ship.positions = 0 in
-    if not cond then
-      print_endline "Ship has already been placed on board";
-    cond);
-  try
-    for i = 0 to Array.length board - 1 do
-      if check_collision board.(i) ship start_pos direction then
-        modify_occupied board.(i) ship start_pos direction
-      else raise ShipCollision
-    done;
-    ()
-  with ShipCollision -> print_endline "Ship Collision!"
+  if not (valid_pos start_pos direction ship) then raise InvalidPosition;
+  for i = 0 to Array.length board - 1 do
+    if check_collision board.(i) ship start_pos direction then
+      modify_occupied board.(i) ship start_pos direction
+    else raise ShipCollision
+  done;
+  ()
 
 (* [check_shot ships shot_pos] checks whether the shot has hit a ship or
    not. *)
