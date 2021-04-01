@@ -26,14 +26,10 @@ let rec remove_empty (lst : string list) =
   | h :: t ->
       if String.equal "" h then remove_empty t else h :: remove_empty t
 
-(** [explode s] takes the string [s] and returns it as a list of chars.
-    inspired by
-    https://stackoverflow.com/questions/10068713/string-to-list-of-char *)
-let explode s = List.init (String.length s) (String.get s)
-
 let location_of_string_list s =
   try
-    (List.hd (explode (List.hd s)), int_of_string (List.hd (List.tl s)))
+    ( List.hd (Util.explode (List.hd s)),
+      int_of_string (List.hd (List.tl s)) )
   with _ -> raise Malformed
 
 let direction_of_string_list s =
