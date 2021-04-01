@@ -1,4 +1,9 @@
 #require "ounit2";;
 #require "ANSITerminal";;
 #directory "_build";;
+#load "util.cmo";;
 #load "battleship.cmo";;
+#load "person.cmo";;
+#load "state.cmo";;
+#load "menu.cmo";;
+#load "selectlocation.cmo";;

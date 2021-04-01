@@ -34,3 +34,12 @@ val plfs : (ANSITerminal.style list * string) list -> unit
     inspired by
     https://stackoverflow.com/questions/10068713/string-to-list-of-char *)
 val explode : string -> char list
+
+(** [get_terminal_size ()] returns the size of the current terminal,
+    assuming it is a tty.*)
+val get_terminal_size : unit -> int * int
+
+(** [print_text_centered] is [print_lots_of_fancy_strings], but the text
+    is printed centered in the terminal.*)
+val print_text_centered :
+  (ANSITerminal.style list * string) list -> unit
