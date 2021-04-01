@@ -47,6 +47,7 @@ type board = block_tile array array
 type ship = {
   ship_type : ship_type;
   mutable destroyed : bool;
+  mutable remaining_targets : int;
   mutable positions : position list;
   size : int;
 }
@@ -64,24 +65,49 @@ let get_ship_size ship = ship.size
 type ships = ship list
 
 let carrier =
-  { ship_type = Carrier; destroyed = false; positions = []; size = 5 }
+  {
+    ship_type = Carrier;
+    destroyed = false;
+    remaining_targets = 5;
+    positions = [];
+    size = 5;
+  }
 
 let battleship =
   {
     ship_type = Battleship;
     destroyed = false;
+    remaining_targets = 4;
     positions = [];
     size = 4;
   }
 
 let cruiser =
-  { ship_type = Cruiser; destroyed = false; positions = []; size = 3 }
+  {
+    ship_type = Cruiser;
+    destroyed = false;
+    remaining_targets = 3;
+    positions = [];
+    size = 3;
+  }
 
 let submarine =
-  { ship_type = Submarine; destroyed = false; positions = []; size = 3 }
+  {
+    ship_type = Submarine;
+    destroyed = false;
+    remaining_targets = 3;
+    positions = [];
+    size = 3;
+  }
 
 let destroyer =
-  { ship_type = Destroyer; destroyed = false; positions = []; size = 2 }
+  {
+    ship_type = Destroyer;
+    destroyed = false;
+    remaining_targets = 2;
+    positions = [];
+    size = 2;
+  }
 
 let ships = [ carrier; battleship; cruiser; submarine; destroyer ]
 
@@ -235,13 +261,32 @@ let check_shot (ships : ships) (shot_pos : position) : bool =
 let modify_attack
     (arr : block_tile array)
     (ships : ships)
-    (shot_pos : position)
-    (board : board) : unit =
+    (shot_pos : position) : bool =
+  let hit = ref false in
   Array.iter
     (fun tile ->
-      if check_shot ships shot_pos then tile.attack <- Hit
-      else tile.attack <- Miss)
-    arr
+      if check_shot ships shot_pos && tile.position = shot_pos then
+        if tile.attack <> Untargeted then
+          failwith "Shot already happened"
+        else (
+          tile.attack <- Hit;
+          hit := true)
+      else if tile.position = shot_pos then tile.attack <- Miss)
+    arr;
+  !hit
+
+(* [return_ship occupied] returns the ship based on the ship_type
+   occupied on the block_tile *)
+let return_ship (occupied : block_occupation) =
+  match occupied with
+  | Occupied t -> (
+      match t with
+      | Cruiser -> cruiser
+      | Destroyer -> destroyer
+      | Battleship -> battleship
+      | Submarine -> submarine
+      | Carrier -> carrier)
+  | Unoccupied -> failwith "No ship"
 
 (* [modify destroyed] modifies ship's destroyed to be true when the ship
    was hit *)
