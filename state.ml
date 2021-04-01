@@ -10,6 +10,9 @@ let create_state person1 person2 =
 let get_current_player s =
   if s.current_player = 1 then s.player1 else s.player2
 
+let toggle_player s =
+  { s with current_player = (s.current_player + 1) mod 2 }
+
 let advance_state current_state input =
   assert (
     current_state.current_player = 0 || current_state.current_player = 1);

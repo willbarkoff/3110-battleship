@@ -8,3 +8,6 @@ val advance_state : t -> string -> t
 val get_current_player : t -> Person.player
 
 val place_ship : t -> Battleship.position -> Battleship.ship -> t
+
+(** [toggle_player state] toggles the player in the given state*)
+val toggle_player : t -> t
