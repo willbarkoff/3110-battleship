@@ -47,6 +47,16 @@ type ship = {
   size : int;
 }
 
+let get_ship_name ship =
+  match ship.ship_type with
+  | Battleship -> "Battleship"
+  | Cruiser -> "Cruiser"
+  | Carrier -> "Carrier"
+  | Submarine -> "Submarine"
+  | Destroyer -> "Destroyer"
+
+let get_ship_size ship = ship.size
+
 type ships = ship list
 
 let carrier =

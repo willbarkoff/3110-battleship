@@ -84,3 +84,12 @@ val get_player_board : board -> block_display array array
 (** [print_tile settings t] prints a tile [t] with the additional
     settings [settings.]*)
 val print_tile : ANSITerminal.style list -> block_display -> unit
+
+(** [print_board b] prints the board [b] *)
+val print_board : block_display array array -> unit
+
+(** [get_ship_name s] gets the name of ship [s] *)
+val get_ship_name : ship -> string
+
+(** [get_ship_size s] gets the size of ship [s] *)
+val get_ship_size : ship -> int
