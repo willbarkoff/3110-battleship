@@ -7,6 +7,9 @@ type t = {
 let create_state person1 person2 =
   { player1 = person1; player2 = person2; current_player = 0 }
 
+let get_current_player s =
+  if s.current_player = 1 then s.player1 else s.player2
+
 let advance_state current_state input =
   assert (
     current_state.current_player = 0 || current_state.current_player = 1);
@@ -35,3 +38,5 @@ let advance_state current_state input =
     current_state with
     current_player = (current_state.current_player + 1) mod 2;
   }
+
+let place_ship state pos ship = failwith "TODO"
