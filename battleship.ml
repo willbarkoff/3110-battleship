@@ -259,18 +259,12 @@ let attack
 let finished_game (ships : ships) : bool =
   List.for_all (fun ship -> ship.destroyed) ships
 
-let print_opponent_board (b : board) =
+let print_board (tile_printer : block_tile -> unit) (b : board) =
   print_string ("--" ^ String.make (Array.length b * 3) '=' ^ "-");
   Array.iteri
     (fun i row ->
       print_string ("\n" ^ String.make 1 (Char.chr (i + 65)));
-      Array.iter
-        (fun tile ->
-          match tile.attack with
-          | Hit -> print_string " H "
-          | Miss -> print_string " M "
-          | Untargeted -> print_string " • ")
-        row)
+      Array.iter tile_printer row)
     b;
   print_endline "";
   print_string "|";
@@ -281,4 +275,25 @@ let print_opponent_board (b : board) =
   done;
   print_newline ()
 
-let print_player_board board = failwith "Unimplemented"
+let print_opponent_board =
+  print_board (fun tile ->
+      match tile.attack with
+      | Hit -> ANSITerminal.print_string [ ANSITerminal.red ] " H "
+      | Miss -> ANSITerminal.print_string [ ANSITerminal.blue ] " • "
+      | Untargeted -> print_string " • ")
+
+let print_player_board =
+  print_board (fun tile ->
+      match tile.occupied with
+      | Occupied _ -> (
+          match tile.attack with
+          | Hit -> ANSITerminal.print_string [ ANSITerminal.red ] " H "
+          | Untargeted ->
+              ANSITerminal.print_string [ ANSITerminal.green ] " S "
+          | Miss -> failwith "Tile with ship missed.")
+      | Unoccupied -> (
+          match tile.attack with
+          | Untargeted -> print_endline "•"
+          | Miss ->
+              ANSITerminal.print_string [ ANSITerminal.blue ] " • "
+          | Hit -> failwith "Tile without ship hit"))
