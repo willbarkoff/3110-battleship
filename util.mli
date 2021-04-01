@@ -40,6 +40,30 @@ val explode : string -> char list
 val get_terminal_size : unit -> int * int
 
 (** [print_text_centered] is [print_lots_of_fancy_strings], but the text
-    is printed centered in the terminal.*)
+    is printed centered in the terminal.
+
+    @param preceding_newline determines if a preceding newline should be
+    printed (defaults to [false])
+    @param succeeding_newline determines if a succeeding newline should
+    be printed (defaults to [true])*)
 val print_text_centered :
-  (ANSITerminal.style list * string) list -> unit
+  ?preceding_newline:bool ->
+  ?succeeding_newline:bool ->
+  (ANSITerminal.style list * string) list ->
+  unit
+
+(** [print_hr styles] prints a horizontal line across the screen with
+    the specified styles, [styles].
+
+    @param preceding_newline determines if a preceding newline should be
+    printed (defaults to [false])
+    @param succeeding_newline determines if a succeeding newline should
+    be printed (defaults to [true])
+    @param print_char is the character that should be printed (defaults
+    to ['-'])*)
+val print_hr :
+  ?preceding_newline:bool ->
+  ?succeeding_newline:bool ->
+  ?print_char:char ->
+  ANSITerminal.style list ->
+  unit

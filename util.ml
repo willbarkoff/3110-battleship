@@ -34,7 +34,10 @@ let get_terminal_size () =
   ANSITerminal.restore_cursor ();
   pos
 
-let print_text_centered plfs_spec =
+let print_text_centered
+    ?(preceding_newline = false)
+    ?(succeeding_newline = true)
+    plfs_spec =
   let length =
     List.fold_left (fun acc (_, t) -> acc + String.length t) 0 plfs_spec
   in
@@ -42,6 +45,18 @@ let print_text_centered plfs_spec =
   let whitespace = width - length in
   let padding = whitespace / 2 in
   let padding_str = String.make padding ' ' in
+  if preceding_newline then print_newline ();
   print_string padding_str;
   plfs plfs_spec;
-  print_string padding_str
+  print_string padding_str;
+  if succeeding_newline then print_newline ()
+
+let print_hr
+    ?(preceding_newline = false)
+    ?(succeeding_newline = true)
+    ?(print_char = '-')
+    styles =
+  if preceding_newline then print_newline ();
+  ANSITerminal.print_string styles
+    (String.make (fst (get_terminal_size ())) '-');
+  if succeeding_newline then print_newline ()
