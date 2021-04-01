@@ -20,6 +20,12 @@ type direction =
   | Up
   | Down
 
+type block_display =
+  | DisplayHit
+  | DisplayMiss
+  | DisplayShip
+  | DisplaySea
+
 exception ShipCollision
 
 exception UnknownShip
@@ -265,7 +271,47 @@ let attack
 let finished_game (ships : ships) : bool =
   List.for_all (fun ship -> ship.destroyed) ships
 
-let print_board (tile_printer : block_tile -> unit) (b : board) =
+(** [map_board f b] is the equivilent of [List.map] on a board, [b]*)
+let map_board f = Array.map (Array.map f)
+
+let get_player_board =
+  map_board (fun tile ->
+      match tile.occupied with
+      | Occupied _ -> (
+          match tile.attack with
+          | Hit -> DisplayHit
+          | Untargeted -> DisplayShip
+          | Miss -> failwith "Tile with ship missed")
+      | Unoccupied -> (
+          match tile.attack with
+          | Untargeted -> DisplaySea
+          | Miss -> DisplayMiss
+          | Hit -> failwith "Tile without ship hit"))
+
+let get_opponent_board =
+  map_board (fun tile ->
+      match tile.attack with
+      | Hit -> DisplayHit
+      | Miss -> DisplayMiss
+      | Untargeted -> DisplaySea)
+
+(** [print_tile settings t] prints a tile [t] with the additional
+    settings [settings.]*)
+let print_tile settings = function
+  | DisplayHit ->
+      ANSITerminal.print_string (settings @ [ ANSITerminal.red ]) " H "
+  | DisplayMiss ->
+      ANSITerminal.print_string
+        (settings @ [ ANSITerminal.blue ])
+        " • "
+  | DisplaySea -> ANSITerminal.print_string settings " • "
+  | DisplayShip ->
+      ANSITerminal.print_string
+        (settings @ [ ANSITerminal.green ])
+        " S "
+
+(** [print_board b] prints the given board, [b]*)
+let print_board (b : block_display array array) =
   print_string ("--" ^ String.make (Array.length b * 3) '=' ^ "-");
   print_endline "";
   print_string "|";
@@ -277,29 +323,8 @@ let print_board (tile_printer : block_tile -> unit) (b : board) =
   Array.iteri
     (fun i row ->
       print_string ("\n" ^ String.make 1 (Char.chr (i + 65)));
-      Array.iter tile_printer row)
+      Array.iter (print_tile []) row)
     b;
   print_newline ()
 
-let print_opponent_board =
-  print_board (fun tile ->
-      match tile.attack with
-      | Hit -> ANSITerminal.print_string [ ANSITerminal.red ] " H "
-      | Miss -> ANSITerminal.print_string [ ANSITerminal.blue ] " • "
-      | Untargeted -> print_string " • ")
-
-let print_player_board =
-  print_board (fun tile ->
-      match tile.occupied with
-      | Occupied _ -> (
-          match tile.attack with
-          | Hit -> ANSITerminal.print_string [ ANSITerminal.red ] " H "
-          | Untargeted ->
-              ANSITerminal.print_string [ ANSITerminal.green ] " S "
-          | Miss -> failwith "Tile with ship missed.")
-      | Unoccupied -> (
-          match tile.attack with
-          | Untargeted -> print_string " • "
-          | Miss ->
-              ANSITerminal.print_string [ ANSITerminal.blue ] " • "
-          | Hit -> failwith "Tile without ship hit"))
+let print_board_with_special_tile b pos = failwith "TODO"

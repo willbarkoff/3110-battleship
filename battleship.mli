@@ -30,6 +30,13 @@ type direction =
   | Up
   | Down
 
+(** Block display specifies how a block should be displayed *)
+type block_display =
+  | DisplayHit
+  | DisplayMiss
+  | DisplayShip
+  | DisplaySea
+
 (** Defines one specific block tile *)
 type block_tile
 
@@ -68,8 +75,12 @@ val attack : ships -> position -> ship -> board -> unit
 (** Checks if the game is finished. *)
 val finished_game : ships -> bool
 
-(** Prints the opponent's board (the shots that have been hit or missed) *)
-val print_opponent_board : board -> unit
+(** [get_opponent_board b] gets the display of the opponent's board, [b]*)
+val get_opponent_board : board -> block_display array array
 
-(** Prints the player board and all its ships *)
-val print_player_board : board -> unit
+(** [get_player_board b] gets the display of the player's board, [b]*)
+val get_player_board : board -> block_display array array
+
+(** [print_tile settings t] prints a tile [t] with the additional
+    settings [settings.]*)
+val print_tile : ANSITerminal.style list -> block_display -> unit
