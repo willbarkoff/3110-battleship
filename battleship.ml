@@ -80,24 +80,23 @@ let create_ship = function
 let create_position (tple : char * int) : position = tple
 
 let board () : board =
-  let rows =
-    Array.init no_of_rows (fun ascii -> Char.chr (ascii + 65))
-  in
-  let row idx =
+  let cols = Array.init no_of_rows (fun value -> value + 1) in
+  let row letter =
+    let char_letter = Char.chr (letter + 65) in
     Array.map
-      (fun letter ->
+      (fun idx ->
         {
-          position = (letter, idx);
+          position = (char_letter, idx);
           occupied = Unoccupied;
           attack = Untargeted;
         })
-      rows
+      cols
   in
   Array.init no_of_cols row
 
 (* [check_idx idx] checks whether the second value in position is a
    valid value within the board. *)
-let check_idx (idx : int) : bool = idx >= 0 && idx < no_of_cols
+let check_idx (idx : int) : bool = idx > 0 && idx <= no_of_cols
 
 (* [check_char letter] checks whether the first value in position is a
    valid value within the board. *)
@@ -141,7 +140,14 @@ let gen_positions (pos : position) (ship : ship) =
 (* [valid_pos pos ship board] checks if the board position is valid and
    if ship can be fit inside the board. *)
 let valid_pos (pos : position) (direction : direction) (ship : ship) =
-  assert (check_char (fst pos) && check_idx (snd pos));
+  assert (
+    let char_cond = check_char (fst pos) in
+    let int_cond = check_idx (snd pos) in
+    if not char_cond then
+      print_endline "First input position is incorrect"
+    else if not int_cond then
+      print_endline "Second input position is incorrect";
+    char_cond && int_cond);
   let end_pos = List.hd (List.rev (gen_positions pos ship direction)) in
   check_char (fst end_pos) && check_idx (snd end_pos)
 
@@ -261,11 +267,6 @@ let finished_game (ships : ships) : bool =
 
 let print_board (tile_printer : block_tile -> unit) (b : board) =
   print_string ("--" ^ String.make (Array.length b * 3) '=' ^ "-");
-  Array.iteri
-    (fun i row ->
-      print_string ("\n" ^ String.make 1 (Char.chr (i + 65)));
-      Array.iter tile_printer row)
-    b;
   print_endline "";
   print_string "|";
   for i = 1 to Array.length b do
@@ -273,6 +274,11 @@ let print_board (tile_printer : block_tile -> unit) (b : board) =
     print_int i;
     print_string " "
   done;
+  Array.iteri
+    (fun i row ->
+      print_string ("\n" ^ String.make 1 (Char.chr (i + 65)));
+      Array.iter tile_printer row)
+    b;
   print_newline ()
 
 let print_opponent_board =
@@ -293,7 +299,7 @@ let print_player_board =
           | Miss -> failwith "Tile with ship missed.")
       | Unoccupied -> (
           match tile.attack with
-          | Untargeted -> print_endline "•"
+          | Untargeted -> print_string " • "
           | Miss ->
               ANSITerminal.print_string [ ANSITerminal.blue ] " • "
           | Hit -> failwith "Tile without ship hit"))
