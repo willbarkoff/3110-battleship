@@ -53,7 +53,7 @@ type board
 type ship
 
 (** The list of ships in the game. *)
-type ships = ship list
+val ships : ship list
 
 (** Creates an empty board. *)
 val board : unit -> board
@@ -70,10 +70,10 @@ val create_position : char * int -> position
 val place_ship : ship -> position -> board -> direction -> unit
 
 (** Performs an attack on the opponent. *)
-val attack : ships -> position -> ship -> board -> unit
+val attack : ship list -> position -> ship -> board -> unit
 
 (** Checks if the game is finished. *)
-val finished_game : ships -> bool
+val finished_game : ship list -> bool
 
 (** [get_opponent_board b] gets the display of the opponent's board, [b]*)
 val get_opponent_board : board -> block_display array array

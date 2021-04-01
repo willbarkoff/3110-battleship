@@ -1,6 +1,6 @@
 type player = {
   board : Battleship.board;
-  ships : Battleship.ships;
+  ships : Battleship.ship list;
 }
 
 let create_player board ships = { board; ships }
