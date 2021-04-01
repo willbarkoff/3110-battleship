@@ -45,7 +45,7 @@ type board
 type ship
 
 (** The list of ships in the game. *)
-type ships
+type ships = ship list
 
 (** Creates an empty board. *)
 val board : unit -> board
