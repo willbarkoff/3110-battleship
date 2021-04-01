@@ -7,33 +7,13 @@ let create_state person1 person2 =
   { player1 = person1; player2 = person2 }
 
 let assign_player (player_A : Person.t) (player_B : Person.t) =
+  let p_board = Person.get_board (Person.get_player player_A) in
+  let p_ships = Person.get_ships (Person.get_player player_A) in
+  let o_board = Person.get_board (Person.get_player player_B) in
+  let o_ships = Person.get_ships (Person.get_player player_B) in
   {
-    player1 =
-      {
-        player =
-          {
-            board = Person.get_board (Person.get_player player_A);
-            ships = Person.get_ships (Person.get_player player_A);
-          };
-        opponent =
-          {
-            board = Person.get_board (Person.get_player player_B);
-            ships = Person.get_ships (Person.get_player player_B);
-          };
-      };
-    player2 =
-      {
-        player =
-          {
-            board = Person.get_board (Person.get_player player_B);
-            ships = Person.get_ships (Person.get_player player_B);
-          };
-        opponent =
-          {
-            board = Person.get_board (Person.get_player player_A);
-            ships = Person.get_ships (Person.get_player player_A);
-          };
-      };
+    player1 = Person.create_player p_board p_ships o_board o_ships;
+    player2 = Person.create_player o_board o_ships p_board p_ships;
   }
 
 let advance_state current_state (player_check : int) input =
