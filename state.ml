@@ -12,26 +12,26 @@ let assign_player (player_A : Person.t) (player_B : Person.t) =
       {
         player =
           {
-            board = player_A.player.board;
-            ships = player_A.player.ships;
+            board = Person.get_board (Person.get_player player_A);
+            ships = Person.get_ships (Person.get_player player_A);
           };
         opponent =
           {
-            board = player_B.player.board;
-            ships = player_B.player.ships;
+            board = Person.get_board (Person.get_player player_B);
+            ships = Person.get_ships (Person.get_player player_B);
           };
       };
     player2 =
       {
         player =
           {
-            board = player_B.player.board;
-            ships = player_B.player.ships;
+            board = Person.get_board (Person.get_player player_B);
+            ships = Person.get_ships (Person.get_player player_B);
           };
         opponent =
           {
-            board = player_A.player.board;
-            ships = player_A.player.ships;
+            board = Person.get_board (Person.get_player player_A);
+            ships = Person.get_ships (Person.get_player player_A);
           };
       };
   }
@@ -52,11 +52,15 @@ let advance_state current_state (player_check : int) input =
     | Place (ship_string, position, direction) ->
         Battleship.place_ship
           (Battleship.create_ship ship_string)
-          position in_player.player.board direction
+          position
+          (Person.get_board (Person.get_player in_player))
+          direction
     | Attack position ->
-        Battleship.attack in_player.player.ships position
+        Battleship.attack
+          (Person.get_ships (Person.get_player in_player))
+          position
           (Battleship.create_ship "cruiser")
-          in_player.player.board
+          (Person.get_ships (Person.get_player in_player))
     | Quit -> ()
   in
   if player_check = 1 then assign_player in_player other_player

@@ -1,12 +1,14 @@
-type player = {
-  board : Battleship.board;
-  ships : Battleship.ships;
-}
+type player
 
-type t = {
-  player : player;
-  opponent : player;
-}
+type t
+
+val get_player : t -> player
+
+val get_opponent : t -> player
+
+val get_board : player -> Battleship.board
+
+val get_ships : player -> Battleship.ships
 
 type action =
   | Place of string * Battleship.position * Battleship.direction
