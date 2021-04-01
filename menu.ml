@@ -8,12 +8,15 @@ let prompt title value = { title; value }
 (** [print_prompt i prompt] is a helper function that prints the prompt
     [prompt] with index [i + 1]*)
 let print_prompt i prompt =
-  ANSITerminal.printf [ ANSITerminal.Underlined ] "%d" (i + 1);
-  ANSITerminal.print_string [] ("\t" ^ prompt.title ^ "\n")
+  Util.print_text_centered
+    [
+      ([ ANSITerminal.Underlined ], "(" ^ string_of_int (i + 1) ^ ")");
+      ([], " " ^ prompt.title);
+    ]
 
 (** [print_menu] is a helper function that prints a menu. *)
 let print_menu title prompts =
-  ANSITerminal.print_string [ ANSITerminal.Bold ] (title ^ "\n");
+  Util.print_text_centered [ ([ ANSITerminal.Bold ], title ^ "\n") ];
   List.iteri print_prompt prompts
 
 let print_fail_message () =

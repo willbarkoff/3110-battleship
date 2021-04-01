@@ -18,10 +18,10 @@ let main_menu =
 
 let print_title () =
   ANSITerminal.set_cursor 1 1;
-  ANSITerminal.print_string
-    [ ANSITerminal.Bold; ANSITerminal.blue ]
-    ~^/title;
-  ANSITerminal.print_string [] ~^/("By " ^ pretty_string_of_list authors);
+  Util.print_text_centered
+    [ ([ ANSITerminal.Bold; ANSITerminal.blue ], title) ];
+  Util.print_text_centered
+    [ ([], "By " ^ pretty_string_of_list authors) ];
   ANSITerminal.print_string [] "\n\n"
 
 let quit () =
@@ -127,6 +127,8 @@ let rec show_main_menu () =
   else begin
     ANSITerminal.erase ANSITerminal.Screen;
     print_title ();
+    Util.print_hr [];
+    print_newline ();
     match Menu.show_menu "Main menu" main_menu with
     | NewGame ->
         new_game ();
