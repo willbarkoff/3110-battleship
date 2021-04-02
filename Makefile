@@ -27,10 +27,10 @@ finalcheck:
 	@bash check.sh final
 
 zip:
-	zip battleship.zip *.ml* *.json *.sh _tags .merlin .ocamlformat .ocamlinit Makefile	
+	zip battleship.zip *.ml* *.json _tags .merlin .ocamlformat .ocamlinit Makefile	
 
 count:
-	zip battleship.zip *.ml* *.json *.sh _tags .merlin .ocamlformat .ocamlinit Makefile &>/dev/null
+	zip battleship.zip *.ml* *.json _tags .merlin .ocamlformat .ocamlinit Makefile &>/dev/null
 	cloc battleship.zip
 	
 docs: docs-public docs-private
