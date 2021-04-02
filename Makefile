@@ -5,7 +5,7 @@ MLIS=$(MODULES:=.mli)
 TEST=test.byte
 MAIN=main.byte
 OCAMLBUILD=ocamlbuild -use-ocamlfind
-ZIPFILES=*.ml* *.json _tags .merlin .ocamlformat .ocamlinit Makefile
+ZIPFILES=*.ml* *.json _tags .merlin .ocamlformat .ocamlinit *.md Makefile
 
 default: play
 
