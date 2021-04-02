@@ -1,4 +1,4 @@
-MODULES=main battleship person state util menu selectlocation
+MODULES=main battleship person state util menu selectlocation author
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
