@@ -97,6 +97,8 @@ let create_ship = function
 
 let create_position (tple : char * int) : position = tple
 
+let get_position pos = pos
+
 let board () : board =
   let cols = Array.init no_of_rows (fun value -> value + 1) in
   let row letter =

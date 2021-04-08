@@ -136,4 +136,12 @@ let rec show_main_menu () =
     | Quit -> quit ()
   end
 
-let _ = show_main_menu ()
+let _ =
+  let usage_message = "battleship [-l]" in
+  let local = ref false in
+
+  let speclist = [ ("-l", Arg.Set local, "Play locally") ] in
+
+  Arg.parse speclist (fun _ -> ()) usage_message;
+  if !local then show_main_menu ()
+  else Network.listen_and_serve 1234 (fun _ -> failwith "TODO")

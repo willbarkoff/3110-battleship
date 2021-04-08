@@ -68,6 +68,9 @@ val create_ship : string -> ship
 (** Creates a Battleship.position from an input *)
 val create_position : char * int -> position
 
+(** [get_position p] gets the [char * int] pair from the position [p]*)
+val get_position : position -> char * int
+
 (** Places the ship onto the board. Raises [ShipCollision] if the ship
     placed collides with another ship *)
 val place_ship : ship -> position -> board -> direction -> unit
