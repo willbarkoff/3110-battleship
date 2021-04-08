@@ -1,10 +1,18 @@
-#require "ounit2";;
-#require "ANSITerminal";;
-#require "tcpip";;
-#directory "_build";;
-#load "util.cmo";;
-#load "battleship.cmo";;
-#load "person.cmo";;
-#load "state.cmo";;
-#load "menu.cmo";;
-#load "selectlocation.cmo";;
+Util.plfs [
+  ([ANSITerminal.red; ANSITerminal.Underlined], "Danger! ");
+  ([], "Due to incompatibilities between utop and the Jane Street preprocesser, ");
+  ([ANSITerminal.blue], "ppx_let");
+  ([], " cannot be loaded. Unless you're writing async code (which probably \
+  isn't the best idea in utop), you can probably ignore this. Contact ");
+  ([ANSITerminal.Bold], "Will Barkoff (wb273)");
+  ([], " for more information.\n\n");
+
+  ([ANSITerminal.yellow; ANSITerminal.Underlined], "Warning! ");
+  ([], "Due to incompatibilities between the dune build system and utop, you \
+  might get an error message if you try to use the ");
+  ([ANSITerminal.Bold], "#require");
+  ([], " or ");
+  ([ANSITerminal.Bold], "#use");
+  ([], " directives. Don't worry though, everything you need should have \
+  already been loaded.\n")
+];;

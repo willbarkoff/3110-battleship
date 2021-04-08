@@ -1,0 +1,6 @@
+(library
+ (name menu)
+ (public_name battleship.menu)
+ (libraries util core async ANSITerminal ppx_let)
+ (preprocess
+  (pps ppx_let)))

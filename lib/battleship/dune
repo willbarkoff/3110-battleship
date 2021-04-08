@@ -1,0 +1,6 @@
+(library
+ (name battleship)
+ (public_name battleship.battleship)
+ (libraries core async ANSITerminal ppx_let)
+ (preprocess
+  (pps ppx_let)))

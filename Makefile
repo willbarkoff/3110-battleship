@@ -1,56 +1,39 @@
-MODULES=main battleship person state util menu selectlocation author network
-OBJECTS=$(MODULES:=.cmo)
-MLS=$(MODULES:=.ml)
-MLIS=$(MODULES:=.mli)
-TEST=test.byte
-MAIN=main.byte
-OCAMLBUILD=ocamlbuild -use-ocamlfind
-ZIPFILES=*.ml* *.json _tags .merlin .ocamlformat .ocamlinit *.md Makefile
+ZIPFILES=*/**/*.ml* .merlin .ocamlformat .ocamlinit *.md Makefile
+EXEC=./_build/default/bin/main.exe
+
 
 default: play
 
-utop: build
-	OCAMLRUNPARAM=b utop
-
 build:
-	$(OCAMLBUILD) $(OBJECTS)
+	dune build
+
+play: build
+	$(EXEC) -l
+
+serve: build
+	$(EXEC) 
 
 test:
-	$(OCAMLBUILD) -tag 'debug' $(TEST) && ./$(TEST) -runner sequential
+	OUNIT_CI=true dune runtest
 
-play:
-	$(OCAMLBUILD) -tag 'debug' $(MAIN) && OCAMLRUNPARAM=b ./$(MAIN) -l
+docs:
+	dune build @doc
 
-serve:
-	$(OCAMLBUILD) -tag 'debug' $(MAIN) && OCAMLRUNPARAM=b ./$(MAIN) 
+docs-serve:
+	cd _build/default/_doc/_html && python -m SimpleHTTPServer 5000
 
-check:
-	@bash check.sh
-	
-finalcheck:
-	@bash check.sh final
-
-zip:
-	zip battleship.zip $(ZIPFILES)	
-
-count:
-	zip battleship_cloc.zip ./* &>/dev/null
-	cloc battleship_cloc.zip
-	rm battleship_cloc.zip
-	
-docs: docs-public docs-private
-	
-docs-public: build
-	mkdir -p _doc.public
-	ocamlfind ocamldoc -I _build -package ANSITerminal\
-		-html -stars -d _doc.public $(MLIS)
-
-docs-private: build
-	mkdir -p _doc.private
-	ocamlfind ocamldoc -I _build -package ANSITerminal\
-		-html -stars -d _doc.private \
-		-inv-merge-ml-mli -m A $(MLIS) $(MLS)
+docs-private:
+	dune build @doc-private
 
 clean:
-	ocamlbuild -clean
-	rm -rf _doc.public _doc.private battleship.zip
+	rm main.byte battleship.zip || true
+	dune clean
+
+zip:
+	zip battleship.zip $(ZIPFILES)
+
+count:
+	cloc $(ZIPFILES)
+
+utop:
+	dune utop

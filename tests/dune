@@ -1,0 +1,14 @@
+(test
+ (name test)
+ (libraries
+  battleship
+  network
+  menu
+  person
+  util
+  state
+  selectlocation
+  core
+  async
+  ANSITerminal
+  ounit2))

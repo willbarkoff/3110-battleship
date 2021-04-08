@@ -1,8 +1,10 @@
 open OUnit2
-open Battleship
 
 let battleship_test =
-  [ (* TODO: add tests for the Battleship module here *) ]
+  [
+    ( "sample test" >:: fun _ ->
+      assert_equal ~printer:string_of_int 2 (1 + 1) );
+  ]
 
 let suite =
   "test suite for Battleship" >::: List.flatten [ battleship_test ]

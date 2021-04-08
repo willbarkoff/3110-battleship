@@ -58,5 +58,5 @@ let print_hr
     styles =
   if preceding_newline then print_newline ();
   ANSITerminal.print_string styles
-    (String.make (fst (get_terminal_size ())) '-');
+    (String.make (fst (get_terminal_size ())) print_char);
   if succeeding_newline then print_newline ()

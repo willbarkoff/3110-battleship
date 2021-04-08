@@ -1,0 +1,6 @@
+(library
+ (name state)
+ (public_name battleship.state)
+ (libraries person core async ANSITerminal ppx_let)
+ (preprocess
+  (pps ppx_let)))

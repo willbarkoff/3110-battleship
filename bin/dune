@@ -1,0 +1,13 @@
+(executables
+ (names main)
+ (libraries
+  battleship
+  network
+  menu
+  person
+  util
+  state
+  selectlocation
+  core
+  async
+  ANSITerminal))
