@@ -1,4 +1,4 @@
-ZIPFILES=*/**/*.ml* .merlin .ocamlformat .ocamlinit *.md Makefile
+ZIPFILES=*/**/*.ml* .ocamlformat .ocamlinit *.md Makefile
 EXEC=./_build/default/bin/main.exe
 
 
@@ -26,7 +26,7 @@ docs-private:
 	dune build @doc-private
 
 clean:
-	rm main.byte battleship.zip || true
+	rm main.byte battleship.zip .merlin || true
 	dune clean
 
 zip:
