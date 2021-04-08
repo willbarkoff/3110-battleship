@@ -4,6 +4,7 @@ EXEC=./_build/default/bin/main.exe
 RED=\033[0;31m
 GREEN=\033[0;32m
 BLUE=\033[0;34m
+YELLOW=\033[1;33m
 BOLD=\033[1m
 CLEAR=\033[0m
 
@@ -54,8 +55,7 @@ utop:
 check: build
 	@echo "\n$(GREEN)✓$(CLEAR) Your code passed $(BOLD)make build$(CLEAR), therefore, everything is working"
 
-finalcheck: build zip
-	@echo "\n$(GREEN)✓$(CLEAR) Your code passed $(BOLD)make check$(CLEAR), therefore, everything is working"
+finalcheck: build zip check
 	@echo "$(GREEN)✓$(CLEAR) Your code passed $(BOLD)make zip$(CLEAR) and is ready for submission."
 	@echo "$(GREEN)✓$(CLEAR) You spent $(BOLD)$$(${HOURS_WORKED})$(CLEAR) hours on the submission"
-	@echo "\nFriendly reminder to tag your changes before submitted: $(BOLD)git tag -v <MS> -m <short description>$(CLEAR)"
+	@echo "$(YELLOW)!$(CLEAR) Friendly reminder to tag your changes before submitted: $(BOLD)git tag -v <MS> -m <short description>$(CLEAR)"
