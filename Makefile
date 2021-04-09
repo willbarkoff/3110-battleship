@@ -57,5 +57,5 @@ check: build
 
 finalcheck: build zip check
 	@echo "$(GREEN)✓$(CLEAR) Your code passed $(BOLD)make zip$(CLEAR) and is ready for submission."
-	@echo "$(GREEN)✓$(CLEAR) You spent $(BOLD)$$(${HOURS_WORKED})$(CLEAR) hours on the submission"
+	@dune exec bin/author.exe
 	@echo "$(YELLOW)!$(CLEAR) Friendly reminder to tag your changes before submitted: $(BOLD)git tag -v <MS> -m <short description>$(CLEAR)"
