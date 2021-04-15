@@ -1,9 +1,6 @@
 (** Network holds networking related features for the battleship game. *)
 
-(** {2 Messages} *)
-
-(** [board] represents a board sent over the network.*)
-type board
+(** {1 Message} *)
 
 (** [message] represents the type of message sent to or from the server.*)
 type message =
@@ -21,7 +18,7 @@ type message =
           server of the request to join the game. If [success] is
           [true], then the game was joined successfully. Otherwise, the
           game was not joined successfully.*)
-  | Sendboard of board
+  | Sendboard of Battleship.board
       (** [Sendboard b] sends the given board, [b] to the server.*)
   | Movefirst of bool
       (** [Movefirst first] is a response from the server once both
@@ -59,7 +56,7 @@ val bytes_of_message : message -> char list
     @raise Invalid if [b] does not form a valid message *)
 val message_of_bytes : char list -> message
 
-(** {4 Paramter converters}
+(** {4 Parameter converters}
 
     These functions convert message parameters to bytes and vice versa.*)
 
@@ -78,7 +75,7 @@ val bytes_of_bool : bool -> char list
 
 (** [bytes_of_board b] returns the [char list] representation of a
     [board], [b]*)
-val bytes_of_board : board -> char list
+val bytes_of_board : Battleship.board -> char list
 
 (** [bytes_of_position p] returns the [char list] representation of a
     [position], [p]*)
@@ -102,7 +99,7 @@ val bool_of_bytes : char list -> bool
     [char list], [b].
 
     @raise Invalid if [b] cannot be represented as a [board].*)
-val board_of_bytes : char list -> board
+val board_of_bytes : char list -> Battleship.board
 
 (** [position_of_bytes b] returns the [Battleship.position]
     representation of the given [char list], [b].

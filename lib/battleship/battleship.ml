@@ -99,6 +99,12 @@ let create_position (tple : char * int) : position = tple
 
 let get_position pos = pos
 
+let get_tile_position tile = tile.position
+
+let get_tile_attack tile = tile.attack
+
+let get_tile_occupation tile = tile.occupied
+
 let board () : board =
   let cols = Array.init no_of_rows (fun value -> value + 1) in
   let row letter =

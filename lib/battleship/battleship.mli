@@ -15,13 +15,22 @@ type ship_type =
 type position
 
 (** Determines whether block has been occupied or not *)
-type block_occupation
+type block_occupation =
+  | Occupied of ship_type
+  | Unoccupied
 
 (** The type of attack *)
 type attack_type =
   | Hit
   | Miss
   | Untargeted
+
+(** Defines one specific block tile *)
+type block_tile = {
+  position : position;
+  mutable occupied : block_occupation;
+  mutable attack : attack_type;
+}
 
 (** Direction that the ship is oriented *)
 type direction =
@@ -37,9 +46,6 @@ type block_display =
   | DisplayShip
   | DisplaySea
 
-(** Defines one specific block tile *)
-type block_tile
-
 (** Raised when ship collides with another ship *)
 exception ShipCollision
 
@@ -50,7 +56,7 @@ exception UnknownShip
 exception InvalidPosition
 
 (** The abstract type of board. *)
-type board
+type board = block_tile array array
 
 (** The type of ship. *)
 type ship
@@ -70,6 +76,16 @@ val create_position : char * int -> position
 
 (** [get_position p] gets the [char * int] pair from the position [p]*)
 val get_position : position -> char * int
+
+(** [get_tile_position t] retrieves the position from the block_tile *)
+val get_tile_position : block_tile -> position
+
+(** [get_tile_attack t] retrieves the attack type from block_tile *)
+val get_tile_attack : block_tile -> attack_type
+
+(** [get_tile_occupation t] retrieves the block occupation from
+    block_tile *)
+val get_tile_occupation : block_tile -> block_occupation
 
 (** Places the ship onto the board. Raises [ShipCollision] if the ship
     placed collides with another ship *)

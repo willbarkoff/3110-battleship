@@ -1,5 +1,3 @@
-type board
-
 exception Invalid
 
 let max_param_length = 0b11111111
@@ -9,7 +7,7 @@ type message =
   | Gamecode of string
   | Join of string
   | Joined of bool
-  | Sendboard of board
+  | Sendboard of Battleship.board
   | Movefirst of bool
   | Move of Battleship.position
   | MoveResult of Battleship.position * Battleship.attack_type
@@ -25,8 +23,6 @@ let bytes_of_string = Util.explode
 (** Implementation notes: [0x01] for [true] and [0x02] for [false]*)
 let bytes_of_bool b = [ Char.chr (if b then 1 else 0) ]
 
-let bytes_of_board b = failwith "TODO"
-
 (** Implementation notes: Returns two bytes, the first byte is the ASCII
     value of the column, and the second byte is the decimal value of the
     row. *)
@@ -36,13 +32,77 @@ let bytes_of_position pos =
 
 (** Implementation notes:
 
+    - [0x00] is [Battleship.Carrier]
+    - [0x01] is [Battleship.Battleship]
+    - [0x02] is [Batteship.Cruiser]
+    - [0x03] is [Battleship.Submarine]
+    - [0x04] is [Battleship.Destroyer] *)
+let bytes_of_ship_type = function
+  | Battleship.Carrier -> [ Char.chr 0x00 ]
+  | Battleship.Battleship -> [ Char.chr 0x01 ]
+  | Battleship.Cruiser -> [ Char.chr 0x02 ]
+  | Battleship.Submarine -> [ Char.chr 0x03 ]
+  | Battleship.Destroyer -> [ Char.chr 0x04 ]
+
+(** Implementation notes:
+
     - [0x00] is [Battleship.Miss]
     - [0x01] is [Battleship.Hit]
-    - [0x02] is [Battleship.Untargeted]*)
+    - [0x02] is [Battleship.Untargeted] *)
 let bytes_of_attack_type = function
   | Battleship.Miss -> [ Char.chr 0x00 ]
   | Battleship.Hit -> [ Char.chr 0x01 ]
   | Battleship.Untargeted -> [ Char.chr 0x02 ]
+
+let byte_tile_pos tile =
+  let byte_pos =
+    bytes_of_position (Battleship.get_tile_position tile)
+  in
+  (List.nth byte_pos 0, List.nth byte_pos 1)
+
+let byte_tile_attack tile =
+  bytes_of_attack_type (Battleship.get_tile_attack tile)
+
+let byte_tile_occupation tile =
+  match Battleship.get_tile_occupation tile with
+  | Battleship.Occupied ship ->
+      let ship_chr = bytes_of_ship_type ship in
+      [ Char.chr 0x00 ] @ ship_chr
+  | Battleship.Unoccupied -> [ Char.chr 0x01 ]
+
+let rec insert_lst lst init =
+  match lst with [] -> init | h :: t -> insert_lst t (h :: init)
+
+(** Implementation notes:
+
+    - bytes_of_positions returns
+      [char position (from A - J); char index (from 1 - 10)]
+    - [0x00] is [Battleship.Miss]
+    - [0x01] is [Battleship.Hit]
+    - [0x02] is [Battleship.Untargeted]
+    - [0x00] is [Battleship.Occupied]
+    - [0x01] is [Battleship.Unoccupied]
+    - [0x00] is [Battleship.Carrier]
+    - [0x01] is [Battleship.Battleship]
+    - [0x02] is [Batteship.Cruiser]
+    - [0x03] is [Battleship.Submarine]
+    - [0x04] is [Battleship.Destroyer]
+
+    Method returns flattened board with pos, occupation, and attack type
+    (all in terms of bytes) *)
+let bytes_of_board b =
+  let board = Array.(concat (to_list b)) in
+  let chr_lst =
+    Array.fold_left
+      (fun init tile ->
+        let x, y = byte_tile_pos tile in
+        let occupation = byte_tile_occupation tile in
+        let attack = byte_tile_attack tile in
+        insert_lst attack
+          (insert_lst occupation (insert_lst [ x; y ] init)))
+      [] board
+  in
+  List.rev chr_lst
 
 let string_of_bytes c = c |> List.to_seq |> String.of_seq
 
@@ -52,7 +112,7 @@ let bool_of_bytes b =
     let byte = List.nth b 1 |> Char.code in
     if byte = 0 then false else if byte = 1 then true else raise Invalid
 
-let board_of_bytes b = failwith "TODO"
+let board_of_bytes chr_lst = failwith "TODO"
 
 let position_of_bytes b =
   if List.length b != 2 then raise Invalid
