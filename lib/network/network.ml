@@ -68,7 +68,7 @@ let byte_tile_occupation tile =
   | Battleship.Occupied ship ->
       let ship_chr = bytes_of_ship_type ship in
       [ Char.chr 0x00 ] @ ship_chr
-  | Battleship.Unoccupied -> [ Char.chr 0x01 ]
+  | Battleship.Unoccupied -> [ Char.chr 0x01; ' ' ]
 
 let rec insert_lst lst init =
   match lst with [] -> init | h :: t -> insert_lst t (h :: init)
@@ -89,7 +89,8 @@ let rec insert_lst lst init =
     - [0x04] is [Battleship.Destroyer]
 
     Method returns flattened board with pos, occupation, and attack type
-    (all in terms of bytes) *)
+    (all in terms of bytes) with ' ' to split each position and its
+    attributes *)
 let bytes_of_board b =
   let board = Array.(concat (to_list b)) in
   let chr_lst =
@@ -112,8 +113,6 @@ let bool_of_bytes b =
     let byte = List.nth b 1 |> Char.code in
     if byte = 0 then false else if byte = 1 then true else raise Invalid
 
-let board_of_bytes chr_lst = failwith "TODO"
-
 let position_of_bytes b =
   if List.length b != 2 then raise Invalid
   else
@@ -128,6 +127,61 @@ let attack_type_of_bytes b =
     else if byte = 0x01 then Battleship.Hit
     else if byte = 0x02 then Battleship.Untargeted
     else raise Invalid
+
+let ship_type_of_bytes byte =
+  match byte with
+  | 0x00 -> Battleship.Carrier
+  | 0x01 -> Battleship.Battleship
+  | 0x02 -> Battleship.Cruiser
+  | 0x03 -> Battleship.Submarine
+  | 0x04 -> Battleship.Destroyer
+  | _ -> raise Invalid
+
+let occupation_of_bytes b =
+  if List.length b != 2 then raise Invalid
+  else
+    let occupied, ship =
+      (List.nth b 0 |> Char.code, List.nth b 1 |> Char.code)
+    in
+    match (occupied, ship) with
+    | 0x00, s -> Battleship.Occupied (ship_type_of_bytes s)
+    | 0x01, _ -> Battleship.Unoccupied
+    | _ -> raise Invalid
+
+let board_of_byte_helper lst =
+  if List.length lst != 5 then raise Invalid
+  else
+    let position =
+      position_of_bytes [ List.nth lst 0; List.nth lst 1 ]
+    in
+    let occupation =
+      occupation_of_bytes [ List.nth lst 2; List.nth lst 3 ]
+    in
+    let attack = attack_type_of_bytes [ List.nth lst 4 ] in
+    Battleship.create_block_tile position attack occupation
+
+let board_of_bytes chr_lst =
+  if List.length chr_lst != 500 then raise (Failure "Length failed")
+  else
+    let b = ref [||] in
+    let arr = ref [||] in
+    for i = 0 to (List.length chr_lst / 5) - 1 do
+      let block_tile =
+        board_of_byte_helper
+          [
+            List.nth chr_lst (5 * i);
+            List.nth chr_lst ((5 * i) + 1);
+            List.nth chr_lst ((5 * i) + 2);
+            List.nth chr_lst ((5 * i) + 3);
+            List.nth chr_lst ((5 * i) + 4);
+          ]
+      in
+      arr := Array.append !arr [| block_tile |];
+      if (i + 1) mod 10 = 0 then (
+        b := Array.append !b [| !arr |];
+        arr := [||])
+    done;
+    !b
 
 (** [construct_message c params] takes the message with the given code,
     [c] and parameters, [params], and constructs a [char list] of the

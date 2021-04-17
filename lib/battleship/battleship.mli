@@ -74,6 +74,10 @@ val create_ship : string -> ship
 (** Creates a Battleship.position from an input *)
 val create_position : char * int -> position
 
+(** Creates a Battleship.block_tile from an input *)
+val create_block_tile :
+  position -> attack_type -> block_occupation -> block_tile
+
 (** [get_position p] gets the [char * int] pair from the position [p]*)
 val get_position : position -> char * int
 

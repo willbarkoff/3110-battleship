@@ -97,6 +97,9 @@ let create_ship = function
 
 let create_position (tple : char * int) : position = tple
 
+let create_block_tile position attack occupied : block_tile =
+  { position; occupied; attack }
+
 let get_position pos = pos
 
 let get_tile_position tile = tile.position
