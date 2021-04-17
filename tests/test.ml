@@ -50,7 +50,7 @@ let get_string_of_position (pos : Battleship.position) : string =
 let get_string_of_direction (direction : Battleship.direction) : string
     =
   match direction with
-  | Left -> "left"
+  | Left -> "Left"
   | Right -> "Right"
   | Up -> "Up"
   | Down -> "Down"
