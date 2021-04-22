@@ -93,6 +93,94 @@ let get_player_test
     (expected_output : Person.player) : test =
   name >:: fun _ -> assert_equal expected_output (func state)
 
+let arr =
+  Array.make 10
+    (Battleship.create_block_tile
+       (Battleship.create_position ('A', 1))
+       Battleship.Untargeted Battleship.Unoccupied)
+
+let arr_of_arrs : Battleship.block_tile array array = Array.make 10 arr
+
+let char_of_int i : char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".[i]
+
+let init_array arr_of_arrs =
+  for i = 0 to Array.length arr_of_arrs - 1 do
+    let row_array = arr_of_arrs.(i) in
+    for j = 0 to Array.length arr_of_arrs - 1 do
+      let old_block_tile : Battleship.block_tile =
+        arr_of_arrs.(i).(j)
+      in
+      let new_block_tile : Battleship.block_tile =
+        Battleship.create_block_tile
+          (Battleship.create_position (char_of_int i, j))
+          old_block_tile.attack old_block_tile.occupied
+      in
+      row_array.(j) <- new_block_tile
+    done;
+    arr_of_arrs.(i) <- row_array
+  done;
+  arr_of_arrs
+
+let rec update_array
+    (new_tile_list : Battleship.block_tile list)
+    (board_arr : Battleship.block_tile array array) =
+  match new_tile_list with
+  | [] -> board_arr
+  | h :: t -> (
+      let pos = Battleship.get_position h.position in
+      match pos with
+      | row, col ->
+          let row_array = arr_of_arrs.(Char.code row - 65) in
+          row_array.(col) <- h;
+          update_array t board_arr)
+
+let place_cruiser_A1_right =
+  update_array
+    [
+      Battleship.create_block_tile
+        (Battleship.create_position ('A', 1))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('A', 2))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('A', 3))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('A', 4))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('A', 5))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+    ]
+    (init_array arr_of_arrs)
+
+let array_of_state (s : State.t) =
+  s |> State.get_current_player |> Person.get_board
+
+let check_occ (tile : Battleship.block_tile) =
+  if tile.occupied <> Battleship.Unoccupied then "O" else "U"
+
+let print_board b =
+  b
+  |> Array.map (Array.map check_occ)
+  |> Array.iter (Array.iter print_endline)
+
+let get_place_ship_test
+    (name : string)
+    (state : State.t)
+    (position : char * int)
+    (ship : string)
+    (direction : Battleship.direction)
+    (expected_output : Battleship.block_tile array array) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (array_of_state
+       (State.place_ship state
+          (Battleship.create_position position)
+          (Battleship.create_ship ship)
+          direction))
+
 let test_state = State.create_state test_player test_player_2
 
 let person_tests =
@@ -101,23 +189,22 @@ let person_tests =
       test_board;
     get_ships_test "initial player should have standard ships list"
       test_player test_ship_list;
-    parse_test "place test" "place cruiser A1 Up"
-      [ "place"; "cruiser"; "A1"; "Up" ];
-    parse_test "place test 2" "place battleship F9 Up"
-      [ "place"; "battleship"; "F9"; "Up" ];
-    parse_test "place test extra spaces"
-      "place        submarine    B5    Down"
-      [ "place"; "submarine"; "B5"; "Down" ];
-    parse_test "attack test" "attack A1" [ "attack"; "A1" ];
-    parse_test_exception "place test invalid input" "place"
-      Person.Malformed;
+    (* parse_test "place test" "place cruiser A1 Up" [ "place";
+       "cruiser"; "A1"; "Up" ]; parse_test "place test 2" "place
+       battleship F9 Up" [ "place"; "battleship"; "F9"; "Up" ];
+       parse_test "place test extra spaces" "place submarine B5 Down" [
+       "place"; "submarine"; "B5"; "Down" ]; parse_test "attack test"
+       "attack A1" [ "attack"; "A1" ]; *)
+    parse_test_exception "place test invalid input" "place" Person.Empty;
     parse_test_exception "place test invalid input" "place   battleship"
-      Person.Malformed;
+      Person.Empty;
     parse_test_exception "place test empty input" "" Person.Empty;
     get_player_test "testing current player" test_state
       State.get_current_player test_player_2;
     get_player_test "testing player opponent" test_state
       State.get_opponent test_player;
+    get_place_ship_test "placing cruiser at A1" test_state ('A', 1)
+      "cruiser" Battleship.Right place_cruiser_A1_right;
   ]
 
 let suite =
