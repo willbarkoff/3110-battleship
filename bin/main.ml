@@ -143,5 +143,4 @@ let _ =
   let speclist = [ ("-l", Arg.Set local, "Play locally") ] in
 
   Arg.parse speclist (fun _ -> ()) usage_message;
-  if !local then show_main_menu ()
-  else Network.listen_and_serve 1234 (fun _ -> failwith "TODO")
+  if !local then show_main_menu () else Network.listen_and_serve 1234
