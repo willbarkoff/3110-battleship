@@ -227,7 +227,29 @@ let bytes_of_message = function
         [ bytes_of_position pos; bytes_of_attack_type at ]
   | Gameend win -> construct_message 0x09 [ bytes_of_bool win ]
 
-let message_of_bytes b = failwith "TODO"
+let message_of_bytes b =
+  if List.length b < 1 then raise Invalid
+  else
+    let message_code = List.hd b in
+    match Char.code message_code with
+    | 0x00 -> Error
+    | 0x01 -> GetGamecode
+    | 0x02 -> Gamecode (string_of_bytes (List.tl b))
+    | 0x03 -> Join (string_of_bytes (List.tl b))
+    | 0x04 -> Joined (bool_of_bytes (List.tl b))
+    | 0x05 -> Sendboard (board_of_bytes (List.tl b))
+    | 0x06 -> Movefirst (bool_of_bytes (List.tl b))
+    | 0x07 -> Move (position_of_bytes (List.tl b))
+    | 0x08 ->
+        let message_bytes = List.tl b in
+        let pos_byte, at_byte =
+          ( [ List.nth message_bytes 0; List.nth message_bytes 1 ],
+            [ List.nth message_bytes 2 ] )
+        in
+        MoveResult
+          (position_of_bytes pos_byte, attack_type_of_bytes at_byte)
+    | 0x09 -> Gameend (bool_of_bytes (List.tl b))
+    | _ -> raise Invalid
 
 let listen_and_serve p l =
   let open Core in
