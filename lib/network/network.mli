@@ -124,4 +124,4 @@ type listener = message -> message
 
 (** [listen_and_serve p l] is a function that listens on port [p] and
     handles messages with the [listener] [l].*)
-val listen_and_serve : int -> listener -> unit
+val listen_and_serve : int -> unit
