@@ -251,7 +251,7 @@ let message_of_bytes b =
     | 0x09 -> Gameend (bool_of_bytes (List.tl b))
     | _ -> raise Invalid
 
-let listen_and_serve p l =
+let listen_and_serve p =
   let open Core in
   let open Async in
   let run () =
