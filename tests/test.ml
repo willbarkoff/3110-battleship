@@ -103,57 +103,81 @@ let arr_of_arrs : Battleship.block_tile array array = Array.make 10 arr
 
 let char_of_int i : char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".[i]
 
-let init_array arr_of_arrs =
+let init_array =
+  let new_arr =
+    Array.make 10
+      (Array.make 10
+         (Battleship.create_block_tile
+            (Battleship.create_position ('A', 1))
+            Battleship.Untargeted Battleship.Unoccupied))
+  in
   for i = 0 to Array.length arr_of_arrs - 1 do
-    let row_array = arr_of_arrs.(i) in
+    let row_array = Array.copy arr_of_arrs.(i) in
     for j = 0 to Array.length arr_of_arrs - 1 do
-      let old_block_tile : Battleship.block_tile =
-        arr_of_arrs.(i).(j)
-      in
-      let new_block_tile : Battleship.block_tile =
+      row_array.(j) <-
         Battleship.create_block_tile
-          (Battleship.create_position (char_of_int i, j))
-          old_block_tile.attack old_block_tile.occupied
-      in
-      row_array.(j) <- new_block_tile
+          (Battleship.create_position (char_of_int i, j + 1))
+          Battleship.Untargeted Battleship.Unoccupied
     done;
-    arr_of_arrs.(i) <- row_array
+    new_arr.(i) <- Array.copy row_array
   done;
-  arr_of_arrs
+  new_arr
+
+let make_copy arr =
+  let copy =
+    Array.make 10
+      (Array.make 10
+         (Battleship.create_block_tile
+            (Battleship.create_position ('A', 1))
+            Battleship.Untargeted Battleship.Unoccupied))
+  in
+  for i = 0 to Array.length arr - 1 do
+    copy.(i) <- Array.copy arr.(i)
+  done;
+  arr
 
 let rec update_array
     (new_tile_list : Battleship.block_tile list)
-    (board_arr : Battleship.block_tile array array) =
+    (board : Battleship.block_tile array array) =
+  let board_arr = make_copy board in
   match new_tile_list with
   | [] -> board_arr
   | h :: t -> (
       let pos = Battleship.get_position h.position in
       match pos with
       | row, col ->
-          let row_array = arr_of_arrs.(Char.code row - 65) in
-          row_array.(col) <- h;
-          update_array t board_arr)
+          let b = make_copy board_arr in
+          let row_array = Array.copy board_arr.(Char.code row - 65) in
+          Printf.printf "Row index: %s\n"
+            (string_of_int (Char.code row - 65));
+          Printf.printf "column index: %s\n" (string_of_int (col - 1));
+          row_array.(col - 1) <- h;
+          b.(Char.code row - 65) <- Array.copy row_array;
+          update_array t b)
 
-let place_cruiser_A1_right =
+let place_cruiser_A1_down =
   update_array
     [
       Battleship.create_block_tile
         (Battleship.create_position ('A', 1))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+        Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
       Battleship.create_block_tile
-        (Battleship.create_position ('A', 2))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+        (Battleship.create_position ('B', 1))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
       Battleship.create_block_tile
-        (Battleship.create_position ('A', 3))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
-      Battleship.create_block_tile
-        (Battleship.create_position ('A', 4))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
-      Battleship.create_block_tile
-        (Battleship.create_position ('A', 5))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+        (Battleship.create_position ('C', 1))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
     ]
-    (init_array arr_of_arrs)
+    init_array
+
+(* let place_cruiser_A1_right = update_array [
+   Battleship.create_block_tile (Battleship.create_position ('D', 1))
+   Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
+   Battleship.create_block_tile (Battleship.create_position ('D', 2))
+   Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
+   Battleship.create_block_tile (Battleship.create_position ('D', 3))
+   Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser); ]
+   init_array *)
 
 let array_of_state (s : State.t) =
   s |> State.get_current_player |> Person.get_board
@@ -165,6 +189,10 @@ let print_board b =
   b
   |> Array.map (Array.map check_occ)
   |> Array.iter (Array.iter print_endline)
+
+let print_position (pos : Battleship.position) =
+  match Battleship.get_position pos with
+  | c, i -> Char.escaped c ^ string_of_int i
 
 let get_place_ship_test
     (name : string)
@@ -204,7 +232,9 @@ let person_tests =
     get_player_test "testing player opponent" test_state
       State.get_opponent test_player;
     get_place_ship_test "placing cruiser at A1" test_state ('A', 1)
-      "cruiser" Battleship.Right place_cruiser_A1_right;
+      "cruiser" Battleship.Down place_cruiser_A1_down;
+    (* get_place_ship_test "placing cruiser at D1" test_state ('D', 1)
+       "cruiser" Battleship.Right place_cruiser_A1_right; *)
   ]
 
 let suite =
