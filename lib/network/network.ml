@@ -14,9 +14,7 @@ type message =
   | Gameend of bool
   | Error
 
-type responder = message -> bool
-
-type listener = message -> responder -> bool
+type listener = message -> message
 
 let bytes_of_string = Util.explode
 
