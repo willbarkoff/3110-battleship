@@ -43,7 +43,7 @@ type direction =
 type block_display =
   | DisplayHit
   | DisplayMiss
-  | DisplayShip
+  | DisplayShip of ship_type
   | DisplaySea
 
 (** Raised when ship collides with another ship *)

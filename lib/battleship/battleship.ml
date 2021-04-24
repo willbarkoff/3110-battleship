@@ -23,7 +23,7 @@ type direction =
 type block_display =
   | DisplayHit
   | DisplayMiss
-  | DisplayShip
+  | DisplayShip of ship_type
   | DisplaySea
 
 exception ShipCollision
@@ -263,10 +263,10 @@ let map_board f = Array.map (Array.map f)
 let get_player_board =
   map_board (fun tile ->
       match tile.occupied with
-      | Occupied _ -> (
+      | Occupied ship_type -> (
           match tile.attack with
           | Hit -> DisplayHit
-          | Untargeted -> DisplayShip
+          | Untargeted -> DisplayShip ship_type
           | Miss -> failwith "Tile with ship missed")
       | Unoccupied -> (
           match tile.attack with
@@ -291,10 +291,18 @@ let print_tile settings = function
         (settings @ [ ANSITerminal.blue ])
         " • "
   | DisplaySea -> ANSITerminal.print_string settings " • "
-  | DisplayShip ->
+  | DisplayShip ship_type ->
+      let ship_print =
+        match ship_type with
+        | Carrier -> " C "
+        | Destroyer -> " D "
+        | Submarine -> " S "
+        | Battleship -> " B "
+        | Cruiser -> " Cr"
+      in
       ANSITerminal.print_string
         (settings @ [ ANSITerminal.green ])
-        " S "
+        ship_print
 
 (** [print_board b] prints the given board, [b]*)
 let print_board (b : block_display array array) =

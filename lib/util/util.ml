@@ -13,11 +13,9 @@ let pretty_string_of_list lst =
 let print_board_legend () =
   ANSITerminal.print_string [ ANSITerminal.red ] "H\t";
   ANSITerminal.print_string [] "Hit\t";
-  ANSITerminal.print_string [ ANSITerminal.green ] "\tS\t";
-  ANSITerminal.print_string [] "Untargeted ship\n";
   ANSITerminal.print_string [ ANSITerminal.blue ] "•\t";
-  ANSITerminal.print_string [] "Miss\t";
-  ANSITerminal.print_string [] "\t•\t";
+  ANSITerminal.print_string [] "Miss\t\n";
+  ANSITerminal.print_string [] "•\t";
   ANSITerminal.print_string [] "Untargeted square\n\n"
 
 let print_lots_of_fancy_strings =
