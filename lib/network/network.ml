@@ -14,8 +14,6 @@ type message =
   | Gameend of bool
   | Error
 
-type listener = message -> message
-
 let bytes_of_string = Util.explode
 
 (** Implementation notes: [0x01] for [true] and [0x02] for [false]*)
@@ -248,6 +246,8 @@ let message_of_bytes b =
           (position_of_bytes pos_byte, attack_type_of_bytes at_byte)
     | 0x09 -> Gameend (bool_of_bytes (List.tl b))
     | _ -> raise Invalid
+
+let listener = failwith "TODO"
 
 let listen_and_serve p =
   let open Core in

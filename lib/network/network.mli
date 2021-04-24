@@ -120,7 +120,7 @@ val attack_type_of_bytes : char list -> Battleship.attack_type
 (** a [listener] is a function that listens for messages.contents
 
     @return [true] if everything went well, [false] otherwise.*)
-type listener = message -> message
+val listener : message -> message
 
 (** [listen_and_serve p l] is a function that listens on port [p] and
     handles messages with the [listener] [l].*)
