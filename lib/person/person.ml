@@ -28,8 +28,7 @@ let rec remove_empty (lst : string list) =
 
 let location_of_string_list s =
   (* try *)
-  ( List.hd (Util.explode (List.hd s)),
-    int_of_string (List.hd (List.tl s)) )
+  (String.get (List.hd s) 0, int_of_char (String.get (List.hd s) 1))
 (* with _ -> raise Malformed *)
 
 let direction_of_string_list s =
@@ -58,6 +57,7 @@ let create_attack_command = function
 (** [parse_input input] turns the string [input] into an [action]
     corresponding to that input *)
 let parse_input input =
+  print_endline input;
   let words = String.split_on_char ' ' input in
   let no_empty = remove_empty words in
   match no_empty with
