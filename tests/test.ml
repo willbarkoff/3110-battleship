@@ -67,8 +67,8 @@ let action_to_string_list (action : Person.action) : string list =
   | Attack position -> [ "attack"; get_string_of_position position ]
   | Quit -> [ "quit" ]
 
-let rec string_list_to_string str_list =
-  match str_list with [] -> "" | h :: t -> h ^ string_list_to_string t
+let rec string_of_list lst =
+  match lst with [] -> "" | h :: t -> h ^ " " ^ string_of_list t
 
 let parse_test
     (name : string)
@@ -77,7 +77,7 @@ let parse_test
   name >:: fun _ ->
   assert_equal expected_output
     (action_to_string_list (Person.parse_input str))
-    ~printer:string_list_to_string
+    ~printer:string_of_list
 
 let parse_test_exception
     (name : string)
@@ -228,15 +228,15 @@ let person_tests =
       test_board;
     get_ships_test "initial player should have standard ships list"
       test_player test_ship_list;
-    (* parse_test "place test" "place cruiser A1 Up" [ "place";
-       "cruiser"; "A1"; "Up" ]; parse_test "place test 2" "place
-       battleship F9 Up" [ "place"; "battleship"; "F9"; "Up" ];
-       parse_test "place test extra spaces" "place submarine B5 Down" [
-       "place"; "submarine"; "B5"; "Down" ]; parse_test "attack test"
-       "attack A1" [ "attack"; "A1" ]; *)
-    parse_test_exception "place test invalid input" "place" Person.Empty;
-    parse_test_exception "place test invalid input" "place   battleship"
-      Person.Empty;
+    parse_test "place test" "place cruiser A1 Up"
+      [ "place"; "cruiser"; "A1"; "Up" ];
+    (* parse_test "place test 2" "place\n battleship F9 Up" [ "place";
+       "battleship"; "F9"; "Up" ]; parse_test "place test extra spaces"
+       "place submarine B5 Down" [ "place"; "submarine"; "B5"; "Down" ];
+       parse_test "attack test" "attack A1" [ "attack"; "A1" ]; *)
+    (* parse_test_exception "place test invalid input" "place"
+       Person.Empty; parse_test_exception "place test invalid input"
+       "place battleship" Person.Empty; *)
     parse_test_exception "place test empty input" "" Person.Empty;
     get_player_test "testing current player" test_state
       State.get_current_player test_player_2;

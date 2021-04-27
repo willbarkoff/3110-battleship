@@ -22,19 +22,19 @@ exception Malformed
 
 let rec remove_empty (lst : string list) =
   match lst with
-  | [] -> raise Empty
+  | [] -> []
   | h :: t ->
       if String.equal "" h then remove_empty t else h :: remove_empty t
 
 let location_of_string_list s =
-  try
-    ( List.hd (Util.explode (List.hd s)),
-      int_of_string (List.hd (List.tl s)) )
-  with _ -> raise Malformed
+  (* try *)
+  ( List.hd (Util.explode (List.hd s)),
+    int_of_string (List.hd (List.tl s)) )
+(* with _ -> raise Malformed *)
 
 let direction_of_string_list s =
   try
-    match List.hd (List.tl (List.tl s)) with
+    match List.hd (List.tl s) with
     | "Left" -> Battleship.Left
     | "Right" -> Battleship.Right
     | "Down" -> Battleship.Down
