@@ -1,7 +1,9 @@
 let rec read_pos () =
   try
     Util.plfs [ ([ ANSITerminal.green ], "Row (A-J)> ") ];
-    let row = read_line () |> Util.explode |> List.hd in
+    let row =
+      read_line () |> Util.explode |> List.hd |> Char.uppercase_ascii
+    in
     Util.plfs [ ([ ANSITerminal.green ], "Column (1-10)> ") ];
     let col = read_int () in
     Battleship.create_position (row, col)
@@ -12,7 +14,9 @@ let rec read_pos () =
 let rec read_orientation () =
   try
     Util.plfs [ ([ ANSITerminal.green ], "Orientation (L,R,U,D)> ") ];
-    let orientation = read_line () |> Util.explode |> List.hd in
+    let orientation =
+      read_line () |> Util.explode |> List.hd |> Char.uppercase_ascii
+    in
     if orientation = 'L' then Battleship.Left
     else if orientation = 'R' then Battleship.Right
     else if orientation = 'U' then Battleship.Up
@@ -36,6 +40,10 @@ let rec place (state : State.t) (ship : Battleship.ship) =
       ( [ ANSITerminal.Underlined ],
         ship |> Battleship.get_ship_size |> string_of_int );
       ([], ".\n");
+      ( [],
+        "The orientation denotes which direction the ship is placed \
+         from the starting position." );
+      ([], "\n");
     ];
   try
     let pos = read_pos () in
