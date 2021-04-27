@@ -168,18 +168,10 @@ let place_cruiser_A1_down =
         (Battleship.create_position ('C', 1))
         Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
     ]
-    init_array
-
-(* let place_cruiser_A1_right = update_array [
-   Battleship.create_block_tile (Battleship.create_position ('D', 1))
-   Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
-   Battleship.create_block_tile (Battleship.create_position ('D', 2))
-   Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
-   Battleship.create_block_tile (Battleship.create_position ('D', 3))
-   Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser); ]
-   init_array *)
+    (make_copy init_array)
 
 let array_of_state (s : State.t) =
+  Printf.printf "%s\n" "array of state:";
   s |> State.get_current_player |> Person.get_board
 
 let check_occ (tile : Battleship.block_tile) =
@@ -194,7 +186,26 @@ let print_position (pos : Battleship.position) =
   match Battleship.get_position pos with
   | c, i -> Char.escaped c ^ string_of_int i
 
-let get_place_ship_test
+let get_place_ship_test2
+    (name : string)
+    (state : State.t)
+    (position : char * int)
+    (ship : string)
+    (direction : Battleship.direction)
+    (expected_output : Battleship.block_tile array array) : test =
+  name >:: fun _ ->
+  assert_equal
+    (Battleship.print_board
+       (Battleship.get_player_board
+          (array_of_state
+             (State.place_ship state
+                (Battleship.create_position position)
+                (Battleship.create_ship ship)
+                direction))))
+    (Battleship.print_board
+       (Battleship.get_player_board expected_output))
+
+let get_place_ship_test1
     (name : string)
     (state : State.t)
     (position : char * int)
@@ -231,10 +242,10 @@ let person_tests =
       State.get_current_player test_player_2;
     get_player_test "testing player opponent" test_state
       State.get_opponent test_player;
-    get_place_ship_test "placing cruiser at A1" test_state ('A', 1)
+    get_place_ship_test2 "placing cruiser at A1" test_state ('A', 1)
       "cruiser" Battleship.Down place_cruiser_A1_down;
-    (* get_place_ship_test "placing cruiser at D1" test_state ('D', 1)
-       "cruiser" Battleship.Right place_cruiser_A1_right; *)
+    (* get_place_ship_test2 "placing carrier at D1" test_state ('D', 1)
+       "carrier" Battleship.Right place_carrier_D1_right; *)
   ]
 
 let suite =
@@ -242,3 +253,24 @@ let suite =
   >::: List.flatten [ battleship_test; person_tests ]
 
 let _ = run_test_tt_main suite
+
+let place_carrier_D1_right =
+  update_array
+    [
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 1))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 2))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 3))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 4))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 5))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+    ]
+    (make_copy place_cruiser_A1_down)
