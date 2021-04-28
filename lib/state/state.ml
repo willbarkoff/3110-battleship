@@ -10,6 +10,8 @@ let create_state person1 person2 =
 let get_current_player s =
   if s.current_player = 1 then s.player1 else s.player2
 
+let get_current_player_number s = s.current_player + 1
+
 let get_opponent s =
   if s.current_player = 0 then s.player1 else s.player2
 

@@ -41,80 +41,6 @@ type message =
       (** [Error] is a message from the server that means that something
           went wrong.*)
 
-(** {3 Converters}
-
-    Messages must be in the format of [bytes]. Therefore, we need to be
-    able to convert every [message] to [bytes] and [bytes] to
-    [message]s. Note that *)
-
-(** [message_of_bytes m] converts the given message, [m], into [bytes]. *)
-val bytes_of_message : message -> char list
-
-(** [message_of_bytes b] converts the given bytes, [b], into a
-    [message].
-
-    @raise Invalid if [b] does not form a valid message *)
-val message_of_bytes : char list -> message
-
-(** {4 Parameter converters}
-
-    These functions convert message parameters to bytes and vice versa.*)
-
-(** [max_param_length] represents the maximum parameter length. *)
-val max_param_length : int
-
-(** [bytes_of_string s] returns the [bytes] representation of a
-    [string], [s].
-
-    @raise Invalid if [String.length s >= max_param_length]*)
-val bytes_of_string : string -> char list
-
-(** [bytes_of_bool b] returns the [char list] representation a [bool],
-    [b].*)
-val bytes_of_bool : bool -> char list
-
-(** [bytes_of_board b] returns the [char list] representation of a
-    [board], [b]*)
-val bytes_of_board : Battleship.board -> char list
-
-(** [bytes_of_position p] returns the [char list] representation of a
-    [position], [p]*)
-val bytes_of_position : Battleship.position -> char list
-
-(** [bytes_of_attack_type a] returns the [char list] representation of
-    an [attack_type], [a]*)
-val bytes_of_attack_type : Battleship.attack_type -> char list
-
-(** [string_of_bytes s] returns the [string] representation of the given
-    [char list], [b]*)
-val string_of_bytes : char list -> string
-
-(** [bool_of_bytes b] returns the [bool] representation of the given
-    [char list], b.
-
-    @raise Invalid if [b] cannot be represented as a [bool].*)
-val bool_of_bytes : char list -> bool
-
-(** [board_of_bytes b] returns the [board] representation of the given
-    [char list], [b].
-
-    @raise Invalid if [b] cannot be represented as a [board].*)
-val board_of_bytes : char list -> Battleship.board
-
-(** [position_of_bytes b] returns the [Battleship.position]
-    representation of the given [char list], [b].
-
-    @raise Invalid if [b] cannot be represented as a
-    [Battleship.position].*)
-val position_of_bytes : char list -> Battleship.position
-
-(** [attack_type_of_bytes b] returns the [Battleship.attack_type]
-    representation of the given [char list], [b].
-
-    @raise Invalid if [b] cannot be represented as a
-    [Battleship.attack_type].*)
-val attack_type_of_bytes : char list -> Battleship.attack_type
-
 (** {1 Listener} *)
 
 (** A [recipient] is someone who should receive a message, either the
@@ -144,3 +70,7 @@ val listener : State.t -> message -> State.t * broadcast list
 (** [listen_and_serve p l] is a function that listens on port [p] and
     handles messages with the [listener] [l].*)
 val listen_and_serve : int -> unit
+
+(** [network_debug p] provides a REPL for testing the network
+    interfaces. It tests them on port [p]. *)
+val network_debug : int -> unit
