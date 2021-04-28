@@ -57,22 +57,26 @@ let message b = b.message
 
 type game = {
   state : State.t;
-  player1Writer : Async.Writer.t;
-  player2Writer : Async.Writer.t;
+  player1OutChannel : out_channel;
+  player2OutChannel : out_channel;
 }
+
+let new_game p1 =
+  {
+    state =
+      State.create_state
+        (Person.create_player (Battleship.board ()) [])
+        (Person.create_player (Battleship.board ()) []);
+    player1OutChannel = p1;
+    player2OutChannel =
+      p1
+      (* We just set player2 out channel to be player 1's temporarily.
+         We cahnge this in join_game*);
+  }
 
 let games = Hashtbl.create expected_load
 
-let players = Hashtbl.create (expected_load * 2)
-
-let players_game_id p : string =
-  p |> Async.Socket.Address.Inet.to_string |> Hashtbl.find players
-
-let players_game p : game = p |> players_game_id |> Hashtbl.find games
-
-let players_state p = (players_game p).state
-
-let read_wait_time = Core.Time.Span.of_sec 0.1
+let get_game = Hashtbl.find games
 
 (* let send_broadcasts addr = List.iter (function | { recipient =
    Sender; message } -> failwith "TODO" | { recipient = Opponent;
@@ -90,7 +94,7 @@ let write_message chan (msg : message) =
   Marshal.to_channel chan msg [];
   flush chan
 
-let handler (input : in_channel) (output : out_channel) =
+let handler_acc gc input output =
   try
     let msg = input |> read_message in
     print_message msg
@@ -101,7 +105,55 @@ let handler (input : in_channel) (output : out_channel) =
   | Failure _ -> write_message output Error
   | Invalid -> write_message output Error
 
+let rec create_gamecode (p1 : out_channel) : string =
+  let new_gamecode =
+    String.init 8 (fun _ -> Char.chr (Random.int 26 + 97))
+  in
+  if Hashtbl.mem games new_gamecode then
+    (* uh oh... a collision! *)
+    create_gamecode p1
+  else begin
+    Hashtbl.add games new_gamecode (new_game p1);
+    new_gamecode
+  end
+
+let join_gamecode (p2 : out_channel) (gc : string) : bool =
+  try
+    let game = get_game gc in
+    if game.player1OutChannel != game.player2OutChannel then false
+    else
+      let new_game = { game with player2OutChannel = p2 } in
+      Hashtbl.remove games gc;
+      Hashtbl.add games gc new_game;
+      true
+  with _ -> false
+
+let handler (input : in_channel) (output : out_channel) =
+  try
+    match input |> read_message with
+    | GetGamecode ->
+        let gamecode = output |> create_gamecode in
+        let response = Gamecode gamecode in
+        response |> write_message output;
+        handler_acc gamecode input output
+    | Join gc ->
+        if join_gamecode output gc then begin
+          Joined true |> write_message output;
+          handler_acc gc input output
+        end
+        else (* the game doesn't exist :( *)
+          write_message output Error
+    | _ -> write_message output Error
+    (* You need to join a game first, silly! *)
+  with
+  | End_of_file ->
+      write_message output Error
+      (* TODO: maybe log an error too? the client likely disconnected *)
+  | Failure _ -> write_message output Error
+  | Invalid -> write_message output Error
+
 let listen_and_serve p =
+  Random.self_init ();
   let addr = Unix.inet_addr_loopback in
   let inet_addr = Unix.ADDR_INET (addr, p) in
   ANSITerminal.erase ANSITerminal.Screen;
