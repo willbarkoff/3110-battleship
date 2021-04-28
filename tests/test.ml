@@ -148,9 +148,9 @@ let rec update_array
       | row, col ->
           let b = make_copy board_arr in
           let row_array = Array.copy board_arr.(Char.code row - 65) in
-          Printf.printf "Row index: %s\n"
-            (string_of_int (Char.code row - 65));
-          Printf.printf "column index: %s\n" (string_of_int (col - 1));
+          (* Printf.printf "Row index: %s\n" (string_of_int (Char.code
+             row - 65)); Printf.printf "column index: %s\n"
+             (string_of_int (col - 1)); *)
           row_array.(col - 1) <- h;
           b.(Char.code row - 65) <- Array.copy row_array;
           update_array t b)
@@ -191,6 +191,28 @@ let place_carrier_D1_right () =
     ]
     (make_copy (place_cruiser_A1_down ()))
 
+let place_battleship_E5_right () =
+  update_array
+    [
+      Battleship.create_block_tile
+        (Battleship.create_position ('E', 5))
+        Battleship.Untargeted
+        (Battleship.Occupied Battleship.Battleship);
+      Battleship.create_block_tile
+        (Battleship.create_position ('E', 6))
+        Battleship.Untargeted
+        (Battleship.Occupied Battleship.Battleship);
+      Battleship.create_block_tile
+        (Battleship.create_position ('E', 7))
+        Battleship.Untargeted
+        (Battleship.Occupied Battleship.Battleship);
+      Battleship.create_block_tile
+        (Battleship.create_position ('E', 8))
+        Battleship.Untargeted
+        (Battleship.Occupied Battleship.Battleship);
+    ]
+    (make_copy (place_carrier_D1_right ()))
+
 let array_of_state (s : State.t) =
   Printf.printf "%s\n" "array of state:";
   s |> State.get_current_player |> Person.get_board
@@ -207,7 +229,7 @@ let print_position (pos : Battleship.position) =
   match Battleship.get_position pos with
   | c, i -> Char.escaped c ^ string_of_int i
 
-let get_place_ship_test2
+let place_ship_test2
     (name : string)
     (state : State.t)
     (position : char * int)
@@ -226,7 +248,7 @@ let get_place_ship_test2
     (Battleship.print_board
        (Battleship.get_player_board expected_output))
 
-let get_place_ship_test1
+let place_ship_test1
     (name : string)
     (state : State.t)
     (position : char * int)
@@ -247,15 +269,59 @@ let make_copy_state s =
   let p1 = State.get_current_player s in
   let p2 = State.get_opponent s in
   State.create_state
-    (Person.create_player (Person.get_board p1) (Person.get_ships p1))
-    (Person.create_player (Person.get_board p2) (Person.get_ships p2))
+    (Person.create_player
+       (make_copy (Person.get_board p1))
+       test_ship_list)
+    (Person.create_player
+       (make_copy (Person.get_board p2))
+       test_ship_list)
 
-let state_2 =
+let state_1 () = make_copy_state test_state
+
+let state_2 () =
   State.place_ship
-    (make_copy_state test_state)
+    (make_copy_state (state_1 ()))
     (Battleship.create_position ('A', 1))
     (Battleship.create_ship "cruiser")
     Battleship.Down
+
+let state_3 () =
+  State.place_ship
+    (make_copy_state
+       (State.place_ship
+          (make_copy_state (state_1 ()))
+          (Battleship.create_position ('A', 1))
+          (Battleship.create_ship "cruiser")
+          Battleship.Down))
+    (Battleship.create_position ('D', 1))
+    (Battleship.create_ship "carrier")
+    Battleship.Right
+
+let state_list =
+  [
+    (('A', 1), "cruiser", Battleship.Down);
+    (('D', 1), "carrier", Battleship.Right);
+    (('E', 5), "battleship", Battleship.Right);
+  ]
+
+let rec create_state count max list state =
+  match list with
+  | [] -> state
+  | h :: t -> (
+      if count > max then state
+      else
+        match h with
+        | a, b, c ->
+            create_state (count + 1) max t
+              (State.place_ship state
+                 (Battleship.create_position a)
+                 (Battleship.create_ship b)
+                 c))
+
+let base_state () =
+  State.create_state
+    (Person.create_player (Battleship.board ()) test_ship_list)
+    (Person.create_player (Battleship.board ()) test_ship_list)
 
 let person_tests =
   [
@@ -264,11 +330,11 @@ let person_tests =
     get_ships_test "initial player should have standard ships list"
       test_player test_ship_list;
     (* parse_test "place test" "place cruiser A1 Up" [ "place";
-       "cruiser"; "A1"; "Up" ]; *)
-    (* parse_test "place test 2" "place\n battleship F9 Up" [ "place";
-       "battleship"; "F9"; "Up" ]; parse_test "place test extra spaces"
-       "place submarine B5 Down" [ "place"; "submarine"; "B5"; "Down" ];
-       parse_test "attack test" "attack A1" [ "attack"; "A1" ]; *)
+       "cruiser"; "A1"; "Up" ]; parse_test "place test 2" "place
+       battleship F9 Up" [ "place"; "battleship"; "F9"; "Up" ]; *)
+    (* parse_test "place test extra spaces" "place submarine B5 Down" [
+       "place"; "submarine"; "B5"; "Down" ]; parse_test "attack test"
+       "attack A1" [ "attack"; "A1" ]; *)
     (* parse_test_exception "place test invalid input" "place"
        Person.Empty; parse_test_exception "place test invalid input"
        "place battleship" Person.Empty; *)
@@ -277,12 +343,18 @@ let person_tests =
       State.get_current_player test_player_2;
     get_player_test "testing player opponent" test_state
       State.get_opponent test_player;
-    get_place_ship_test1 "placing cruiser at A1" test_state ('A', 1)
-      "cruiser" Battleship.Down
+    place_ship_test1 "placing cruiser at A1"
+      (create_state 1 0 state_list (base_state ()))
+      ('A', 1) "cruiser" Battleship.Down
       (place_cruiser_A1_down ());
-    get_place_ship_test1 "placing carrier at D1" state_2 ('D', 1)
-      "carrier" Battleship.Right
+    place_ship_test1 "placing carrier at D1"
+      (create_state 1 1 state_list (base_state ()))
+      ('D', 1) "carrier" Battleship.Right
       (place_carrier_D1_right ());
+    place_ship_test1 "placing battleship at E5"
+      (create_state 1 2 state_list (base_state ()))
+      ('E', 5) "battleship" Battleship.Right
+      (place_battleship_E5_right ());
   ]
 
 let suite =

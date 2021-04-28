@@ -28,7 +28,8 @@ let rec remove_empty (lst : string list) =
 
 let location_of_string_list s =
   (* try *)
-  (String.get (List.hd s) 0, int_of_char (String.get (List.hd s) 1))
+  ((List.hd s).[0], int_of_string (Char.escaped (List.hd s).[1]))
+
 (* with _ -> raise Malformed *)
 
 let direction_of_string_list s =
