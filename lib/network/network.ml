@@ -95,7 +95,9 @@ let handler (input : in_channel) (output : out_channel) =
     let msg = input |> read_message in
     print_message msg
   with
-  | End_of_file -> failwith "Disconnected."
+  | End_of_file ->
+      write_message output Error
+      (* TODO: maybe log an error too? the client likely disconnected *)
   | Failure _ -> write_message output Error
   | Invalid -> write_message output Error
 
