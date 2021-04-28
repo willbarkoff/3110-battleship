@@ -35,6 +35,10 @@ val plfs : (ANSITerminal.style list * string) list -> unit
     https://stackoverflow.com/questions/10068713/string-to-list-of-char *)
 val explode : string -> char list
 
+(** [implode lst] takes the list of characters [lst] and returns it as a
+    string. *)
+val implode : char list -> string
+
 (** [get_terminal_size ()] returns the size of the current terminal,
     assuming it is a tty.*)
 val get_terminal_size : unit -> int * int

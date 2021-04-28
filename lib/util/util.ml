@@ -25,6 +25,9 @@ let plfs = print_lots_of_fancy_strings
 
 let explode s = List.init (String.length s) (String.get s)
 
+let implode lst =
+  String.init (List.length lst - 1) (fun i -> List.nth lst i)
+
 let get_terminal_size () =
   ANSITerminal.save_cursor ();
   ANSITerminal.set_cursor 999999 999999;
