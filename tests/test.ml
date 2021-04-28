@@ -103,7 +103,7 @@ let arr_of_arrs : Battleship.block_tile array array = Array.make 10 arr
 
 let char_of_int i : char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".[i]
 
-let init_array =
+let init_array () =
   let new_arr =
     Array.make 10
       (Array.make 10
@@ -155,7 +155,7 @@ let rec update_array
           b.(Char.code row - 65) <- Array.copy row_array;
           update_array t b)
 
-let place_cruiser_A1_down =
+let place_cruiser_A1_down () =
   update_array
     [
       Battleship.create_block_tile
@@ -168,7 +168,28 @@ let place_cruiser_A1_down =
         (Battleship.create_position ('C', 1))
         Battleship.Untargeted (Battleship.Occupied Battleship.Cruiser);
     ]
-    (make_copy init_array)
+    (make_copy (init_array ()))
+
+let place_carrier_D1_right () =
+  update_array
+    [
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 1))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 2))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 3))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 4))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+      Battleship.create_block_tile
+        (Battleship.create_position ('D', 5))
+        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
+    ]
+    (make_copy (place_cruiser_A1_down ()))
 
 let array_of_state (s : State.t) =
   Printf.printf "%s\n" "array of state:";
@@ -222,14 +243,28 @@ let get_place_ship_test1
 
 let test_state = State.create_state test_player test_player_2
 
+let make_copy_state s =
+  let p1 = State.get_current_player s in
+  let p2 = State.get_opponent s in
+  State.create_state
+    (Person.create_player (Person.get_board p1) (Person.get_ships p1))
+    (Person.create_player (Person.get_board p2) (Person.get_ships p2))
+
+let state_2 =
+  State.place_ship
+    (make_copy_state test_state)
+    (Battleship.create_position ('A', 1))
+    (Battleship.create_ship "cruiser")
+    Battleship.Down
+
 let person_tests =
   [
     get_board_test "initial player should have empty board" test_player
       test_board;
     get_ships_test "initial player should have standard ships list"
       test_player test_ship_list;
-    parse_test "place test" "place cruiser A1 Up"
-      [ "place"; "cruiser"; "A1"; "Up" ];
+    (* parse_test "place test" "place cruiser A1 Up" [ "place";
+       "cruiser"; "A1"; "Up" ]; *)
     (* parse_test "place test 2" "place\n battleship F9 Up" [ "place";
        "battleship"; "F9"; "Up" ]; parse_test "place test extra spaces"
        "place submarine B5 Down" [ "place"; "submarine"; "B5"; "Down" ];
@@ -242,10 +277,12 @@ let person_tests =
       State.get_current_player test_player_2;
     get_player_test "testing player opponent" test_state
       State.get_opponent test_player;
-    get_place_ship_test2 "placing cruiser at A1" test_state ('A', 1)
-      "cruiser" Battleship.Down place_cruiser_A1_down;
-    (* get_place_ship_test2 "placing carrier at D1" test_state ('D', 1)
-       "carrier" Battleship.Right place_carrier_D1_right; *)
+    get_place_ship_test1 "placing cruiser at A1" test_state ('A', 1)
+      "cruiser" Battleship.Down
+      (place_cruiser_A1_down ());
+    get_place_ship_test1 "placing carrier at D1" state_2 ('D', 1)
+      "carrier" Battleship.Right
+      (place_carrier_D1_right ());
   ]
 
 let suite =
@@ -253,24 +290,3 @@ let suite =
   >::: List.flatten [ battleship_test; person_tests ]
 
 let _ = run_test_tt_main suite
-
-let place_carrier_D1_right =
-  update_array
-    [
-      Battleship.create_block_tile
-        (Battleship.create_position ('D', 1))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
-      Battleship.create_block_tile
-        (Battleship.create_position ('D', 2))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
-      Battleship.create_block_tile
-        (Battleship.create_position ('D', 3))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
-      Battleship.create_block_tile
-        (Battleship.create_position ('D', 4))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
-      Battleship.create_block_tile
-        (Battleship.create_position ('D', 5))
-        Battleship.Untargeted (Battleship.Occupied Battleship.Carrier);
-    ]
-    (make_copy place_cruiser_A1_down)
