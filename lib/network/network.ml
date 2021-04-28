@@ -1,5 +1,7 @@
 exception Invalid
 
+let expected_load = 5
+
 let max_param_length = 0b11111111
 
 type message =
@@ -247,7 +249,57 @@ let message_of_bytes b =
     | 0x09 -> Gameend (bool_of_bytes (List.tl b))
     | _ -> raise Invalid
 
-let listener = failwith "TODO"
+type recipient =
+  | Sender
+  | Opponent
+
+type broadcast = {
+  recipient : recipient;
+  message : message;
+}
+
+let recipient b = b.recipient
+
+let message b = b.message
+
+type game = {
+  state : State.t;
+  player1Writer : Async.Writer.t;
+  player2Writer : Async.Writer.t;
+}
+
+let games = Hashtbl.create expected_load
+
+let players = Hashtbl.create (expected_load * 2)
+
+let players_game_id p : string =
+  p |> Async.Socket.Address.Inet.to_string |> Hashtbl.find players
+
+let players_game p : game = p |> players_game_id |> Hashtbl.find games
+
+let players_state p = (players_game p).state
+
+let listener s m : State.t * broadcast list = failwith "TODO"
+
+let read_wait_time = Core.Time.Span.of_sec 0.1
+
+let send_broadcasts addr =
+  List.iter (function
+    | { recipient = Sender; message } -> failwith "TODO"
+    | { recipient = Opponent; message } -> failwith "TODO")
+
+let update_state new_state id = failwith "TODO"
+
+let parser (_addr : Async.Socket.Address.Inet.t) r w =
+  let open Async in
+  Reader.read_line r >>| function
+  | `Eof -> failwith "Connection terminated"
+  | `Ok str ->
+      let updated_state, broadcasts =
+        str |> Util.explode |> message_of_bytes
+        |> listener (players_state _addr)
+      in
+      failwith "TODO"
 
 let listen_and_serve p =
   let open Core in
@@ -255,10 +307,19 @@ let listen_and_serve p =
   let run () =
     let%bind server =
       Tcp.Server.create ~on_handler_error:`Raise
-        (Tcp.Where_to_listen.of_port p) (fun _addr r w ->
-          Pipe.transfer ~f:Fn.id (Reader.pipe r) (Writer.pipe w))
+        (Tcp.Where_to_listen.of_port p)
+        parser
     in
     Tcp.Server.close_finished server
   in
+  (* TODO: for some reason unbeknowest to me, this only prints when
+     Command.run terminates; however, this is synchronous, so
+     command.run hould happen well after this terminates? *)
+  Util.plfs
+    [
+      ([], "Serving at ");
+      ( [ ANSITerminal.blue; ANSITerminal.Underlined ],
+        "::" ^ string_of_int p );
+    ];
   Command.async ~summary:"Battleship server" (Command.Param.return run)
   |> Command.run

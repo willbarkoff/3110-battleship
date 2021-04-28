@@ -1,6 +1,6 @@
 (library
  (name network)
  (public_name battleship.network)
- (libraries util battleship core async ANSITerminal ppx_let)
+ (libraries util battleship state core async ANSITerminal ppx_let)
  (preprocess
   (pps ppx_let)))

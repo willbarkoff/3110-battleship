@@ -117,10 +117,29 @@ val attack_type_of_bytes : char list -> Battleship.attack_type
 
 (** {1 Listener} *)
 
-(** a [listener] is a function that listens for messages.contents
+(** A [recipient] is someone who should receive a message, either the
+    [Sender], or the person who the [Sender] is playing against, the
+    [Opponent].*)
+type recipient =
+  | Sender
+  | Opponent
 
-    @return [true] if everything went well, [false] otherwise.*)
-val listener : message -> message
+(** A [broadcast] designates a recipient and a message.*)
+type broadcast
+
+(** [recipient b] gets the recipient from the broadcast, [b] *)
+val recipient : broadcast -> recipient
+
+(** [message b] gets the message from the broadcast, [b] *)
+val message : broadcast -> message
+
+(** a [listener] is a function that listens for messages, manages state,
+    and determines how to respond to them, and updates the state
+    accordingly.
+
+    @return [s * b] where [s] is the updated game state, and [b] is a
+    list of broadcasts to send. *)
+val listener : State.t -> message -> State.t * broadcast list
 
 (** [listen_and_serve p l] is a function that listens on port [p] and
     handles messages with the [listener] [l].*)

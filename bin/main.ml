@@ -136,6 +136,8 @@ let rec show_main_menu () =
     | Quit -> quit ()
   end
 
+let network_port = 1234
+
 let _ =
   let usage_message = "battleship [-l]" in
   let local = ref false in
@@ -144,4 +146,4 @@ let _ =
 
   Arg.parse speclist (fun _ -> ()) usage_message;
   if !local then show_main_menu ()
-  else Network.listen_and_serve 1234
+  else Network.listen_and_serve network_port
