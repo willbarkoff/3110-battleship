@@ -67,3 +67,12 @@ val print_hr :
   ?print_char:char ->
   ANSITerminal.style list ->
   unit
+
+(** [load_and_play_audio file time] reads, loads, and plays a .wav file
+
+    @param file determines the location of the .wav file to play. We can
+    assume that the audio file locations will not change + the audio
+    files are not corrupt because we have provided them, so there will
+    not be a need to raise errors.
+    @param time determines how long to play [file] for *)
+val load_and_play_audio : string -> int -> unit

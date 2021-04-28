@@ -1,3 +1,5 @@
+open Sdl
+
 let pretty_string_of_list lst =
   let rec pretty_string_asst acc oxford_comma = function
     | [] -> acc
@@ -58,3 +60,20 @@ let print_hr
   ANSITerminal.print_string styles
     (String.make (fst (get_terminal_size ())) print_char);
   if succeeding_newline then print_newline ()
+
+let load_and_play_audio file time =
+  (* Initialize a particular audio driver *)
+  Sdl.init [ `AUDIO ];
+  let wav_spec = Audio.new_audio_spec () in
+  let wav_buffer, wav_len =
+    Audio.load_wav ~filename:file ~spec:wav_spec
+  in
+  let device = Audio.open_audio_device_simple wav_spec in
+  Audio.queue_audio device wav_buffer wav_len;
+  Audio.unpause_audio_device device;
+  Timer.delay ~ms:time;
+  Audio.close_audio_device device;
+  Audio.free_audio_spec wav_spec;
+  Audio.free_wav wav_buffer;
+
+  Sdl.quit ()

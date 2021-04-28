@@ -1,3 +1,5 @@
+open Util
+
 type ship_type =
   | Carrier
   | Battleship
@@ -237,8 +239,11 @@ let attack pos (board : board) =
     print_endline (string_of_int row);
     print_endline (string_of_int col);
     match board.(row).(col).occupied with
-    | Occupied _ -> board.(row).(col).attack <- Hit
+    | Occupied _ ->
+        load_and_play_audio "./audio_files/attack.wav" 4000;
+        board.(row).(col).attack <- Hit
     | Unoccupied ->
+        load_and_play_audio "./audio_files/miss.wav" 4000;
         board.(row).(col).attack <- Miss;
         ()
   with _ -> raise InvalidPosition
