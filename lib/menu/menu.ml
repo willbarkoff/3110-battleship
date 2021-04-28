@@ -34,3 +34,22 @@ let rec show_menu title prompts =
   show_menu_failure title prompts (fun _ ->
       print_fail_message ();
       show_menu title prompts)
+
+let ask question =
+  ANSITerminal.print_string [ ANSITerminal.green ]
+    ("\n " ^ question ^ "> ");
+  read_line ()
+
+let ask_int question =
+  ANSITerminal.print_string [ ANSITerminal.green ]
+    ("\n " ^ question ^ "> ");
+  read_int ()
+
+let ask_char question =
+  ANSITerminal.print_string [ ANSITerminal.green ]
+    ("\n " ^ question ^ "> ");
+  read_line () |> Util.explode |> List.hd
+
+let ask_bool question =
+  let answer = ask question in
+  answer = "yes" || answer = "y" || answer = "true" || answer = "t"

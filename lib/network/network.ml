@@ -14,7 +14,7 @@ type message =
   | Move of Battleship.position
   | MoveResult of Battleship.position * Battleship.attack_type
   | Gameend of bool
-  | Error
+  | Error of string
 
 let print_message = function
   | GetGamecode -> print_endline "GetGamecode"
@@ -37,7 +37,7 @@ let print_message = function
         ^ string_of_attack_type at
         ^ ")")
   | Gameend b -> print_endline ("Gameend(" ^ string_of_bool b ^ ")")
-  | Error -> print_endline "Error"
+  | Error s -> print_endline ("Error(\"" ^ s ^ "\")")
 
 type recipient =
   | Sender
@@ -100,10 +100,11 @@ let handler_acc gc input output =
     print_message msg
   with
   | End_of_file ->
-      write_message output Error
+      write_message output (Error "EOF")
       (* TODO: maybe log an error too? the client likely disconnected *)
-  | Failure _ -> write_message output Error
-  | Invalid -> write_message output Error
+  | Failure f ->
+      write_message output (Error ("A failure occured: " ^ f))
+  | Invalid -> write_message output (Error "Couldn't parse request")
 
 let rec create_gamecode (p1 : out_channel) : string =
   let new_gamecode =
@@ -120,7 +121,7 @@ let rec create_gamecode (p1 : out_channel) : string =
 let join_gamecode (p2 : out_channel) (gc : string) : bool =
   try
     let game = get_game gc in
-    if game.player1OutChannel != game.player2OutChannel then false
+    if game.player1OutChannel <> game.player2OutChannel then false
     else
       let new_game = { game with player2OutChannel = p2 } in
       Hashtbl.remove games gc;
@@ -129,8 +130,10 @@ let join_gamecode (p2 : out_channel) (gc : string) : bool =
   with _ -> false
 
 let handler (input : in_channel) (output : out_channel) =
+  let message = input |> read_message in
+  message |> print_message;
   try
-    match input |> read_message with
+    match message with
     | GetGamecode ->
         let gamecode = output |> create_gamecode in
         let response = Gamecode gamecode in
@@ -141,16 +144,17 @@ let handler (input : in_channel) (output : out_channel) =
           Joined true |> write_message output;
           handler_acc gc input output
         end
-        else (* the game doesn't exist :( *)
-          write_message output Error
-    | _ -> write_message output Error
+        else
+          (* the game doesn't exist :( *)
+          write_message output (Error "Game doesn't exist")
+    | _ -> write_message output (Error "You must join a game first.")
     (* You need to join a game first, silly! *)
   with
   | End_of_file ->
-      write_message output Error
+      write_message output (Error "EOF")
       (* TODO: maybe log an error too? the client likely disconnected *)
-  | Failure _ -> write_message output Error
-  | Invalid -> write_message output Error
+  | Failure f -> write_message output (Error ("Failure: " ^ f))
+  | Invalid -> write_message output (Error "Invalid")
 
 let listen_and_serve p =
   Random.self_init ();
@@ -169,22 +173,43 @@ let listen_and_serve p =
   print_newline ();
   Unix.establish_server handler inet_addr
 
+let compose_menu =
+  [
+    Menu.prompt "GetGamecode" (fun () -> GetGamecode);
+    Menu.prompt "Gamecode" (fun () -> Gamecode (Menu.ask "gamecode"));
+    Menu.prompt "Join" (fun () -> Join (Menu.ask "gamecode"));
+    Menu.prompt "Joined" (fun () -> Joined (Menu.ask_bool "success"));
+    Menu.prompt "Sendboard" (fun () -> failwith "Unimplemented");
+    Menu.prompt "Movefirst" (fun () ->
+        Movefirst (Menu.ask_bool "move first"));
+    Menu.prompt "Move" (fun () ->
+        Move
+          (Battleship.create_position
+             (Menu.ask_char "pos (char)", Menu.ask_int "pos (int)")));
+    Menu.prompt "Gameend" (fun () -> Gameend (Menu.ask_bool "win"));
+    Menu.prompt "Error" (fun () -> Error (Menu.ask "error"));
+  ]
+
+(** [network_debug_compose ()] allows the user to use the terminal to
+    compose a message to be sent in Network debug mode.*)
+let network_debug_compose () =
+  (Menu.show_menu "Compose a message" compose_menu) ()
+
 let rec network_debug_acc in_chan out_chan =
   let open ANSITerminal in
-  Util.plfs [ ([ ANSITerminal.Bold ], ">  ") ];
-  let input = read_line () in
-  input |> write_string out_chan;
+  network_debug_compose () |> write_message out_chan;
   (try
      let msg = in_chan |> read_message in
-     Util.plfs [ ([ black; on_green ], "OK "); ([], " ") ];
+     Util.plfs [ ([ black; on_green ], "OK\n"); ([], " ") ];
      msg |> print_message;
      print_newline ()
    with e ->
      Util.plfs
        [
-         ([ white; on_red ], "EXN");
+         ([ white; on_red ], "EXN\n");
          ([], " " ^ Printexc.to_string e ^ "\n");
        ]);
+  read_line () |> ignore;
   network_debug_acc in_chan out_chan
 
 let network_debug p =

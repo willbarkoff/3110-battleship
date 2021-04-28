@@ -37,9 +37,9 @@ type message =
       (** [Gameend win] is sent if the previous move resulted in the end
           of the game. [win] is [true] if the player has won, and
           [false] if the player has lost.*)
-  | Error
-      (** [Error] is a message from the server that means that something
-          went wrong.*)
+  | Error of string
+      (** [Error s] is a message from the server that means that
+          something went wrong. [s] describes what exactly went wrong.*)
 
 (** {1 Listener} *)
 
