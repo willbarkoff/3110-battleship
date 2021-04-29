@@ -225,28 +225,43 @@ let place_ship
     (start_pos : position)
     (board : board)
     (direction : direction) =
+  let debug = false in
   if not (valid_pos start_pos direction ship) then raise InvalidPosition;
   (* load_and_play_audio "./audio_files/place_ship.wav" 2000; *)
-  for i = 0 to Array.length board - 1 do
-    if check_collision board.(i) ship start_pos direction then
-      modify_occupied board.(i) ship start_pos direction
-    else raise ShipCollision
-  done;
-  ()
+  if debug then (
+    for i = 0 to Array.length board - 1 do
+      if check_collision board.(i) ship start_pos direction then
+        modify_occupied board.(i) ship start_pos direction
+      else raise ShipCollision
+    done;
+    ())
+  else (
+    load_and_play_audio "./audio_files/place_ship.wav" 2000;
+    for i = 0 to Array.length board - 1 do
+      if check_collision board.(i) ship start_pos direction then
+        modify_occupied board.(i) ship start_pos direction
+      else raise ShipCollision
+    done;
+    ())
 
 let attack pos (board : board) =
   try
+    let debug = false in
     let row, col = indicies_of_position pos in
     print_endline (string_of_int row);
     print_endline (string_of_int col);
     match board.(row).(col).occupied with
     | Occupied _ ->
-        (* load_and_play_audio "./audio_files/attack.wav" 4000; *)
-        board.(row).(col).attack <- Hit
+        if debug then board.(row).(col).attack <- Hit
+        else (
+          load_and_play_audio "./audio_files/attack.wav" 4000;
+          board.(row).(col).attack <- Hit)
     | Unoccupied ->
-        (* load_and_play_audio "./audio_files/miss.wav" 4000; *)
-        board.(row).(col).attack <- Miss;
-        ()
+        if debug then board.(row).(col).attack <- Miss
+        else (
+          load_and_play_audio "./audio_files/miss.wav" 4000;
+          board.(row).(col).attack <- Miss;
+          ())
   with _ -> raise InvalidPosition
 
 let finished_game (board : board) =
