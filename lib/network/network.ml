@@ -185,28 +185,61 @@ let internet_menu =
     Menu.prompt "Back to main menu" Exit;
   ]
 
+let place_ships state =
+  List.fold_left Selectlocation.place state Battleship.ships
+
 let create_game in_chan out_chan =
   ANSITerminal.erase ANSITerminal.Screen;
   ANSITerminal.set_cursor 1 1;
   GetGamecode |> write_message out_chan;
   match read_message in_chan with
-  | Gamecode s ->
+  | Gamecode s -> (
       Util.plfs
         [
           ([], "Your gamecode is ");
           ([ ANSITerminal.blue; ANSITerminal.Underlined ], s);
           ([], ". Share it with the person you'd like to play with.\n\n");
-          ([], "Press ");
-          ([ ANSITerminal.Bold ], "enter");
-          ([], " when you're ready to place your ships.");
+          ([], "Waiting for opponent...\n");
         ];
-      ignore (read_line ())
+      match read_message in_chan with
+      | PassState s ->
+          let new_state = s |> State.toggle_player |> place_ships in
+          PassState new_state |> write_message out_chan;
+          play in_chan out_chan
+      | _ -> Ui.print_error_message ())
+  | _ -> Ui.print_error_message ()
+
+let create_state () =
+  State.create_state
+    (Person.create_player (Battleship.board ()) [])
+    (Person.create_player (Battleship.board ()) [])
+
+let join_game in_chan out_chan =
+  ANSITerminal.erase ANSITerminal.Screen;
+  ANSITerminal.set_cursor 1 1;
+  let gamecode = Menu.ask "What is the gamecode?" in
+  Join gamecode |> write_message out_chan;
+  match read_message in_chan with
+  | Joined success ->
+      if success then
+        Util.plfs
+          [
+            ( [ ANSITerminal.green; ANSITerminal.Underlined ],
+              "Joined!\n\n" );
+            ([], "Press ");
+            ([ ANSITerminal.Bold ], "enter");
+            ([], " when you're ready to place your ships.");
+          ];
+      ignore (read_line ());
+      let new_state = create_state () |> place_ships in
+      PassState new_state |> write_message out_chan;
+      play in_chan out_chan
   | _ -> Ui.print_error_message ()
 
 let play_internet_game addr =
   let in_chan, out_chan = Unix.open_connection addr in
   match Menu.show_menu "Multiplayer" internet_menu with
   | CreateGame -> create_game in_chan out_chan
-  | JoinGame -> failwith "TODO"
+  | JoinGame -> join_game in_chan out_chan
   | Exit -> ()
 (* play in_chan out_chan *)

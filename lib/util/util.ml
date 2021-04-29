@@ -18,8 +18,11 @@ let print_board_legend () =
   ANSITerminal.print_string [] "•\t";
   ANSITerminal.print_string [] "Untargeted square\n\n"
 
-let print_lots_of_fancy_strings =
-  List.iter (fun (format, str) -> ANSITerminal.print_string format str)
+let print_lots_of_fancy_strings strs =
+  List.iter
+    (fun (format, str) -> ANSITerminal.print_string format str)
+    strs;
+  flush stdout
 
 let plfs = print_lots_of_fancy_strings
 
