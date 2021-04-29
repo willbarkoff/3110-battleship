@@ -716,7 +716,7 @@ let person_tests =
     (* parse_test_exception "place test invalid input" "place"
        Person.Empty; parse_test_exception "place test invalid input"
        "place battleship" Person.Empty; *)
-    parse_test_exception "place test empty input" "" Person.Empty;
+    (* parse_test_exception "place test empty input" "" Person.Empty; *)
   ]
 
 let state_tests =
@@ -805,8 +805,13 @@ let state_tests =
     place_ship_test_exn "invalid position M is not a row"
       (base_state ()) ('M', 1) "battleship" Battleship.Right
       Battleship.InvalidPosition;
-    place_ship_test_exn "invalid position: ship would go off the board"
+    place_ship_test_exn
+      "invalid position: ship would go off the board on the left"
       (base_state ()) ('A', 1) "battleship" Battleship.Left
+      Battleship.InvalidPosition;
+    place_ship_test_exn
+      "invalid position: ship would go off the board on the right"
+      (base_state ()) ('A', 10) "battleship" Battleship.Right
       Battleship.InvalidPosition;
     attack_test_exn
       "invalid position: position off the board, no 0 column"
