@@ -153,3 +153,42 @@ let network_debug p =
   Util.print_hr [];
   let in_chan, out_chan = Unix.open_connection inet_addr in
   network_debug_acc in_chan out_chan
+
+let get_state_from_message = function
+  | PassState s -> s
+  | _ -> failwith "invalid"
+
+let get_message_from_state s = PassState s
+
+let rec play in_chan out_chan =
+  let open Ui in
+  let state =
+    in_chan |> read_message |> get_state_from_message
+    |> show_player_board |> attack |> show_opponent_board
+  in
+  if State.finished_game state then finish state
+  else begin
+    state |> State.toggle_player |> get_message_from_state
+    |> write_message out_chan;
+    play in_chan out_chan
+  end
+
+type internet_menu_option =
+  | CreateGame
+  | JoinGame
+  | Exit
+
+let internet_menu =
+  [
+    Menu.prompt "Create game" CreateGame;
+    Menu.prompt "Join game" JoinGame;
+    Menu.prompt "Back to main menu" Exit;
+  ]
+
+let play_internet_game addr =
+  let in_chan, out_chan = Unix.open_connection addr in
+  match Menu.show_menu "Multiplayer" internet_menu with
+  | CreateGame -> failwith "TODO"
+  | JoinGame -> failwith "TODO"
+  | Exit -> ()
+(* play in_chan out_chan *)

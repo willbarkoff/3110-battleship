@@ -1,4 +1,5 @@
 open Util
+open Ui
 
 let title = "Battleship"
 
@@ -11,10 +12,15 @@ let authors =
 
 type main_menu_opt =
   | NewGame
+  | Multiplayer
   | Quit
 
 let main_menu =
-  [ Menu.prompt "New game" NewGame; Menu.prompt "Quit" Quit ]
+  [
+    Menu.prompt "New game" NewGame;
+    Menu.prompt "Multiplayer" Multiplayer;
+    Menu.prompt "Quit" Quit;
+  ]
 
 let print_title () =
   ANSITerminal.set_cursor 1 1;
@@ -46,68 +52,6 @@ let toggle_player state =
   ANSITerminal.restore_cursor ();
   State.toggle_player state
 
-let show_player_board s =
-  ANSITerminal.erase ANSITerminal.Screen;
-  Util.plfs
-    [
-      ([ ANSITerminal.Bold ], "\nYour board:\n");
-      ([], "Press enter to continue\n\n");
-    ];
-  s |> State.get_current_player |> Person.get_board
-  |> Battleship.get_player_board |> Battleship.print_board;
-  Util.print_board_legend ();
-  read_line () |> ignore;
-  s
-
-let show_opponent_board s =
-  ANSITerminal.erase ANSITerminal.Screen;
-  Util.plfs
-    [
-      ([ ANSITerminal.Bold ], "\nYour opponent's board:\n");
-      ([], "Press enter to continue\n\n");
-    ];
-  s |> State.get_opponent |> Person.get_board
-  |> Battleship.get_opponent_board |> Battleship.print_board;
-  Util.print_board_legend ();
-  read_line () |> ignore;
-  s
-
-let rec attack s =
-  ANSITerminal.erase ANSITerminal.Screen;
-  Util.plfs [ ([ ANSITerminal.Bold ], "\nYour opponent's board:\n") ];
-  s |> State.get_opponent |> Person.get_board
-  |> Battleship.get_opponent_board |> Battleship.print_board;
-  Util.print_board_legend ();
-  Util.plfs [ ([], "\n\nWhere would you like to attack?\n") ];
-  let pos = Selectlocation.read_pos () in
-  try State.attack s pos
-  with _ ->
-    Util.plfs
-      [ ([ ANSITerminal.red ], "\nThat is an invalid position.\n") ];
-    attack s
-
-let finish s =
-  ANSITerminal.erase ANSITerminal.Screen;
-  Util.plfs
-    [
-      ( [
-          ANSITerminal.Blink;
-          ANSITerminal.Bold;
-          ANSITerminal.Underlined;
-          ANSITerminal.green;
-        ],
-        "GAME OVER!" );
-      ([ ANSITerminal.Bold ], "\nPlayer 1 board:\n");
-    ];
-  s |> State.get_current_player |> Person.get_board
-  |> Battleship.get_player_board |> Battleship.print_board;
-  Util.plfs [ ([ ANSITerminal.Bold ], "\nPlayer 2 board:\n") ];
-  s |> State.get_opponent |> Person.get_board
-  |> Battleship.get_player_board |> Battleship.print_board;
-  Util.print_board_legend ();
-  Util.plfs [ ([], "\n\nPress enter to continue") ];
-  read_line () |> ignore
-
 let rec play s =
   let moved = s |> show_player_board |> attack |> show_opponent_board in
   if State.finished_game moved then finish moved
@@ -119,7 +63,12 @@ let new_game () =
     (Person.create_player (Battleship.board ()) [])
   |> place_ships |> toggle_player |> place_ships |> play
 
+let network_port = 1234
+
 let rec show_main_menu () =
+  let inet_addr =
+    Unix.ADDR_INET (Unix.inet_addr_loopback, network_port)
+  in
   if not (Unix.isatty Unix.stdin) then begin
     print_endline "Currently, this game is only supported on ttys";
     exit 1
@@ -133,10 +82,11 @@ let rec show_main_menu () =
     | NewGame ->
         new_game ();
         show_main_menu ()
+    | Multiplayer ->
+        Network.play_internet_game inet_addr;
+        show_main_menu ()
     | Quit -> quit ()
   end
-
-let network_port = 1234
 
 let _ =
   let usage_message = "battleship [-l]" in

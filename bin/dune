@@ -8,6 +8,5 @@
   util
   state
   selectlocation
-  core
-  async
+  ui
   ANSITerminal))
