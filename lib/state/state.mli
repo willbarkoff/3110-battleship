@@ -12,6 +12,10 @@ val create_state : Person.player -> Person.player -> t
 (** [get_current_player state] gets the current player in the state. *)
 val get_current_player : t -> Person.player
 
+(** [get_current_player_number state] gets the number of the current
+    player in the state, either [0] or [1].*)
+val get_current_player_number : t -> int
+
 (** [get_opponent state] gets the opponent player in the state. *)
 val get_opponent : t -> Person.player
 

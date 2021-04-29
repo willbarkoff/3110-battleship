@@ -9,84 +9,14 @@ type message =
   | Gamecode of string
   | Join of string
   | Joined of bool
-  | Sendboard of Battleship.board
-  | Movefirst of bool
-  | Move of Battleship.position
-  | MoveResult of Battleship.position * Battleship.attack_type
-  | Gameend of bool
+  | PassState of State.t
   | Error of string
 
-let print_message = function
-  | GetGamecode -> print_endline "GetGamecode"
-  | Gamecode s -> print_endline ("Gamecode(\"" ^ s ^ "\")")
-  | Join s -> print_endline ("Join(\"" ^ s ^ "\")")
-  | Joined b -> print_endline ("Joined(" ^ string_of_bool b ^ ")")
-  | Sendboard b ->
-      let open Battleship in
-      print_endline "Sendboard(";
-      b |> get_player_board |> print_board;
-      print_endline ")"
-  | Movefirst b -> print_endline ("Movefirst(" ^ string_of_bool b ^ ")")
-  | Move p ->
-      let open Battleship in
-      print_endline ("Move(" ^ string_of_position p ^ ")")
-  | MoveResult (p, at) ->
-      let open Battleship in
-      print_endline
-        ("MoveResult(" ^ string_of_position p ^ ","
-        ^ string_of_attack_type at
-        ^ ")")
-  | Gameend b -> print_endline ("Gameend(" ^ string_of_bool b ^ ")")
-  | Error s -> print_endline ("Error(\"" ^ s ^ "\")")
-
-type recipient =
-  | Sender
-  | Opponent
-
-type broadcast = {
-  recipient : recipient;
-  message : message;
-}
-
-(* TODO: This is the thing that needs to be implemented. *)
-let listener s m : State.t * broadcast list = failwith "TODO"
-
-let recipient b = b.recipient
-
-let message b = b.message
-
-type game = {
-  state : State.t;
-  player1OutChannel : out_channel;
-  player2OutChannel : out_channel;
-}
-
-let new_game p1 =
-  {
-    state =
-      State.create_state
-        (Person.create_player (Battleship.board ()) [])
-        (Person.create_player (Battleship.board ()) []);
-    player1OutChannel = p1;
-    player2OutChannel =
-      p1
-      (* We just set player2 out channel to be player 1's temporarily.
-         We cahnge this in join_game*);
-  }
+let new_game p1 = [ p1 ]
 
 let games = Hashtbl.create expected_load
 
 let get_game = Hashtbl.find games
-
-(* let send_broadcasts addr = List.iter (function | { recipient =
-   Sender; message } -> failwith "TODO" | { recipient = Opponent;
-   message } -> failwith "TODO") *)
-
-let update_state new_state id = failwith "TODO"
-
-let write_string chan s =
-  output_string chan s;
-  flush chan
 
 let read_message chan : message = Marshal.from_channel chan
 
@@ -94,10 +24,18 @@ let write_message chan (msg : message) =
   Marshal.to_channel chan msg [];
   flush chan
 
-let handler_acc gc input output =
+let rec handler_acc gc input output =
   try
     let msg = input |> read_message in
-    print_message msg
+    match msg with
+    | PassState s ->
+        write_message
+          (List.nth (get_game gc) (State.get_current_player_number s))
+          (PassState s);
+        if not (State.finished_game s) then handler_acc gc input output
+    | _ ->
+        Error "Invalid message" |> write_message output;
+        handler_acc gc input output
   with
   | End_of_file ->
       write_message output (Error "EOF")
@@ -121,9 +59,9 @@ let rec create_gamecode (p1 : out_channel) : string =
 let join_gamecode (p2 : out_channel) (gc : string) : bool =
   try
     let game = get_game gc in
-    if game.player1OutChannel <> game.player2OutChannel then false
+    if List.length game < 2 || List.length game > 2 then false
     else
-      let new_game = { game with player2OutChannel = p2 } in
+      let new_game = p2 :: game in
       Hashtbl.remove games gc;
       Hashtbl.add games gc new_game;
       true
@@ -134,7 +72,6 @@ let join_gamecode (p2 : out_channel) (gc : string) : bool =
 
 let handler (input : in_channel) (output : out_channel) =
   let message = input |> read_message in
-  message |> print_message;
   try
     match message with
     | GetGamecode ->
@@ -182,15 +119,6 @@ let compose_menu =
     Menu.prompt "Gamecode" (fun () -> Gamecode (Menu.ask "gamecode"));
     Menu.prompt "Join" (fun () -> Join (Menu.ask "gamecode"));
     Menu.prompt "Joined" (fun () -> Joined (Menu.ask_bool "success"));
-    Menu.prompt "Sendboard" (fun () -> failwith "Unimplemented");
-    Menu.prompt "Movefirst" (fun () ->
-        Movefirst (Menu.ask_bool "move first"));
-    Menu.prompt "Move" (fun () ->
-        Move
-          (Battleship.create_position
-             (Menu.ask_char "pos (char)", Menu.ask_int "pos (int)")));
-    Menu.prompt "Gameend" (fun () -> Gameend (Menu.ask_bool "win"));
-    Menu.prompt "Error" (fun () -> Error (Menu.ask "error"));
   ]
 
 (** [network_debug_compose ()] allows the user to use the terminal to
@@ -204,7 +132,6 @@ let rec network_debug_acc in_chan out_chan =
   (try
      let msg = in_chan |> read_message in
      Util.plfs [ ([ black; on_green ], "OK\n"); ([], " ") ];
-     msg |> print_message;
      print_newline ()
    with e ->
      Util.plfs
