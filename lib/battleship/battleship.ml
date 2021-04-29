@@ -95,7 +95,7 @@ let create_ship = function
   | "battleship" -> battleship
   | "submarine" -> submarine
   | "carrier" -> carrier
-  | _ -> failwith "Ship does not exist"
+  | _ -> raise UnknownShip
 
 let create_position (tple : char * int) : position = tple
 
@@ -240,10 +240,10 @@ let attack pos (board : board) =
     print_endline (string_of_int col);
     match board.(row).(col).occupied with
     | Occupied _ ->
-        load_and_play_audio "./audio_files/attack.wav" 4000;
+        (* load_and_play_audio "./audio_files/attack.wav" 4000; *)
         board.(row).(col).attack <- Hit
     | Unoccupied ->
-        load_and_play_audio "./audio_files/miss.wav" 4000;
+        (* load_and_play_audio "./audio_files/miss.wav" 4000; *)
         board.(row).(col).attack <- Miss;
         ()
   with _ -> raise InvalidPosition
