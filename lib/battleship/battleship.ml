@@ -226,6 +226,7 @@ let place_ship
     (board : board)
     (direction : direction) =
   if not (valid_pos start_pos direction ship) then raise InvalidPosition;
+  load_and_play_audio "./audio_files/place_ship.wav" 2000;
   for i = 0 to Array.length board - 1 do
     if check_collision board.(i) ship start_pos direction then
       modify_occupied board.(i) ship start_pos direction
