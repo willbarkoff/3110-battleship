@@ -127,7 +127,10 @@ let join_gamecode (p2 : out_channel) (gc : string) : bool =
       Hashtbl.remove games gc;
       Hashtbl.add games gc new_game;
       true
-  with _ -> false
+  with e ->
+    Printexc.raw_backtrace_to_string (Printexc.get_raw_backtrace ())
+    |> print_endline;
+    false
 
 let handler (input : in_channel) (output : out_channel) =
   let message = input |> read_message in
