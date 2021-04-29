@@ -59,3 +59,6 @@ let finish s =
   Util.print_board_legend ();
   Util.plfs [ ([], "\n\nPress enter to continue") ];
   read_line () |> ignore
+
+let print_error_message () =
+  Util.plfs [ ([ ANSITerminal.red ], "Something went wrong.\n") ]

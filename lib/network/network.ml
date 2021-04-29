@@ -185,10 +185,28 @@ let internet_menu =
     Menu.prompt "Back to main menu" Exit;
   ]
 
+let create_game in_chan out_chan =
+  ANSITerminal.erase ANSITerminal.Screen;
+  ANSITerminal.set_cursor 1 1;
+  GetGamecode |> write_message out_chan;
+  match read_message in_chan with
+  | Gamecode s ->
+      Util.plfs
+        [
+          ([], "Your gamecode is ");
+          ([ ANSITerminal.blue; ANSITerminal.Underlined ], s);
+          ([], ". Share it with the person you'd like to play with.\n\n");
+          ([], "Press ");
+          ([ ANSITerminal.Bold ], "enter");
+          ([], " when you're ready to place your ships.");
+        ];
+      ignore (read_line ())
+  | _ -> Ui.print_error_message ()
+
 let play_internet_game addr =
   let in_chan, out_chan = Unix.open_connection addr in
   match Menu.show_menu "Multiplayer" internet_menu with
-  | CreateGame -> failwith "TODO"
+  | CreateGame -> create_game in_chan out_chan
   | JoinGame -> failwith "TODO"
   | Exit -> ()
 (* play in_chan out_chan *)

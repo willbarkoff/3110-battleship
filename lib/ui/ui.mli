@@ -12,3 +12,6 @@ val attack : State.t -> State.t
 
 (** [finish s] Displays a screen explaining that the game is finished *)
 val finish : State.t -> unit
+
+(** [print_error_message] prints a message that something went wrong. *)
+val print_error_message : unit -> unit
