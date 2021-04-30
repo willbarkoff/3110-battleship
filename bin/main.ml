@@ -65,9 +65,11 @@ let new_game () =
 
 let network_port = 1234
 
+let client_port = 1234
+
 let rec show_main_menu () =
   let inet_addr =
-    Unix.ADDR_INET (Unix.inet_addr_loopback, network_port)
+    Unix.ADDR_INET (Unix.inet_addr_loopback, client_port)
   in
   if not (Unix.isatty Unix.stdin) then begin
     print_endline "Currently, this game is only supported on ttys";
@@ -83,7 +85,7 @@ let rec show_main_menu () =
         new_game ();
         show_main_menu ()
     | Multiplayer ->
-        Network.play_internet_game inet_addr;
+        Client.play_internet_game inet_addr;
         show_main_menu ()
     | Quit -> quit ()
   end
@@ -103,4 +105,4 @@ let _ =
   Arg.parse speclist (fun _ -> ()) usage_message;
   if !network_debug then Network.network_debug 1234;
   if !local then show_main_menu ()
-  else Network.listen_and_serve network_port
+  else Server.listen_and_serve network_port

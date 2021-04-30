@@ -15,8 +15,26 @@ type message =
 let new_game p1 = [ p1 ]
 
 let games = Hashtbl.create expected_load
+(* let games = Map.empty () *)
 
 let get_game = Hashtbl.find games
+
+(* let get_game gc = match Map.find gc games with Some s -> s | None ->
+   failwith "Broken" *)
+
+let print_games g =
+  print_endline (string_of_int (Hashtbl.length g));
+  Hashtbl.iter (fun x _ -> print_endline x) g
+
+let rec print_list = function
+  | [] ->
+      print_string "";
+      ""
+  | h :: t ->
+      print_string (h ^ " " ^ print_list t);
+      ""
+
+(* let print_key_games = games |> Map.keys |> print_list *)
 
 let read_message chan : message = Marshal.from_channel chan
 
@@ -27,6 +45,7 @@ let write_message chan (msg : message) =
 let rec handler_acc gc input output =
   try
     let msg = input |> read_message in
+    flush output;
     match msg with
     | PassState s ->
         write_message
@@ -46,6 +65,7 @@ let rec handler_acc gc input output =
 
 let rec create_gamecode (p1 : out_channel) : string =
   let new_gamecode =
+    Random.self_init ();
     String.init 8 (fun _ -> Char.chr (Random.int 26 + 97))
   in
   if Hashtbl.mem games new_gamecode then
@@ -53,11 +73,20 @@ let rec create_gamecode (p1 : out_channel) : string =
     create_gamecode p1
   else begin
     Hashtbl.add games new_gamecode (new_game p1);
+    print_string "CREATE";
+    print_games games;
     new_gamecode
   end
 
+(* let rec create_gamecode (p1 : out_channel) = let new_gamecode =
+   String.init 8 (fun _ -> Char.chr (Random.int 26 + 97)) in if Map.mem
+   new_gamecode games then (* uh oh... a collision! *) create_gamecode
+   p1 else ( Map.insert new_gamecode (new_game p1) games; new_gamecode) *)
+
 let join_gamecode (p2 : out_channel) (gc : string) : bool =
   try
+    print_string "JOIN";
+    print_games games;
     let game = get_game gc in
     if List.length game < 2 || List.length game > 2 then false
     else
@@ -70,8 +99,18 @@ let join_gamecode (p2 : out_channel) (gc : string) : bool =
     |> print_endline;
     false
 
+(* let join_gamecode (p2 : out_channel) (gc : string) = try let game =
+   get_game gc in if List.length game < 2 || List.length game > 2 then
+   false else let new_game = p2 :: game in Map.remove gc games;
+   Map.insert gc new_game games; true with e ->
+   Printexc.raw_backtrace_to_string (Printexc.get_raw_backtrace ()) |>
+   print_endline; false *)
+
 let handler (input : in_channel) (output : out_channel) =
   let message = input |> read_message in
+  flush output;
+  print_endline "CONNECTION OPENED";
+  print_games games;
   try
     match message with
     | GetGamecode ->
@@ -87,7 +126,8 @@ let handler (input : in_channel) (output : out_channel) =
         else
           (* the game doesn't exist :( *)
           write_message output (Error "Game doesn't exist")
-    | _ -> write_message output (Error "You must join a game first.")
+    | _ ->
+        write_message output (Error "You must\n\n   join a game first.")
     (* You need to join a game first, silly! *)
   with
   | End_of_file ->
@@ -95,6 +135,20 @@ let handler (input : in_channel) (output : out_channel) =
       (* TODO: maybe log an error too? the client likely disconnected *)
   | Failure f -> write_message output (Error ("Failure: " ^ f))
   | Invalid -> write_message output (Error "Invalid")
+
+(* let handler (input : in_channel) (output : out_channel) = let message
+   = input |> read_message in try match message with | GetGamecode ->
+   let gamecode = output |> create_gamecode in let response = Gamecode
+   gamecode in response |> write_message output; handler_acc gamecode
+   input output | Join gc -> if join_gamecode output gc then begin
+   Joined true |> write_message output; handler_acc gc input output end
+   else (* the game doesn't exist :( *) write_message output (Error
+   "Game doesn't exist") | _ -> write_message output (Error "You\n must
+   join a game first.") (* You need to join a game first, silly! *) with
+   | End_of_file -> write_message output (Error "EOF") (* TODO: maybe
+   log an error too? the client likely disconnected *) | Failure f ->
+   write_message output (Error ("Failure: " ^ f)) | Invalid ->
+   write_message output (Error "Invalid") *)
 
 let listen_and_serve p =
   Random.self_init ();
@@ -131,6 +185,7 @@ let rec network_debug_acc in_chan out_chan =
   network_debug_compose () |> write_message out_chan;
   (try
      let msg = in_chan |> read_message in
+     flush out_chan;
      Util.plfs [ ([ black; on_green ], "OK\n"); ([], " ") ];
      print_newline ()
    with e ->
@@ -166,6 +221,7 @@ let rec play in_chan out_chan =
     in_chan |> read_message |> get_state_from_message
     |> show_player_board |> attack |> show_opponent_board
   in
+  flush out_chan;
   if State.finished_game state then finish state
   else begin
     state |> State.toggle_player |> get_message_from_state

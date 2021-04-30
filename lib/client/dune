@@ -1,0 +1,4 @@
+(library
+ (name client)
+ (public_name battleship.client)
+ (libraries util battleship menu ui state person ANSITerminal))

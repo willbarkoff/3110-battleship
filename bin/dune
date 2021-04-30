@@ -3,6 +3,8 @@
  (libraries
   battleship
   network
+  client
+  server
   menu
   person
   util
