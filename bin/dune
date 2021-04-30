@@ -2,12 +2,12 @@
  (names main author)
  (libraries
   battleship
-  network
+  client
+  server
   menu
   person
   util
   state
   selectlocation
-  core
-  async
+  ui
   ANSITerminal))

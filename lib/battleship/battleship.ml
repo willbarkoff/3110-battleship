@@ -16,6 +16,11 @@ type attack_type =
   | Miss
   | Untargeted
 
+let string_of_attack_type = function
+  | Hit -> "Hit"
+  | Miss -> "Miss"
+  | Untargeted -> "Untargeted"
+
 type direction =
   | Left
   | Right
@@ -35,6 +40,9 @@ exception UnknownShip
 exception InvalidPosition
 
 type position = char * int
+
+let string_of_position (c, y) =
+  "(" ^ String.make 1 c ^ "," ^ string_of_int y ^ ")"
 
 type block_tile = {
   position : position;
