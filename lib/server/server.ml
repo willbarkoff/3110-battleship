@@ -18,16 +18,6 @@ type main_message =
   | NumPlayers of int
   | MMNullMessage
 
-let print_communication_message = function
-  | BroadcastState (i, s) -> print_endline "BroadcastState"
-  | AddMeToGame n -> print_endline "AddMeToGame"
-  | CMNullMessage -> print_endline "CMNullMessage"
-
-let print_main_message = function
-  | GetNumPlayers -> print_endline "GetNumPlayers"
-  | NumPlayers i -> print_endline "NumPlayers"
-  | MMNullMessage -> print_endline "HMNullMessage"
-
 let internal_chan : communication_message Event.channel =
   Event.new_channel ()
 
@@ -59,22 +49,23 @@ let spawn_communication_manager () =
     (fun _ ->
       let players = ref [] in
       while true do
-        begin
-          match Event.receive internal_chan |> Event.poll with
-          | None -> ()
-          | Some thing -> print_communication_message thing
-        end;
-        match Event.receive main_chan |> Event.poll with
-        | None -> ()
-        | Some thing -> print_main_message thing
-        (* (match Event.receive internal_chan |> Event.poll |>
-           Option.value ~default:CMNullMessage with | BroadcastState
-           (whom, what) -> PassState what |> write_message (List.nth
-           !players whom) | AddMeToGame c -> players := !players @ [ c ]
-           | _ -> ()); match Event.receive main_chan |> Event.poll |>
-           Option.value ~default:MMNullMessage with | GetNumPlayers ->
-           NumPlayers (List.length !players) |> Event.send main_chan |>
-           Event.sync | _ -> () *)
+        (match
+           Event.receive internal_chan
+           |> Event.poll
+           |> Option.value ~default:CMNullMessage
+         with
+        | BroadcastState (whom, what) ->
+            PassState what |> write_message (List.nth !players whom)
+        | AddMeToGame c -> players := !players @ [ c ]
+        | _ -> ());
+        match
+          Event.receive main_chan |> Event.poll
+          |> Option.value ~default:MMNullMessage
+        with
+        | GetNumPlayers ->
+            NumPlayers (List.length !players)
+            |> Event.send main_chan |> Event.sync
+        | _ -> ()
       done)
     ()
   |> ignore
@@ -134,4 +125,4 @@ let listen_and_serve p =
     ];
   print_newline ();
   spawn_communication_manager ();
-  Unix.establish_server setup_handler inet_addr
+  Fancyserver.establish_server setup_handler inet_addr
