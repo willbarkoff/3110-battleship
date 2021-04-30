@@ -11,6 +11,23 @@ There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.
 ```
 
+Next, install `sdl2` for your operating system.
+- On macOS:
+	- Homebrew:
+		- `brew install pkgconfig`
+		- `brew install sdl2`
+		- `brew install sdl2_image`
+		- `brew install sdl2_ttf`
+	- MacPorts:
+		- `port install pkgconfig`
+		- `port install libsdl2`
+- On Ubuntu (or WSL with Ubuntu):
+	- `sudo apt install libsdl2`
+	- You may need to also install `pkgconfig` with `sudo apt install pkgconfig`; though none of us have Ubuntu machines to test this unfortunately.
+
+If you're using another operating system, you can likely find instructions for installing `sdl2` online.
+
+
 Next, install the required dependencies using `opam`:
 
 ```
@@ -20,8 +37,6 @@ $ opam install ANSITerminal ounit2 dune core async ppx_let ocamlsdl2
 Finally, to run the program, run `make`. This will launch a local game, so that several users can play on the same computer.
 
 To start a server, run `make serve`. This will launch a battleship server, to host games for many people to play together on different computers.
-
-To play using a server, run `make multiplayer`. This will allow you to connect to a server and play a game.
 
 ---
 
