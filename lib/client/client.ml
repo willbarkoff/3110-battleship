@@ -93,7 +93,9 @@ let join_game in_chan out_chan =
       let new_state = create_state () |> place_ships in
       PassState new_state |> write_message out_chan;
       play in_chan out_chan
-  | _ -> Ui.print_error_message ()
+  | _ ->
+      Ui.print_error_message ();
+      read_line () |> ignore
 
 let play_internet_game addr =
   let in_chan, out_chan = Unix.open_connection addr in

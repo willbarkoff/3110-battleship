@@ -12,17 +12,39 @@ type message =
   | PassState of State.t
   | Error of string
 
+type game = out_channel list
+
 let new_game p1 = [ p1 ]
 
-let games = Hashtbl.create expected_load
+let internal_games = ref (Hashtbl.create expected_load)
 (* let games = Map.empty () *)
 
-let get_game = Hashtbl.find games
+type internal_message =
+  | RequestGame of string
+      (** [RequestGame gc] requests the game with the game code [gc] *)
+  | UpdateGame of string * game
+      (** [UpdateGame (gc, g)] recieves the game with the gamecode [gc],
+          and stores it for use by other threads. *)
+  | SendGame of game
+      (** [SendGame g] sends a game, [g] previously requested with
+          [RequestGame] to a subthread. *)
 
-(* let get_game gc = match Map.find gc games with Some s -> s | None ->
-   failwith "Broken" *)
+let get_game (gc : string) (chan : internal_message Event.channel) =
+  Event.send chan (RequestGame gc) |> Event.sync;
+  match Event.receive chan |> Event.sync with
+  | SendGame g -> g
+  | _ -> failwith "The main thread sent an invalid response"
 
-let print_games g =
+let send_game
+    (gc : string)
+    (chan : internal_message Event.channel)
+    (game : game) =
+  Event.send chan (UpdateGame (gc, game)) |> Event.sync
+
+let make_channel () : internal_message Event.channel =
+  Event.new_channel ()
+
+let print_games (g : (string, game) Hashtbl.t) : unit =
   print_endline (string_of_int (Hashtbl.length g));
   Hashtbl.iter (fun x _ -> print_endline x) g
 
@@ -42,19 +64,21 @@ let write_message chan (msg : message) =
   Marshal.to_channel chan msg [];
   flush chan
 
-let rec handler_acc gc input output =
+let rec handler_acc chan gc input output =
   try
     let msg = input |> read_message in
     flush output;
     match msg with
     | PassState s ->
         write_message
-          (List.nth (get_game gc) (State.get_current_player_number s))
+          (List.nth (get_game gc chan)
+             (State.get_current_player_number s))
           (PassState s);
-        if not (State.finished_game s) then handler_acc gc input output
+        if not (State.finished_game s) then
+          handler_acc chan gc input output
     | _ ->
         Error "Invalid message" |> write_message output;
-        handler_acc gc input output
+        handler_acc chan gc input output
   with
   | End_of_file ->
       write_message output (Error "EOF")
@@ -64,6 +88,7 @@ let rec handler_acc gc input output =
   | Invalid -> write_message output (Error "Couldn't parse request")
 
 let rec create_gamecode (p1 : out_channel) : string =
+  let games = get_games () in
   let new_gamecode =
     Random.self_init ();
     String.init 8 (fun _ -> Char.chr (Random.int 26 + 97))
@@ -84,10 +109,11 @@ let rec create_gamecode (p1 : out_channel) : string =
    p1 else ( Map.insert new_gamecode (new_game p1) games; new_gamecode) *)
 
 let join_gamecode (p2 : out_channel) (gc : string) : bool =
+  let games = get_games () in
   try
     print_string "JOIN";
     print_games games;
-    let game = get_game gc in
+    let game = get_game () gc in
     if List.length game < 2 || List.length game > 2 then false
     else
       let new_game = p2 :: game in
@@ -95,6 +121,7 @@ let join_gamecode (p2 : out_channel) (gc : string) : bool =
       Hashtbl.add games gc new_game;
       true
   with e ->
+    print_endline (Printexc.to_string e);
     Printexc.raw_backtrace_to_string (Printexc.get_raw_backtrace ())
     |> print_endline;
     false
@@ -106,7 +133,20 @@ let join_gamecode (p2 : out_channel) (gc : string) : bool =
    Printexc.raw_backtrace_to_string (Printexc.get_raw_backtrace ()) |>
    print_endline; false *)
 
+let create_game_manager_process () =
+  Thread.create (fun _ ->
+      while true do
+        match Event.receive state_transfer |> Event.sync with
+        | SendGames g -> internal_games := g
+        | RequestGames ->
+            Event.send state_transfer (SendGames !internal_games)
+            |> Event.sync |> ignore
+        | _ -> failwith "Invalid message"
+      done)
+  |> ignore
+
 let handler (input : in_channel) (output : out_channel) =
+  let games = get_games () in
   let message = input |> read_message in
   flush output;
   print_endline "CONNECTION OPENED";
@@ -165,7 +205,8 @@ let listen_and_serve p =
         Unix.string_of_inet_addr addr ^ ":" ^ string_of_int p );
     ];
   print_newline ();
-  Unix.establish_server handler inet_addr
+  create_game_manager_process ();
+  Server.establish_vmem_server handler inet_addr
 
 let compose_menu =
   [

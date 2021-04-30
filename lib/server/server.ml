@@ -82,6 +82,7 @@ let join_gamecode (p2 : out_channel) (gc : string) : bool =
       Hashtbl.add games gc new_game;
       true
   with e ->
+    Printexc.to_string e |> print_endline;
     Printexc.raw_backtrace_to_string (Printexc.get_raw_backtrace ())
     |> print_endline;
     false

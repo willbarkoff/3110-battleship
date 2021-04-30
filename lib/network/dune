@@ -1,4 +1,4 @@
 (library
  (name network)
  (public_name battleship.network)
- (libraries util battleship menu ui state person ANSITerminal))
+ (libraries util battleship spawn menu ui state person ANSITerminal))
