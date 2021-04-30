@@ -44,7 +44,9 @@ let write_message chan (msg : message) =
   flush chan
 
 let spawn_communication_manager () =
-  Thread.create (fun _ ->
+  print_endline "CREATED THREAD";
+  Thread.create
+    (fun _ ->
       let players = ref [] in
       while true do
         (match
@@ -65,11 +67,13 @@ let spawn_communication_manager () =
             |> Event.send main_chan |> Event.sync
         | _ -> ()
       done)
+    ()
   |> ignore
 
 let rec handler player_num input output =
   try
     let msg = input |> read_message in
+    print_endline "GOT MESSAGE";
     begin
       match msg with
       | PassState s ->
@@ -87,6 +91,26 @@ let rec handler player_num input output =
       write_message output (Error ("A failure occured: " ^ f))
   | Invalid -> write_message output (Error "Couldn't parse request")
 
+let setup_handler (input : in_channel) (output : out_channel) =
+  print_endline "hi";
+  Event.send main_chan GetNumPlayers |> ignore;
+  print_endline "hello";
+  match Event.receive main_chan |> Event.sync with
+  | NumPlayers n ->
+      if n = 0 then begin
+        AddMeToGame output |> Event.send internal_chan |> ignore;
+        print_endline "PLAYER 0 JOINED";
+        handler 0 input output
+      end
+      else if n = 1 then begin
+        AddMeToGame output |> Event.send internal_chan |> ignore;
+        print_endline "PLAYER 1 JOINED";
+        handler 1 input output
+      end
+      else Error "The game is full" |> write_message output
+  | _ ->
+      failwith "The state handler responded with an invalid response."
+
 let listen_and_serve p =
   Random.self_init ();
   let addr = Unix.inet_addr_loopback in
@@ -103,6 +127,4 @@ let listen_and_serve p =
     ];
   print_newline ();
   spawn_communication_manager ();
-  Unix.establish_server (fun _ -> failwith "TODO") inet_addr
-
-(* Server.establish_vmem_server handler inet_addr *)
+  Unix.establish_server setup_handler inet_addr

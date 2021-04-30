@@ -1,8 +1,4 @@
 type message =
-  | GetGamecode
-  | Gamecode of string
-  | Join of string
-  | Joined of bool
   | PassState of State.t
   | Error of string
 
@@ -50,22 +46,12 @@ let place_ships state =
 let create_game in_chan out_chan =
   ANSITerminal.erase ANSITerminal.Screen;
   ANSITerminal.set_cursor 1 1;
-  GetGamecode |> write_message out_chan;
+  Util.plfs [ ([], "Waiting for opponent...\n") ];
   match read_message in_chan with
-  | Gamecode s -> (
-      Util.plfs
-        [
-          ([], "Your gamecode is ");
-          ([ ANSITerminal.blue; ANSITerminal.Underlined ], s);
-          ([], ". Share it with the person you'd like to play with.\n\n");
-          ([], "Waiting for opponent...\n");
-        ];
-      match read_message in_chan with
-      | PassState s ->
-          let new_state = s |> State.toggle_player |> place_ships in
-          PassState new_state |> write_message out_chan;
-          play in_chan out_chan
-      | _ -> Ui.print_error_message ())
+  | PassState s ->
+      let new_state = s |> State.toggle_player |> place_ships in
+      PassState new_state |> write_message out_chan;
+      play in_chan out_chan
   | _ -> Ui.print_error_message ()
 
 let create_state () =
@@ -76,26 +62,16 @@ let create_state () =
 let join_game in_chan out_chan =
   ANSITerminal.erase ANSITerminal.Screen;
   ANSITerminal.set_cursor 1 1;
-  let gamecode = Menu.ask "What is the gamecode?" in
-  Join gamecode |> write_message out_chan;
-  match read_message in_chan with
-  | Joined success ->
-      if success then
-        Util.plfs
-          [
-            ( [ ANSITerminal.green; ANSITerminal.Underlined ],
-              "Joined!\n\n" );
-            ([], "Press ");
-            ([ ANSITerminal.Bold ], "enter");
-            ([], " when you're ready to place your ships.");
-          ];
-      ignore (read_line ());
-      let new_state = create_state () |> place_ships in
-      PassState new_state |> write_message out_chan;
-      play in_chan out_chan
-  | _ ->
-      Ui.print_error_message ();
-      read_line () |> ignore
+  Util.plfs
+    [
+      ([], "Press ");
+      ([ ANSITerminal.Bold ], "enter");
+      ([], " when you're ready to place your ships.");
+    ];
+  ignore (read_line ());
+  let new_state = create_state () |> place_ships in
+  PassState new_state |> write_message out_chan;
+  play in_chan out_chan
 
 let play_internet_game addr =
   let in_chan, out_chan = Unix.open_connection addr in
