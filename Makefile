@@ -18,9 +18,6 @@ build:
 play: build
 	$(EXEC) -l
 
-network-debug: build
-	$(EXEC) -d
-
 serve: build
 	$(EXEC) 
 
