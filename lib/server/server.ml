@@ -18,6 +18,16 @@ type main_message =
   | NumPlayers of int
   | MMNullMessage
 
+let print_communication_message = function
+  | BroadcastState (i, s) -> print_endline "BroadcastState"
+  | AddMeToGame n -> print_endline "AddMeToGame"
+  | CMNullMessage -> print_endline "CMNullMessage"
+
+let print_main_message = function
+  | GetNumPlayers -> print_endline "GetNumPlayers"
+  | NumPlayers i -> print_endline "NumPlayers"
+  | MMNullMessage -> print_endline "HMNullMessage"
+
 let internal_chan : communication_message Event.channel =
   Event.new_channel ()
 
@@ -49,23 +59,22 @@ let spawn_communication_manager () =
     (fun _ ->
       let players = ref [] in
       while true do
-        (match
-           Event.receive internal_chan
-           |> Event.poll
-           |> Option.value ~default:CMNullMessage
-         with
-        | BroadcastState (whom, what) ->
-            PassState what |> write_message (List.nth !players whom)
-        | AddMeToGame c -> players := !players @ [ c ]
-        | _ -> ());
-        match
-          Event.receive main_chan |> Event.poll
-          |> Option.value ~default:MMNullMessage
-        with
-        | GetNumPlayers ->
-            NumPlayers (List.length !players)
-            |> Event.send main_chan |> Event.sync
-        | _ -> ()
+        begin
+          match Event.receive internal_chan |> Event.poll with
+          | None -> ()
+          | Some thing -> print_communication_message thing
+        end;
+        match Event.receive main_chan |> Event.poll with
+        | None -> ()
+        | Some thing -> print_main_message thing
+        (* (match Event.receive internal_chan |> Event.poll |>
+           Option.value ~default:CMNullMessage with | BroadcastState
+           (whom, what) -> PassState what |> write_message (List.nth
+           !players whom) | AddMeToGame c -> players := !players @ [ c ]
+           | _ -> ()); match Event.receive main_chan |> Event.poll |>
+           Option.value ~default:MMNullMessage with | GetNumPlayers ->
+           NumPlayers (List.length !players) |> Event.send main_chan |>
+           Event.sync | _ -> () *)
       done)
     ()
   |> ignore
@@ -92,18 +101,16 @@ let rec handler player_num input output =
   | Invalid -> write_message output (Error "Couldn't parse request")
 
 let setup_handler (input : in_channel) (output : out_channel) =
-  print_endline "hi";
-  Event.send main_chan GetNumPlayers |> ignore;
-  print_endline "hello";
+  Event.send main_chan GetNumPlayers |> Event.sync;
   match Event.receive main_chan |> Event.sync with
   | NumPlayers n ->
       if n = 0 then begin
-        AddMeToGame output |> Event.send internal_chan |> ignore;
+        AddMeToGame output |> Event.send internal_chan |> Event.sync;
         print_endline "PLAYER 0 JOINED";
         handler 0 input output
       end
       else if n = 1 then begin
-        AddMeToGame output |> Event.send internal_chan |> ignore;
+        AddMeToGame output |> Event.send internal_chan |> Event.sync;
         print_endline "PLAYER 1 JOINED";
         handler 1 input output
       end
