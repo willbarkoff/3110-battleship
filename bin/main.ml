@@ -109,7 +109,9 @@ let finish s =
   read_line () |> ignore
 
 let rec play s =
-  let moved = s |> show_player_board |> attack |> show_opponent_board in
+  let moved =
+    s |> show_player_board |> attack ~debug:false |> show_opponent_board
+  in
   if State.finished_game moved then finish moved
   else moved |> toggle_player |> play
 

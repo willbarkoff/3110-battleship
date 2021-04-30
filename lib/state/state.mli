@@ -22,6 +22,7 @@ val place_ship :
   Battleship.position ->
   Battleship.ship ->
   Battleship.direction ->
+  ?debug:bool ->
   t
 
 (** [toggle_player state] toggles the player in the given state*)
@@ -31,4 +32,4 @@ val toggle_player : t -> t
 val finished_game : t -> bool
 
 (** [attack t pos] performs an attack on the given position, [pos]. *)
-val attack : t -> Battleship.position -> t
+val attack : t -> Battleship.position -> ?debug:bool -> t

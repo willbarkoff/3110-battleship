@@ -224,8 +224,8 @@ let place_ship
     (ship : ship)
     (start_pos : position)
     (board : board)
-    (direction : direction) =
-  let debug = false in
+    (direction : direction)
+    debug =
   if not (valid_pos start_pos direction ship) then raise InvalidPosition;
   (* load_and_play_audio "./audio_files/place_ship.wav" 2000; *)
   if debug then (
@@ -244,12 +244,11 @@ let place_ship
     done;
     ())
 
-let attack pos (board : board) =
+let attack pos (board : board) debug =
   try
-    let debug = false in
     let row, col = indicies_of_position pos in
-    print_endline (string_of_int row);
-    print_endline (string_of_int col);
+    (* print_endline (string_of_int row); print_endline (string_of_int
+       col); *)
     match board.(row).(col).occupied with
     | Occupied _ ->
         if debug then board.(row).(col).attack <- Hit

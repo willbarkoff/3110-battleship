@@ -48,7 +48,7 @@ let rec place (state : State.t) (ship : Battleship.ship) =
   try
     let pos = read_pos () in
     let ori = read_orientation () in
-    State.place_ship state pos ship ori
+    State.place_ship state pos ship ori ~debug:false
   with _ ->
     Util.plfs
       [

@@ -1,5 +1,7 @@
 open OUnit2
 
+let debug_test = true
+
 let battleship_test =
   [
     ( "sample test" >:: fun _ ->
@@ -516,7 +518,7 @@ let place_ship_test2
              (State.place_ship state
                 (Battleship.create_position position)
                 (Battleship.create_ship ship)
-                direction))))
+                direction ~debug:debug_test))))
     (Battleship.print_board
        (Battleship.get_player_board expected_output))
 
@@ -533,7 +535,7 @@ let place_ship_test1
        (State.place_ship state
           (Battleship.create_position position)
           (Battleship.create_ship ship)
-          direction))
+          direction ~debug:debug_test))
 
 let test_state = State.create_state test_player test_player_2
 
@@ -555,7 +557,7 @@ let state_2 () =
     (make_copy_state (state_1 ()))
     (Battleship.create_position ('A', 1))
     (Battleship.create_ship "cruiser")
-    Battleship.Down
+    Battleship.Down ~debug:debug_test
 
 let state_3 () =
   State.place_ship
@@ -564,10 +566,10 @@ let state_3 () =
           (make_copy_state (state_1 ()))
           (Battleship.create_position ('A', 1))
           (Battleship.create_ship "cruiser")
-          Battleship.Down))
+          Battleship.Down ~debug:debug_test))
     (Battleship.create_position ('D', 1))
     (Battleship.create_ship "carrier")
-    Battleship.Right
+    Battleship.Right ~debug:debug_test
 
 let state_list =
   [
@@ -621,7 +623,7 @@ let rec create_state count max list state =
               (State.place_ship state
                  (Battleship.create_position a)
                  (Battleship.create_ship b)
-                 c))
+                 c ~debug:debug_test))
 
 let rec create_state_attack count max (list : (char * int) list) state =
   match list with
@@ -632,7 +634,9 @@ let rec create_state_attack count max (list : (char * int) list) state =
         match h with
         | l ->
             create_state_attack (count + 1) max t
-              (State.attack state (Battleship.create_position l)))
+              (State.attack state
+                 (Battleship.create_position l)
+                 ~debug:debug_test))
 
 let base_state () =
   State.create_state
@@ -651,7 +655,8 @@ let attack_test1
           (create_state_attack 1 num_attacks attack_positions_list
              (State.toggle_player
                 (create_state 1 5 state_list (base_state ()))))
-          (Battleship.create_position position)))
+          (Battleship.create_position position)
+          ~debug:debug_test))
 
 let attack_test2
     (name : string)
@@ -669,7 +674,8 @@ let attack_test2
                 (create_state_attack 1 num_attacks attack_positions_list
                    (State.toggle_player
                       (create_state 1 5 state_list (base_state ()))))
-                (Battleship.create_position position)))))
+                (Battleship.create_position position)
+                ~debug:debug_test))))
 
 let place_ship_test_exn
     (name : string)
@@ -683,7 +689,7 @@ let place_ship_test_exn
       State.place_ship state
         (Battleship.create_position position)
         (Battleship.create_ship ship)
-        direction)
+        direction ~debug:debug_test)
 
 let attack_test_exn
     (name : string)
@@ -692,7 +698,9 @@ let attack_test_exn
     (expected_output : exn) : test =
   name >:: fun _ ->
   assert_raises expected_output (fun () ->
-      State.attack state (Battleship.create_position position))
+      State.attack state
+        (Battleship.create_position position)
+        ~debug:debug_test)
 
 let finished_game_test
     (name : string)
@@ -789,7 +797,7 @@ let state_tests =
       (State.place_ship (base_state ())
          (Battleship.create_position ('A', 1))
          (Battleship.create_ship "cruiser")
-         Battleship.Down)
+         Battleship.Down ~debug:debug_test)
       ('A', 1) "battleship" Battleship.Right Battleship.ShipCollision;
     place_ship_test_exn "unknown ship ship" (base_state ()) ('B', 1)
       "ship" Battleship.Right Battleship.UnknownShip;

@@ -93,10 +93,10 @@ val get_tile_occupation : block_tile -> block_occupation
 
 (** Places the ship onto the board. Raises [ShipCollision] if the ship
     placed collides with another ship *)
-val place_ship : ship -> position -> board -> direction -> unit
+val place_ship : ship -> position -> board -> direction -> bool -> unit
 
 (** Performs an attack on the opponent. *)
-val attack : position -> board -> unit
+val attack : position -> board -> bool -> unit
 
 (** Checks if the game is finished. *)
 val finished_game : board -> bool
