@@ -18,7 +18,7 @@ let rec play in_chan out_chan =
   let open Ui in
   let state =
     in_chan |> read_message |> get_state_from_message
-    |> show_player_board |> attack |> show_opponent_board
+    |> show_player_board |> attack ~debug:false |> show_opponent_board
   in
   flush out_chan;
   if State.finished_game state then finish state
