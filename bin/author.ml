@@ -1,4 +1,4 @@
-let hours_worked = -1
+let hours_worked = 75
 
 let _ =
   if hours_worked >= 0 then
