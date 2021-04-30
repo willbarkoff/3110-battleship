@@ -93,16 +93,9 @@ let rec show_main_menu () =
 let _ =
   let usage_message = "battleship [-l]" in
   let local = ref false in
-  let network_debug = ref false in
 
-  let speclist =
-    [
-      ("-l", Arg.Set local, "Play locally");
-      ("-d", Arg.Set network_debug, "Use network debugging");
-    ]
-  in
+  let speclist = [ ("-l", Arg.Set local, "Play locally") ] in
 
   Arg.parse speclist (fun _ -> ()) usage_message;
-  if !network_debug then Network.network_debug 1234;
   if !local then show_main_menu ()
   else Server.listen_and_serve network_port

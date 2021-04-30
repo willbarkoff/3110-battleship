@@ -2,7 +2,6 @@
  (names main author)
  (libraries
   battleship
-  network
   client
   server
   menu
