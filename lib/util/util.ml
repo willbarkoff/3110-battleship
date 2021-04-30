@@ -61,6 +61,10 @@ let print_hr
     (String.make (fst (get_terminal_size ())) print_char);
   if succeeding_newline then print_newline ()
 
+(** This method is highly inspired by
+    https://github.com/fccm/OCamlSDL2/blob/master/examples/ex_simple_wav.ml.
+    Our method includes an extra [time] parameter that specifies how
+    long to play the .wav audio file for. *)
 let load_and_play_audio file time =
   (* Initialize a particular audio driver *)
   Sdl.init [ `AUDIO ];
