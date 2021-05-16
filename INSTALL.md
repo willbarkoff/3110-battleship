@@ -31,7 +31,7 @@ If you're using another operating system, you can likely find instructions for i
 Next, install the required dependencies using `opam`:
 
 ```
-$ opam install ANSITerminal ounit2 dune core async ppx_let ocamlsdl2
+$ opam install ANSITerminal ounit2 dune core async ppx_let ocamlsdl2 bisect_ppx
 ```
 
 Finally, to run the program, run `make`. This will launch a local game, so that several users can play on the same computer.
