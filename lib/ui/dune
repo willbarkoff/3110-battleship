@@ -1,4 +1,6 @@
 (library
  (name ui)
  (public_name battleship.ui)
- (libraries person battleship selectlocation state util ANSITerminal ppx_let))
+ (libraries person battleship selectlocation state util ANSITerminal ppx_let)
+ (instrumentation
+  (backend bisect_ppx)))

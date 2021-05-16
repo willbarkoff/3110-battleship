@@ -3,9 +3,10 @@ MLI_FILES=$(shell find . -type f -name "*.mli")
 MLD_FILES=$(shell find . -type f -name "*.mld")
 MD_FILES=$(shell find . -type f -name "*.md")
 WAV_FILES=$(shell find . -type f -name "*.wav")
+DUNE_FILES=$(shell find . -type f -name "dune")
 
 
-ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES)
+ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES) dune-project battleship.opam
 EXEC=./_build/default/bin/main.exe
 
 RED=\033[0;31m
@@ -47,6 +48,7 @@ docs-private-serve: docs-private serve-docs
 
 clean:
 	rm main.byte battleship.zip .merlin || true
+	rm -rf coverage _coverage || true
 	dune clean
 
 zip:
@@ -57,6 +59,12 @@ zip:
 
 count:
 	cloc $(ZIPFILES)
+
+bisect:
+	find . -name '*.coverage' | xargs rm -f
+	dune runtest --instrument-with bisect_ppx --force
+	bisect-ppx-report html
+	bisect-ppx-report summary
 
 utop:
 	dune utop
