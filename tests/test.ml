@@ -1,3 +1,16 @@
+(** Test Plan
+
+    We did a extensive testing on State module. We omitted testing
+    Battleship module because the functions that are useful to the
+    functionality of the game is encapsulated by the State's module. We
+    believe that our test suite demonstrates the correctness of our
+    system because we included 50 unit tests for initialization of a
+    player and a state, and place_ship and attack are the main functions
+    in our Battleship game. State module were automatically tested by
+    OUnit, and (add which parts of the system are manually tested.)
+    (explain what modules were tested by OUnit and how test cases were
+    developed (black box, glass box, randomized, etc.).) *)
+
 open OUnit2
 
 let debug_test = true
