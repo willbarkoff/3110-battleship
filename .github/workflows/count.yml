@@ -1,0 +1,24 @@
+name: Count lines of code
+
+on:
+  push:
+    branches: "*"
+  pull_request:
+    branches: "*"
+  workflow_dispatch:
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install Node.js
+        run: actions/setup-node@v2.1.5
+
+      - name: install cloc
+        run: npm i -g cloc
+
+      - name: count lines of code
+        run: make count
