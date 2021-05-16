@@ -30,4 +30,4 @@ jobs:
       - name: comment on commit
         uses: peter-evans/commit-comment@v1.3.2
         with:
-          body: "Here is result of `make count` on your commit:```${{steps.cloc.outputs.count}}```"
+          body: "```${{steps.cloc.outputs.count}}```"
