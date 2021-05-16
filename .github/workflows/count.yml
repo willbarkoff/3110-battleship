@@ -19,9 +19,11 @@ jobs:
 
       - name: count lines of code
         id: cloc
-        run: make cloc
+        run: |
+          make cloc
+          echo "::set-output name=count::$(make cloc)"
         
       - name: comment on commit
         uses: peter-evans/commit-comment@v1.3.2
         with:
-          body: "```${{steps.cloc.output}}```"
+          body: "```${{steps.cloc.outputs.count}}```"
