@@ -10,4 +10,5 @@
   state
   selectlocation
   ui
+  gui
   ANSITerminal))
