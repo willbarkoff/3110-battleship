@@ -6,7 +6,7 @@ WAV_FILES=$(shell find . -type f -name "*.wav" -not -path "./_build/*")
 DUNE_FILES=$(shell find . -type f -name "dune" -not -path "./_build/*")
 
 
-ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES) dune-project battleship.opam
+ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES) dune-project battleship.opam Makefile .ocamlinit
 EXEC=./_build/default/bin/main.exe
 
 RED=\033[0;31m
@@ -56,8 +56,10 @@ zip: clean
 	@zip battleship.zip $(ZIPFILES)
 	@echo "\nThe MD5 hash for submission to CMSX is $(BOLD)$(BLUE)$$(md5 -q battleship.zip)$(CLEAR)."
 
-count: clean
-	@cloc $(ZIPFILES)
+cloc:
+	@cloc $(ZIPFILES) .github/*
+
+count: clean cloc
 
 bisect:
 	find . -name '*.coverage' | xargs rm -f
