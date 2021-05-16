@@ -14,17 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: install Node.js
-        uses: actions/setup-node@v2.1.5
-
       - name: install cloc
-        run: npm i -g cloc
+        run: sudo apt install cloc
 
       - name: count lines of code
-        id: count
-        run: make count
+        id: cloc
+        run: make cloc
         
       - name: comment on commit
         uses: peter-evans/commit-comment@v1.3.2
         with:
-          body: "```${{steps.count.output}}```"
+          body: "```${{steps.cloc.output}}```"
