@@ -10,4 +10,6 @@
   core
   async
   ANSITerminal
-  ounit2))
+  ounit2)
+ (instrumentation
+  (backend bisect_ppx)))

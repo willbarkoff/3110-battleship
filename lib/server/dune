@@ -1,4 +1,6 @@
 (library
  (name server)
  (public_name battleship.server)
- (libraries util battleship menu ui state person ANSITerminal))
+ (libraries util battleship menu ui state person ANSITerminal)
+ (instrumentation
+  (backend bisect_ppx)))

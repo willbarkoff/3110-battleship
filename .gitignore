@@ -24,6 +24,7 @@ setup.log
 
 # Coverage files
 coverage
+_coverage
 
 # Dune generated files
 *.install

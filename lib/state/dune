@@ -3,4 +3,6 @@
  (public_name battleship.state)
  (libraries person core async ANSITerminal ppx_let)
  (preprocess
-  (pps ppx_let)))
+  (pps ppx_let))
+ (instrumentation
+  (backend bisect_ppx)))
