@@ -21,9 +21,13 @@ jobs:
         id: cloc
         run: |
           make cloc
-          echo "::set-output name=count::$(make cloc)"
+          COUNT=$(make cloc)
+          COUNT="${COUNT//'%'/'%25'}"
+          COUNT="${COUNT//$'\n'/'%0A'}"
+          COUNT="${COUNT//$'\r'/'%0D'}"
+          echo "::set-output name=count::$COUNT"
         
       - name: comment on commit
         uses: peter-evans/commit-comment@v1.3.2
         with:
-          body: "```${{steps.cloc.outputs.count}}```"
+          body: "Here is result of `make count` on your commit:```${{steps.cloc.outputs.count}}```"
