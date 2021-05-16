@@ -56,8 +56,10 @@ zip: clean
 	@zip battleship.zip $(ZIPFILES)
 	@echo "\nThe MD5 hash for submission to CMSX is $(BOLD)$(BLUE)$$(md5 -q battleship.zip)$(CLEAR)."
 
-count: clean
+cloc:
 	@cloc $(ZIPFILES)
+
+count: clean cloc
 
 bisect:
 	find . -name '*.coverage' | xargs rm -f
