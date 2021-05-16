@@ -1,4 +1,11 @@
-ZIPFILES=*/**/*.ml* .ocamlformat .ocamlinit *.md Makefile
+ML_FILES=$(shell find . -type f -name "*.ml")
+MLI_FILES=$(shell find . -type f -name "*.mli")
+MLD_FILES=$(shell find . -type f -name "*.mld")
+MD_FILES=$(shell find . -type f -name "*.md")
+WAV_FILES=$(shell find . -type f -name "*.wav")
+
+
+ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES)
 EXEC=./_build/default/bin/main.exe
 
 RED=\033[0;31m
@@ -43,6 +50,8 @@ clean:
 	dune clean
 
 zip:
+	make clean
+	rm battleship.zip || true
 	zip battleship.zip $(ZIPFILES)
 	@echo "\nThe MD5 hash for submission to CMSX is $(BOLD)$(BLUE)$$(md5 -q battleship.zip)$(CLEAR)."
 
