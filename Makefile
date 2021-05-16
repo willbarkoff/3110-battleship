@@ -6,7 +6,7 @@ WAV_FILES=$(shell find . -type f -name "*.wav" -not -path "./_build/*")
 DUNE_FILES=$(shell find . -type f -name "dune" -not -path "./_build/*")
 
 
-ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES) dune-project battleship.opam
+ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES) dune-project battleship.opam Makefile .ocamlinit
 EXEC=./_build/default/bin/main.exe
 
 RED=\033[0;31m
@@ -57,7 +57,7 @@ zip: clean
 	@echo "\nThe MD5 hash for submission to CMSX is $(BOLD)$(BLUE)$$(md5 -q battleship.zip)$(CLEAR)."
 
 cloc:
-	@cloc $(ZIPFILES)
+	@cloc $(ZIPFILES) .github/*
 
 count: clean cloc
 
