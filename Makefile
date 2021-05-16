@@ -1,9 +1,9 @@
-ML_FILES=$(shell find . -type f -name "*.ml")
-MLI_FILES=$(shell find . -type f -name "*.mli")
-MLD_FILES=$(shell find . -type f -name "*.mld")
-MD_FILES=$(shell find . -type f -name "*.md")
-WAV_FILES=$(shell find . -type f -name "*.wav")
-DUNE_FILES=$(shell find . -type f -name "dune")
+ML_FILES=$(shell find . -type f -name "*.ml" -not -path "./_build/*")
+MLI_FILES=$(shell find . -type f -name "*.mli" -not -path "./_build/*")
+MLD_FILES=$(shell find . -type f -name "*.mld" -not -path "./_build/*")
+MD_FILES=$(shell find . -type f -name "*.md" -not -path "./_build/*")
+WAV_FILES=$(shell find . -type f -name "*.wav" -not -path "./_build/*")
+DUNE_FILES=$(shell find . -type f -name "dune" -not -path "./_build/*")
 
 
 ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES) dune-project battleship.opam
@@ -51,14 +51,13 @@ clean:
 	rm -rf coverage _coverage || true
 	dune clean
 
-zip:
-	make clean
+zip: clean
 	rm battleship.zip || true
-	zip battleship.zip $(ZIPFILES)
+	@zip battleship.zip $(ZIPFILES)
 	@echo "\nThe MD5 hash for submission to CMSX is $(BOLD)$(BLUE)$$(md5 -q battleship.zip)$(CLEAR)."
 
-count:
-	cloc $(ZIPFILES)
+count: clean
+	@cloc $(ZIPFILES)
 
 bisect:
 	find . -name '*.coverage' | xargs rm -f
