@@ -85,6 +85,7 @@ let rec show_main_menu () =
     print_newline ();
     match Menu.show_menu "Main menu" main_menu with
     | NewGame ->
+        (* new_game (); *)
         new_window ();
         show_main_menu ()
     | Multiplayer ->

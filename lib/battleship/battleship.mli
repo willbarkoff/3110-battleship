@@ -69,6 +69,12 @@ type board = block_tile array array
 (** The type of ship. *)
 type ship
 
+(** Number of rows on the board *)
+val no_of_rows : int
+
+(** Number of columns on the board *)
+val no_of_cols : int
+
 (** The list of ships in the game. *)
 val ships : ship list
 
