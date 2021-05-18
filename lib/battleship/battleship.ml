@@ -255,8 +255,6 @@ let place_ship
 let attack pos (board : board) debug =
   try
     let row, col = indicies_of_position pos in
-    (* print_endline (string_of_int row); print_endline (string_of_int
-       col); *)
     match board.(row).(col).occupied with
     | Occupied _ ->
         if debug then board.(row).(col).attack <- Hit

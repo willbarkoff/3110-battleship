@@ -6,6 +6,8 @@ type gui_pos
 
 type gui_board
 
+exception OutofBounds
+
 val new_window : unit -> unit
 
 val close_window : unit -> unit
