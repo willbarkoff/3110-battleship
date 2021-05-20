@@ -31,7 +31,7 @@ If you're using another operating system, you can likely find instructions for i
 Next, install the required dependencies using `opam`:
 
 ```
-$ opam install ANSITerminal ounit2 dune core async ppx_let ocamlsdl2 graphics
+$ opam install ANSITerminal ounit2 dune core async ppx_let ocamlsdl2 graphics camlimages
 ```
 
 You will also need an XServer to display graphics.
