@@ -66,6 +66,15 @@ let new_game () =
     (Person.create_player (Battleship.board ()) [])
   |> place_ships |> toggle_player |> place_ships |> play
 
+let place_gui_ships state = List.iter (Gui.place state) Battleship.ships
+
+let new_gui_game () =
+  Gui.new_window ();
+  State.create_state
+    (Person.create_player (Battleship.board ()) [])
+    (Person.create_player (Battleship.board ()) [])
+  |> place_gui_ships
+
 let network_port = 1234
 
 let client_port = 1234
@@ -86,7 +95,8 @@ let rec show_main_menu () =
     match Menu.show_menu "Main menu" main_menu with
     | NewGame ->
         (* new_game (); *)
-        new_window ();
+        (* new_window (); *)
+        (* new_gui_game (); *)
         show_main_menu ()
     | Multiplayer ->
         Client.play_internet_game inet_addr;
