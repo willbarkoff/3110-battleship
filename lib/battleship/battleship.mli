@@ -14,10 +14,6 @@ type ship_type =
 (** A position in Battleship. *)
 type position
 
-(** [string_of_position p] returns a string representation of the
-    position [p]. *)
-val string_of_position : position -> string
-
 (** Determines whether block has been occupied or not *)
 type block_occupation =
   | Occupied of ship_type
@@ -31,7 +27,7 @@ type attack_type =
 
 (** [string_of_attack_type at] returns a string representation of the
     attack type [at].*)
-val string_of_attack_type : attack_type -> string
+(* val string_of_attack_type : attack_type -> string *)
 
 (** Defines one specific block tile *)
 type block_tile = {

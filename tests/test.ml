@@ -100,49 +100,6 @@ let get_ships_test
   name >:: fun _ ->
   assert_equal expected_output (Person.get_ships player)
 
-let get_string_of_position (pos : Battleship.position) : string =
-  let position = Battleship.get_position pos in
-  Char.escaped (fst position) ^ string_of_int (snd position)
-
-let get_string_of_direction (direction : Battleship.direction) : string
-    =
-  match direction with
-  | Left -> "Left"
-  | Right -> "Right"
-  | Up -> "Up"
-  | Down -> "Down"
-
-let action_to_string_list (action : Person.action) : string list =
-  match action with
-  | Place (ship_name, position, direction) ->
-      [
-        "place";
-        ship_name;
-        get_string_of_position position;
-        get_string_of_direction direction;
-      ]
-  | Attack position -> [ "attack"; get_string_of_position position ]
-  | Quit -> [ "quit" ]
-
-let rec string_of_list lst =
-  match lst with [] -> "" | h :: t -> h ^ " " ^ string_of_list t
-
-let parse_test
-    (name : string)
-    (str : string)
-    (expected_output : string list) : test =
-  name >:: fun _ ->
-  assert_equal expected_output
-    (action_to_string_list (Person.parse_input str))
-    ~printer:string_of_list
-
-let parse_test_exception
-    (name : string)
-    (input : string)
-    (expected_output : exn) : test =
-  name >:: fun _ ->
-  assert_raises expected_output (fun () -> Person.parse_input input)
-
 let get_player_test
     (name : string)
     (state : State.t)
@@ -205,9 +162,6 @@ let rec update_array
       | row, col ->
           let b = make_copy board_arr in
           let row_array = Array.copy board_arr.(Char.code row - 65) in
-          (* Printf.printf "Row index: %s\n" (string_of_int (Char.code
-             row - 65)); Printf.printf "column index: %s\n"
-             (string_of_int (col - 1)); *)
           row_array.(col - 1) <- h;
           b.(Char.code row - 65) <- Array.copy row_array;
           update_array t b)
@@ -548,15 +502,18 @@ let array_of_state_opponent (s : State.t) =
 
 let check_occ (tile : Battleship.block_tile) =
   if tile.occupied <> Battleship.Unoccupied then "O" else "U"
+  [@@coverage off]
 
 let print_board b =
   b
   |> Array.map (Array.map check_occ)
   |> Array.iter (Array.iter print_endline)
+  [@@coverage off]
 
 let print_position (pos : Battleship.position) =
   match Battleship.get_position pos with
   | c, i -> Char.escaped c ^ string_of_int i
+  [@@coverage off]
 
 let place_ship_test2
     (name : string)
@@ -576,6 +533,7 @@ let place_ship_test2
                 direction ~debug:debug_test))))
     (Battleship.print_board
        (Battleship.get_player_board expected_output))
+  [@@coverage off]
 
 let place_ship_test1
     (name : string)
@@ -593,38 +551,6 @@ let place_ship_test1
           direction ~debug:debug_test))
 
 let test_state = State.create_state test_player test_player_2
-
-let make_copy_state s =
-  let p1 = State.get_current_player s in
-  let p2 = State.get_opponent s in
-  State.create_state
-    (Person.create_player
-       (make_copy (Person.get_board p1))
-       test_ship_list)
-    (Person.create_player
-       (make_copy (Person.get_board p2))
-       test_ship_list)
-
-let state_1 () = make_copy_state test_state
-
-let state_2 () =
-  State.place_ship
-    (make_copy_state (state_1 ()))
-    (Battleship.create_position ('A', 1))
-    (Battleship.create_ship "cruiser")
-    Battleship.Down ~debug:debug_test
-
-let state_3 () =
-  State.place_ship
-    (make_copy_state
-       (State.place_ship
-          (make_copy_state (state_1 ()))
-          (Battleship.create_position ('A', 1))
-          (Battleship.create_ship "cruiser")
-          Battleship.Down ~debug:debug_test))
-    (Battleship.create_position ('D', 1))
-    (Battleship.create_ship "carrier")
-    Battleship.Right ~debug:debug_test
 
 let state_list =
   [
@@ -731,6 +657,7 @@ let attack_test2
                       (create_state 1 5 state_list (base_state ()))))
                 (Battleship.create_position position)
                 ~debug:debug_test))))
+  [@@coverage off]
 
 let place_ship_test_exn
     (name : string)
@@ -764,22 +691,42 @@ let finished_game_test
   name >:: fun _ ->
   assert_equal expected_output (State.finished_game state)
 
+let get_ship_name_test
+    (name : string)
+    (ship : Battleship.ship)
+    (expected_output : string) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (Battleship.get_ship_name ship)
+
+let get_ship_size_test
+    (name : string)
+    (ship : Battleship.ship)
+    (expected_output : int) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (Battleship.get_ship_size ship)
+
 let person_tests =
   [
     get_board_test "initial player should have empty board" test_player
       test_board;
     get_ships_test "initial player should have standard ships list"
       test_player test_ship_list;
-    (* parse_test "place test" "place cruiser A1 Up" [ "place";
-       "cruiser"; "A1"; "Up" ]; parse_test "place test 2" "place
-       battleship F9 Up" [ "place"; "battleship"; "F9"; "Up" ]; *)
-    (* parse_test "place test extra spaces" "place submarine B5 Down" [
-       "place"; "submarine"; "B5"; "Down" ]; parse_test "attack test"
-       "attack A1" [ "attack"; "A1" ]; *)
-    (* parse_test_exception "place test invalid input" "place"
-       Person.Empty; parse_test_exception "place test invalid input"
-       "place battleship" Person.Empty; *)
-    (* parse_test_exception "place test empty input" "" Person.Empty; *)
+    get_ship_name_test
+      "get ship name of cruiser should be the string Cruiser" cruiser
+      "Cruiser";
+    get_ship_name_test
+      "get ship name of carrier should be the string Carrier" carrier
+      "Carrier";
+    get_ship_name_test
+      "get ship name of battleship should be the string Battleship"
+      battleship "Battleship";
+    get_ship_name_test
+      "get ship name of submarine should be the string Submarine"
+      submarine "Submarine";
+    get_ship_name_test
+      "get ship name of destroyer should be the string Destroyer"
+      destroyer "Destroyer";
+    get_ship_size_test "size of carrier should be 5" carrier 5;
   ]
 
 let state_tests =

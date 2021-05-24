@@ -16,11 +16,6 @@ type attack_type =
   | Miss
   | Untargeted
 
-let string_of_attack_type = function
-  | Hit -> "Hit"
-  | Miss -> "Miss"
-  | Untargeted -> "Untargeted"
-
 type direction =
   | Left
   | Right
@@ -40,9 +35,6 @@ exception UnknownShip
 exception InvalidPosition
 
 type position = char * int
-
-let string_of_position (c, y) =
-  "(" ^ String.make 1 c ^ "," ^ string_of_int y ^ ")"
 
 type block_tile = {
   position : position;
@@ -121,11 +113,11 @@ let create_block_tile position attack occupied : block_tile =
 
 let get_position pos = pos
 
-let get_tile_position tile = tile.position
+let get_tile_position tile = tile.position [@@coverage off]
 
-let get_tile_attack tile = tile.attack
+let get_tile_attack tile = tile.attack [@@coverage off]
 
-let get_tile_occupation tile = tile.occupied
+let get_tile_occupation tile = tile.occupied [@@coverage off]
 
 let board () : board =
   let cols = Array.init no_of_rows (fun value -> value + 1) in
@@ -237,6 +229,20 @@ let modify_occupied
         tile.occupied <- Occupied ship.ship_type)
     arr
 
+let place_ship_with_audio
+    (ship : ship)
+    (start_pos : position)
+    (board : board)
+    (direction : direction) =
+  load_and_play_audio "./audio_files/place_ship.wav" 2000;
+  for i = 0 to Array.length board - 1 do
+    if check_collision board.(i) ship start_pos direction then
+      modify_occupied board.(i) ship start_pos direction
+    else raise ShipCollision
+  done;
+  ()
+  [@@coverage off]
+
 let place_ship
     (ship : ship)
     (start_pos : position)
@@ -244,22 +250,25 @@ let place_ship
     (direction : direction)
     debug =
   if not (valid_pos start_pos direction ship) then raise InvalidPosition;
-  (* load_and_play_audio "./audio_files/place_ship.wav" 2000; *)
   if debug then (
     for i = 0 to Array.length board - 1 do
       if check_collision board.(i) ship start_pos direction then
         modify_occupied board.(i) ship start_pos direction
       else raise ShipCollision
     done;
-    ())
-  else (
-    load_and_play_audio "./audio_files/place_ship.wav" 2000;
-    for i = 0 to Array.length board - 1 do
-      if check_collision board.(i) ship start_pos direction then
-        modify_occupied board.(i) ship start_pos direction
-      else raise ShipCollision
-    done;
-    ())
+    () (*BISECT-IGNORE-BEGIN*))
+  else place_ship_with_audio ship start_pos board direction
+(*BISECT-IGNORE-END*)
+
+let attack_sound_hit board row col =
+  load_and_play_audio "./audio_files/attack.wav" 4000;
+  board.(row).(col).attack <- Hit
+  [@@coverage off]
+
+let attack_sound_miss board row col =
+  load_and_play_audio "./audio_files/miss.wav" 4000;
+  board.(row).(col).attack <- Miss
+  [@@coverage off]
 
 let attack pos (board : board) debug =
   try
@@ -267,15 +276,13 @@ let attack pos (board : board) debug =
     match board.(row).(col).occupied with
     | Occupied _ ->
         if debug then board.(row).(col).attack <- Hit
-        else (
-          load_and_play_audio "./audio_files/attack.wav" 4000;
-          board.(row).(col).attack <- Hit)
+          (*BISECT-IGNORE-BEGIN*)
+        else attack_sound_hit board row col (*BISECT-IGNORE-END*)
     | Unoccupied ->
         if debug then board.(row).(col).attack <- Miss
-        else (
-          load_and_play_audio "./audio_files/miss.wav" 4000;
-          board.(row).(col).attack <- Miss;
-          ())
+          (*BISECT-IGNORE-BEGIN*)
+        else attack_sound_miss board row col
+    (*BISECT-IGNORE-END*)
   with _ -> raise InvalidPosition
 
 let finished_game (board : board) =
@@ -308,6 +315,7 @@ let get_player_board =
           | Untargeted -> DisplaySea
           | Miss -> DisplayMiss
           | Hit -> failwith "Tile without ship hit"))
+  [@@coverage off]
 
 let get_opponent_board =
   map_board (fun tile ->
@@ -315,6 +323,7 @@ let get_opponent_board =
       | Hit -> DisplayHit
       | Miss -> DisplayMiss
       | Untargeted -> DisplaySea)
+  [@@coverage off]
 
 (** [print_tile settings t] prints a tile [t] with the additional
     settings [settings.]*)
@@ -338,6 +347,7 @@ let print_tile settings = function
       ANSITerminal.print_string
         (settings @ [ ANSITerminal.green ])
         ship_print
+  [@@coverage off]
 
 (** [print_board b] prints the given board, [b]*)
 let print_board (b : block_display array array) =
@@ -355,5 +365,4 @@ let print_board (b : block_display array array) =
       Array.iter (print_tile []) row)
     b;
   print_newline ()
-
-let print_board_with_special_tile b pos = failwith "TODO"
+  [@@coverage off]
