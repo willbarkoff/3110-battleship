@@ -96,7 +96,7 @@ let rec show_main_menu () =
     | NewGame ->
         (* new_game (); *)
         (* new_window (); *)
-        (* new_gui_game (); *)
+        new_gui_game ();
         show_main_menu ()
     | Multiplayer ->
         Client.play_internet_game inet_addr;

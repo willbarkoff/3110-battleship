@@ -175,14 +175,19 @@ let rec place (state : State.t) (ship : Battleship.ship) =
     ^ string_of_int (snd (Battleship.get_position b)));
   ()
 
-let rec finish_board (state : State.t) = failwith "unimplemented"
-(* let b = state |> State.get_current_player |> Person.get_board in
-   clear_graph (); *)
+let rec finish_board (state : State.t) =
+  clear_graph ();
+  moveto 448 440;
+  Graphics.set_font
+    "-*-fixed-medium-r-semicondensed--20-*-*-*-*-*-iso8859-1";
+  draw_string "GAME OVER!";
+  state |> State.get_current_player |> Person.get_board
+  |> Battleship.get_player_board |> Battleship.print_board;
+  ()
 
 let new_window () =
   set_window_title "Battleship";
   open_graph " 800x800";
-  draw_gameboard ();
   set_background_color white
 
 let draw_ship () = ()
