@@ -169,6 +169,13 @@ let rec place (state : State.t) (ship : Battleship.ship) =
   set_background_color cyan;
   draw_current_board b;
   let b = read_pos b ship in
+  let new_board =
+    State.place_ship state b ship Battleship.Right ~debug:false
+    |> State.get_current_player |> Person.get_board
+  in
+  clear_graph ();
+  set_background_color cyan;
+  draw_current_board new_board;
   print_endline
     (String.make 1 (fst (Battleship.get_position b))
     ^ " "
