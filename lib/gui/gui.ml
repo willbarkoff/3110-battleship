@@ -6,6 +6,8 @@ type gui_pos = int * int
 
 exception OutofBounds
 
+exception InvalidOrientation
+
 type gui_tile = {
   bot_left_corner : gui_pos;
   bot_right_corner : gui_pos;
@@ -18,22 +20,15 @@ type gui_board = {
   board : Battleship.board;
 }
 
-let tile_length = 60
+let background = cyan
 
-let print_gui_pos (pos : gui_pos) =
-  print_endline (string_of_int (fst pos) ^ " " ^ string_of_int (snd pos))
+let tile_length = 60
 
 let set_background_color color =
   let fg = foreground in
   set_color color;
   fill_rect 0 0 (size_x ()) (size_y ());
   set_color fg
-
-(* let cols = Array.init no_of_rows (fun value -> value + 1) in let row
-   y = let y = y + 1 in Array.map (fun x -> [ (x * tile_length, y *
-   tile_length); ((x + 1) * tile_length, y * tile_length); (x *
-   tile_length, (y + 1) * tile_length); ((x + 1) * tile_length, (y + 1)
-   * tile_length); ]) cols in Array.init no_of_cols row *)
 
 let make_board () =
   let cols = Array.init no_of_rows (fun value -> value + 1) in
@@ -53,6 +48,7 @@ let make_board () =
   Array.init no_of_cols row
 
 let draw_board () =
+  set_background_color background;
   let b = make_board () in
   let draw_line (i_x, i_y) (f_x, f_y) =
     moveto i_x i_y;
@@ -124,6 +120,14 @@ let mouse_click () =
   let stat = wait_next_event [ Button_up ] in
   get_board_tile stat
 
+let keyboard_read () =
+  let stat = wait_next_event [ Key_pressed ] in
+  stat.key
+
+let rec keyboard_read_enter () =
+  let key_char = keyboard_read () in
+  if Char.code key_char <> 13 then keyboard_read_enter () else ()
+
 let write_middle_tile (pos : Battleship.position) str =
   let bot_left_pos = List.nth (gui_pos_of_battleship_pos pos) 0 in
   moveto
@@ -137,67 +141,135 @@ let draw_current_board (b : Battleship.board) =
     (fun arr ->
       Array.iter
         (fun a ->
-          (match a.occupied with
-          | Occupied s ->
-              write_middle_tile a.position (Battleship.ship_print a)
-          | Unoccupied -> ());
           match a.attack with
-          | Hit -> write_middle_tile a.position "H"
-          | Miss -> write_middle_tile a.position "M"
+          | Hit ->
+              set_color red;
+              write_middle_tile a.position "H";
+              set_color black
+          | Miss ->
+              set_color blue;
+              write_middle_tile a.position "M";
+              set_color black
+          | Untargeted -> (
+              match a.occupied with
+              | Occupied _ ->
+                  write_middle_tile a.position (Battleship.ship_print a)
+              | Unoccupied -> ()))
+        arr)
+    b
+
+let draw_opponent_board (b : Battleship.board) =
+  draw_board ();
+  Array.iter
+    (fun arr ->
+      Array.iter
+        (fun a ->
+          match a.attack with
+          | Hit ->
+              set_color red;
+              write_middle_tile a.position "H";
+              set_color black
+          | Miss ->
+              set_color blue;
+              write_middle_tile a.position "M";
+              set_color black
           | Untargeted -> ())
         arr)
     b
 
+let display_player_board_text s1 s2 b =
+  draw_current_board b;
+  moveto ((size_x () / 2) - 150) (size_y () - 60);
+  set_color red;
+  draw_string s1;
+  moveto ((size_x () / 2) - 150) (size_y () - 80);
+  draw_string s2;
+  keyboard_read_enter ()
+
 let rec read_pos (b : Battleship.board) (ship : Battleship.ship) =
   try
+    clear_graph ();
+    draw_current_board b;
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     draw_string
       ("Choose a tile to place the " ^ Battleship.get_ship_name ship);
     Battleship.create_position (mouse_click ())
   with _ ->
-    moveto (size_x () / 2) (size_y () - 60);
+    moveto ((size_x () / 2) - 150) (size_y () - 60);
     clear_graph ();
     set_color red;
     draw_string "Invalid Position. Try again...";
     set_color black;
+    Unix.sleepf 1.0;
     clear_graph ();
     draw_current_board b;
     read_pos b ship
 
-let rec read_orientation () =
+let rec read_pos_attack (b : Battleship.board) =
   try
-    Util.plfs [ ([ ANSITerminal.green ], "Orientation (L,R,U,D)> ") ];
-    let orientation =
-      read_line () |> Util.explode |> List.hd |> Char.uppercase_ascii
-    in
+    clear_graph ();
+    draw_opponent_board b;
+    moveto ((size_x () / 2) - 150) (size_y () - 60);
+    draw_string "Your opponent's board";
+    moveto ((size_x () / 2) - 150) (size_y () - 80);
+    draw_string "Click where you want to place your next shot";
+    Battleship.create_position (mouse_click ())
+  with _ ->
+    moveto ((size_x () / 2) - 150) (size_y () - 60);
+    clear_graph ();
+    set_color red;
+    draw_string "Invalid Position. Try again...";
+    set_color black;
+    Unix.sleepf 1.0;
+    clear_graph ();
+    draw_current_board b;
+    read_pos_attack b
+
+let rec read_orientation (b : Battleship.board) =
+  try
+    clear_graph ();
+    draw_current_board b;
+    moveto ((size_x () / 2) - 150) (size_y () - 60);
+    draw_string "Type an Orientation (L, U, D, R): ";
+    let key_char = keyboard_read () in
+    let orientation = key_char |> Char.uppercase_ascii in
     if orientation = 'L' then Battleship.Left
     else if orientation = 'R' then Battleship.Right
     else if orientation = 'U' then Battleship.Up
     else if orientation = 'D' then Battleship.Down
-    else failwith "Invalid"
+    else raise InvalidOrientation
   with _ ->
-    Util.plfs [ ([ ANSITerminal.red ], "That's not a valid input\n\n") ];
-    read_orientation ()
+    moveto ((size_x () / 2) - 150) (size_y () - 60);
+    clear_graph ();
+    set_color red;
+    draw_string "Invalid Orientation. Try again...";
+    set_color black;
+    Unix.sleepf 1.0;
+    clear_graph ();
+    draw_current_board b;
+    read_orientation b
 
 let rec place (state : State.t) (ship : Battleship.ship) =
   let b = state |> State.get_current_player |> Person.get_board in
   clear_graph ();
-  set_background_color cyan;
   draw_current_board b;
-  let b = read_pos b ship in
-  let o = read_orientation () in
+  let pos = read_pos b ship in
+  let o = read_orientation b in
+  let new_state = State.place_ship state pos ship o ~debug:false in
   let new_board =
-    State.place_ship state b ship o ~debug:false
-    |> State.get_current_player |> Person.get_board
+    new_state |> State.get_current_player |> Person.get_board
   in
   clear_graph ();
-  set_background_color cyan;
   draw_current_board new_board;
-  print_endline
-    (String.make 1 (fst (Battleship.get_position b))
-    ^ " "
-    ^ string_of_int (snd (Battleship.get_position b)));
-  ()
+  new_state
+
+let toggle_player () =
+  moveto ((size_x () / 2) - 150) (size_y () - 60);
+  set_color red;
+  draw_string "Pass the computer to the next player.";
+  moveto ((size_x () / 2) - 150) (size_y () - 80);
+  draw_string "Press enter when you're ready to continue.";
+  keyboard_read_enter ()
 
 let rec finish_board (state : State.t) =
   clear_graph ();
@@ -212,11 +284,29 @@ let rec finish_board (state : State.t) =
 let new_window () =
   set_window_title "Battleship";
   open_graph " 800x800";
-  set_background_color white
+  set_background_color background
 
 let draw_ship () = ()
 
-let update_board () = ()
+let update_board state =
+  let b = state |> State.get_opponent |> Person.get_board in
+  clear_graph ();
+  draw_opponent_board b;
+  let pos = read_pos_attack b in
+  let new_state = State.attack state pos ~debug:false in
+  let new_board = new_state |> State.get_opponent |> Person.get_board in
+  clear_graph ();
+  draw_opponent_board new_board;
+  new_state
+
+(* ANSITerminal.erase ANSITerminal.Screen; Util.plfs [ ([
+   ANSITerminal.Bold ], "\nYour opponent's board:\n") ]; s |>
+   State.get_opponent |> Person.get_board |>
+   Battleship.get_opponent_board |> Battleship.print_board;
+   Util.print_board_legend (); Util.plfs [ ([], "\n\nWhere would you
+   like to attack?\n") ]; let pos = Selectlocation.read_pos () in try
+   State.attack s pos with _ -> Util.plfs [ ([ ANSITerminal.red ],
+   "\nThat is an invalid position.\n") ]; attack s *)
 
 let write_player_text i = ()
 

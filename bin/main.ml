@@ -53,6 +53,10 @@ let toggle_player state =
   ANSITerminal.restore_cursor ();
   State.toggle_player state
 
+let toggle_player_gui state =
+  Gui.toggle_player ();
+  State.toggle_player state
+
 let rec play s =
   let moved =
     s |> show_player_board |> attack ~debug:false |> show_opponent_board
@@ -66,7 +70,24 @@ let new_game () =
     (Person.create_player (Battleship.board ()) [])
   |> place_ships |> toggle_player |> place_ships |> play
 
-let place_gui_ships state = List.iter (Gui.place state) Battleship.ships
+let rec play_gui s =
+  (* print out here is your board *)
+  s |> State.get_current_player |> Person.get_board
+  |> Gui.display_player_board_text "Your current board:"
+       "Press enter to continue";
+
+  (* print out here is your opponents board *)
+  let moved = s |> Gui.update_board in
+  (* in moved |> State.get_opponent |> Person.get_board |>
+     Gui.draw_opponent_board; *)
+  (* let moved = s |> show_player_board |> attack ~debug:false |>
+     show_opponent_board *)
+  (* in *)
+  if State.finished_game moved then finish moved
+  else moved |> toggle_player_gui |> play_gui
+
+let place_gui_ships state =
+  List.fold_left Gui.place state Battleship.ships
 
 let new_gui_game () =
   Gui.new_window ();
@@ -75,8 +96,8 @@ let new_gui_game () =
       (Person.create_player (Battleship.board ()) [])
       (Person.create_player (Battleship.board ()) [])
   in
-  s |> place_gui_ships;
-  s |> toggle_player |> place_gui_ships
+  s |> place_gui_ships |> toggle_player_gui |> place_gui_ships
+  |> toggle_player_gui |> play_gui
 
 let network_port = 1234
 
