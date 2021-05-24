@@ -1,0 +1,4 @@
+(library
+ (name gui)
+ (public_name battleship.gui)
+ (libraries util battleship menu ui state person graphics ANSITerminal))

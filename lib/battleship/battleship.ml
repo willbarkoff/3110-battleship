@@ -54,7 +54,6 @@ type board = block_tile array array
 
 type ship = {
   ship_type : ship_type;
-  mutable destroyed : bool;
   mutable positions : position list;
   size : int;
 }
@@ -67,29 +66,39 @@ let get_ship_name ship =
   | Submarine -> "Submarine"
   | Destroyer -> "Destroyer"
 
+let ship_print occupied_tile =
+  match occupied_tile.occupied with
+  | Occupied ship_type -> (
+      match ship_type with
+      | Carrier -> "C"
+      | Destroyer -> "D"
+      | Submarine -> "S"
+      | Battleship -> "B"
+      | Cruiser -> "Cr")
+  | _ -> failwith "precondition of occupied"
+
 let get_ship_size ship = ship.size
 
 type ships = ship list
 
 let carrier =
-  { ship_type = Carrier; destroyed = false; positions = []; size = 5 }
+  { ship_type = Carrier; positions = []; size = 5 }
 
 let battleship =
   {
     ship_type = Battleship;
-    destroyed = false;
     positions = [];
     size = 4;
   }
 
 let cruiser =
-  { ship_type = Cruiser; destroyed = false; positions = []; size = 3 }
+  { ship_type = Cruiser; positions = []; size = 3 }
 
 let submarine =
-  { ship_type = Submarine; destroyed = false; positions = []; size = 3 }
+  { ship_type = Submarine; positions = []; size = 3 }
 
 let destroyer =
-  { ship_type = Destroyer; destroyed = false; positions = []; size = 2 }
+  { ship_type = Destroyer; positions = []; size = 2 }
 
 let ships = [ carrier; battleship; cruiser; submarine; destroyer ]
 
@@ -255,8 +264,6 @@ let place_ship
 let attack pos (board : board) debug =
   try
     let row, col = indicies_of_position pos in
-    (* print_endline (string_of_int row); print_endline (string_of_int
-       col); *)
     match board.(row).(col).occupied with
     | Occupied _ ->
         if debug then board.(row).(col).attack <- Hit

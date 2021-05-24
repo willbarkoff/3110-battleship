@@ -28,6 +28,25 @@ let rec play in_chan out_chan =
     play in_chan out_chan
   end
 
+let rec play_gui in_chan out_chan =
+  let open Gui in
+  let state = in_chan |> read_message |> get_state_from_message in
+  state |> State.get_current_player |> Person.get_board
+  |> display_player_board_text "Your current board:"
+       "Press enter to continue";
+       let toggle_player_gui state =
+        Gui.toggle_player ();
+        State.toggle_player state in
+
+  (* print out here is your opponents board *)
+  let moved = state |> update_board in
+  flush out_chan;
+  if State.finished_game moved then finish_board moved
+  else
+    moved |> toggle_player_gui |> get_message_from_state
+    |> write_message out_chan;
+  play_gui in_chan out_chan
+
 type internet_menu_option =
   | CreateGame
   | JoinGame
@@ -43,15 +62,19 @@ let internet_menu =
 let place_ships state =
   List.fold_left Selectlocation.place state Battleship.ships
 
+let place_gui_ships state =
+  List.fold_left Gui.place state Battleship.ships
+
 let create_game in_chan out_chan =
   ANSITerminal.erase ANSITerminal.Screen;
   ANSITerminal.set_cursor 1 1;
   Util.plfs [ ([], "Waiting for opponent...\n") ];
   match read_message in_chan with
   | PassState s ->
-      let new_state = s |> State.toggle_player |> place_ships in
+      Gui.new_window ();
+      let new_state = s |> State.toggle_player |> place_gui_ships in
       PassState new_state |> write_message out_chan;
-      play in_chan out_chan
+      play_gui in_chan out_chan
   | _ -> Ui.print_error_message ()
 
 let create_state () =
@@ -69,9 +92,10 @@ let join_game in_chan out_chan =
       ([], " when you're ready to place your ships.");
     ];
   ignore (read_line ());
-  let new_state = create_state () |> place_ships in
+  Gui.new_window ();
+  let new_state = create_state () |> place_gui_ships in
   PassState new_state |> write_message out_chan;
-  play in_chan out_chan
+  play_gui in_chan out_chan
 
 let play_internet_game addr =
   let in_chan, out_chan = Unix.open_connection addr in

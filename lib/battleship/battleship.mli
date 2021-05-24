@@ -69,6 +69,12 @@ type board = block_tile array array
 (** The type of ship. *)
 type ship
 
+(** Number of rows on the board *)
+val no_of_rows : int
+
+(** Number of columns on the board *)
+val no_of_cols : int
+
 (** The list of ships in the game. *)
 val ships : ship list
 
@@ -85,6 +91,9 @@ val create_position : char * int -> position
 (** Creates a Battleship.block_tile from an input *)
 val create_block_tile :
   position -> attack_type -> block_occupation -> block_tile
+
+(** Creates string abbreviation of the ship occupying a tile*)
+val ship_print : block_tile -> string
 
 (** [get_position p] gets the [char * int] pair from the position [p]*)
 val get_position : position -> char * int
