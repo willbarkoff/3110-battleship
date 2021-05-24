@@ -70,10 +70,13 @@ let place_gui_ships state = List.iter (Gui.place state) Battleship.ships
 
 let new_gui_game () =
   Gui.new_window ();
-  State.create_state
-    (Person.create_player (Battleship.board ()) [])
-    (Person.create_player (Battleship.board ()) [])
-  |> place_gui_ships
+  let s =
+    State.create_state
+      (Person.create_player (Battleship.board ()) [])
+      (Person.create_player (Battleship.board ()) [])
+  in
+  s |> place_gui_ships;
+  s |> toggle_player |> place_gui_ships
 
 let network_port = 1234
 

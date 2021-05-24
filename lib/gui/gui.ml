@@ -164,14 +164,30 @@ let rec read_pos (b : Battleship.board) (ship : Battleship.ship) =
     draw_current_board b;
     read_pos b ship
 
+let rec read_orientation () =
+  try
+    Util.plfs [ ([ ANSITerminal.green ], "Orientation (L,R,U,D)> ") ];
+    let orientation =
+      read_line () |> Util.explode |> List.hd |> Char.uppercase_ascii
+    in
+    if orientation = 'L' then Battleship.Left
+    else if orientation = 'R' then Battleship.Right
+    else if orientation = 'U' then Battleship.Up
+    else if orientation = 'D' then Battleship.Down
+    else failwith "Invalid"
+  with _ ->
+    Util.plfs [ ([ ANSITerminal.red ], "That's not a valid input\n\n") ];
+    read_orientation ()
+
 let rec place (state : State.t) (ship : Battleship.ship) =
   let b = state |> State.get_current_player |> Person.get_board in
   clear_graph ();
   set_background_color cyan;
   draw_current_board b;
   let b = read_pos b ship in
+  let o = read_orientation () in
   let new_board =
-    State.place_ship state b ship Battleship.Right ~debug:false
+    State.place_ship state b ship o ~debug:false
     |> State.get_current_player |> Person.get_board
   in
   clear_graph ();
