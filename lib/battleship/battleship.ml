@@ -67,6 +67,17 @@ let get_ship_name ship =
   | Submarine -> "Submarine"
   | Destroyer -> "Destroyer"
 
+let ship_print occupied_tile =
+  match occupied_tile.occupied with
+  | Occupied ship_type -> (
+      match ship_type with
+      | Carrier -> "C"
+      | Destroyer -> "D"
+      | Submarine -> "S"
+      | Battleship -> "B"
+      | Cruiser -> "Cr")
+  | _ -> failwith "precondition of occupied"
+
 let get_ship_size ship = ship.size
 
 type ships = ship list

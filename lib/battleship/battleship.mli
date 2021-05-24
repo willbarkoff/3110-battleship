@@ -92,6 +92,9 @@ val create_position : char * int -> position
 val create_block_tile :
   position -> attack_type -> block_occupation -> block_tile
 
+(** Creates string abbreviation of the ship occupying a tile*)
+val ship_print : block_tile -> string
+
 (** [get_position p] gets the [char * int] pair from the position [p]*)
 val get_position : position -> char * int
 

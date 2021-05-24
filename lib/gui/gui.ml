@@ -138,7 +138,8 @@ let draw_current_board (b : Battleship.board) =
       Array.iter
         (fun a ->
           (match a.occupied with
-          | Occupied s -> write_middle_tile a.position "S"
+          | Occupied s ->
+              write_middle_tile a.position (Battleship.ship_print a)
           | Unoccupied -> ());
           match a.attack with
           | Hit -> write_middle_tile a.position "H"
