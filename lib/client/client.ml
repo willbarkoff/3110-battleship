@@ -1,6 +1,3 @@
-open Gui
-open Ui
-
 type message =
   | PassState of State.t
   | Error of string
@@ -31,26 +28,20 @@ let rec play in_chan out_chan =
     play in_chan out_chan
   end
 
-let toggle_player_gui state =
-  Gui.toggle_player ();
-  State.toggle_player state
-
 let rec play_gui in_chan out_chan =
-  let open Ui in
+  let open Gui in
   let state = in_chan |> read_message |> get_state_from_message in
   state |> State.get_current_player |> Person.get_board
-  |> Gui.display_player_board_text "Your current board:"
+  |> display_player_board_text "Your current board:"
        "Press enter to continue";
+       let toggle_player_gui state =
+        Gui.toggle_player ();
+        State.toggle_player state in
 
   (* print out here is your opponents board *)
-  let moved = state |> Gui.update_board in
-  (* in moved |> State.get_opponent |> Person.get_board |>
-     Gui.draw_opponent_board; *)
-  (* let moved = s |> show_player_board |> attack ~debug:false |>
-     show_opponent_board *)
-  (* in *)
+  let moved = state |> update_board in
   flush out_chan;
-  if State.finished_game moved then finish moved
+  if State.finished_game moved then finish_board moved
   else
     moved |> toggle_player_gui |> get_message_from_state
     |> write_message out_chan;

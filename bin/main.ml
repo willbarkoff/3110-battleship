@@ -61,7 +61,7 @@ let rec play s =
   let moved =
     s |> show_player_board |> attack ~debug:false |> show_opponent_board
   in
-  if State.finished_game moved then finish moved
+  if State.finished_game moved then Ui.finish moved
   else moved |> toggle_player |> play
 
 let new_game () =
@@ -78,12 +78,7 @@ let rec play_gui s =
 
   (* print out here is your opponents board *)
   let moved = s |> Gui.update_board in
-  (* in moved |> State.get_opponent |> Person.get_board |>
-     Gui.draw_opponent_board; *)
-  (* let moved = s |> show_player_board |> attack ~debug:false |>
-     show_opponent_board *)
-  (* in *)
-  if State.finished_game moved then finish moved
+  if State.finished_game moved then Gui.finish_board moved
   else moved |> toggle_player_gui |> play_gui
 
 let place_gui_ships state =
@@ -119,7 +114,6 @@ let rec show_main_menu () =
     match Menu.show_menu "Main menu" main_menu with
     | NewGame ->
         (* new_game (); *)
-        (* new_window (); *)
         new_gui_game ();
         show_main_menu ()
     | Multiplayer ->

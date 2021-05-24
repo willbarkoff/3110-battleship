@@ -54,7 +54,6 @@ type board = block_tile array array
 
 type ship = {
   ship_type : ship_type;
-  mutable destroyed : bool;
   mutable positions : position list;
   size : int;
 }
@@ -83,24 +82,23 @@ let get_ship_size ship = ship.size
 type ships = ship list
 
 let carrier =
-  { ship_type = Carrier; destroyed = false; positions = []; size = 5 }
+  { ship_type = Carrier; positions = []; size = 5 }
 
 let battleship =
   {
     ship_type = Battleship;
-    destroyed = false;
     positions = [];
     size = 4;
   }
 
 let cruiser =
-  { ship_type = Cruiser; destroyed = false; positions = []; size = 3 }
+  { ship_type = Cruiser; positions = []; size = 3 }
 
 let submarine =
-  { ship_type = Submarine; destroyed = false; positions = []; size = 3 }
+  { ship_type = Submarine; positions = []; size = 3 }
 
 let destroyer =
-  { ship_type = Destroyer; destroyed = false; positions = []; size = 2 }
+  { ship_type = Destroyer; positions = []; size = 2 }
 
 let ships = [ carrier; battleship; cruiser; submarine; destroyer ]
 

@@ -1,6 +1,4 @@
 open Graphics
-open Battleship
-open State
 
 type gui_pos = int * int
 
@@ -15,10 +13,7 @@ type gui_tile = {
   top_right_corner : gui_pos;
 }
 
-type gui_board = {
-  tiles : gui_tile array array;
-  board : Battleship.board;
-}
+type gui_board = gui_tile array array
 
 let background = cyan
 
@@ -31,6 +26,7 @@ let set_background_color color =
   set_color fg
 
 let make_board () =
+  let open Battleship in 
   let cols = Array.init no_of_rows (fun value -> value + 1) in
   let row y =
     let y = y + 1 in
@@ -56,6 +52,8 @@ let draw_board () =
   in
   (* Fix text size *)
   let write_char (x, y) =
+    Graphics.set_font
+    "-*-fixed-medium-r-semicondensed--17-*-*-*-*-*-iso8859-1";
     moveto (x - (tile_length / 2) + 10) (y + (tile_length / 2));
     draw_char (Char.chr (75 - (y / tile_length)))
   in
@@ -136,6 +134,7 @@ let write_middle_tile (pos : Battleship.position) str =
   draw_string str
 
 let draw_current_board (b : Battleship.board) =
+  let open Battleship in 
   draw_board ();
   Array.iter
     (fun arr ->
@@ -159,6 +158,7 @@ let draw_current_board (b : Battleship.board) =
     b
 
 let draw_opponent_board (b : Battleship.board) =
+  let open Battleship in
   draw_board ();
   Array.iter
     (fun arr ->
@@ -253,15 +253,23 @@ let rec place (state : State.t) (ship : Battleship.ship) =
   let b = state |> State.get_current_player |> Person.get_board in
   clear_graph ();
   draw_current_board b;
-  let pos = read_pos b ship in
-  let o = read_orientation b in
-  let new_state = State.place_ship state pos ship o ~debug:false in
-  let new_board =
-    new_state |> State.get_current_player |> Person.get_board
-  in
-  clear_graph ();
-  draw_current_board new_board;
-  new_state
+  try 
+    let pos = read_pos b ship in
+    let o = read_orientation b in
+    let new_state = State.place_ship state pos ship o ~debug:false in
+    let new_board =
+      new_state |> State.get_current_player |> Person.get_board
+    in
+    clear_graph ();
+    draw_current_board new_board;
+    new_state
+  with _ -> 
+    clear_graph ();
+    set_color red;
+    moveto ((size_x () / 2) - 150) (size_y () - 60);
+    draw_string "That's an invalid placement. Press enter to continue.";
+    keyboard_read_enter ();
+    place state ship
 
 let toggle_player () =
   moveto ((size_x () / 2) - 150) (size_y () - 60);
@@ -271,43 +279,35 @@ let toggle_player () =
   draw_string "Press enter when you're ready to continue.";
   keyboard_read_enter ()
 
-let rec finish_board (state : State.t) =
+let finish_board (state : State.t) =
   clear_graph ();
-  moveto 448 440;
+  moveto ((size_x () / 2) - 150) ((size_y () / 2) - 60);
   Graphics.set_font
     "-*-fixed-medium-r-semicondensed--20-*-*-*-*-*-iso8859-1";
   draw_string "GAME OVER!";
-  state |> State.get_current_player |> Person.get_board
-  |> Battleship.get_player_board |> Battleship.print_board;
-  ()
+  let b = state |> State.get_current_player |> Person.get_board in 
+  draw_current_board b
 
 let new_window () =
   set_window_title "Battleship";
-  open_graph " 800x800";
+  open_graph " 700x800";
   set_background_color background
 
-let draw_ship () = ()
-
-let update_board state =
+let rec update_board state =
   let b = state |> State.get_opponent |> Person.get_board in
   clear_graph ();
   draw_opponent_board b;
-  let pos = read_pos_attack b in
-  let new_state = State.attack state pos ~debug:false in
-  let new_board = new_state |> State.get_opponent |> Person.get_board in
-  clear_graph ();
-  draw_opponent_board new_board;
-  new_state
+  try 
+    let pos = read_pos_attack b in
+    let new_state = State.attack state pos ~debug:false in
+    let new_board = new_state |> State.get_opponent |> Person.get_board in
+    clear_graph ();
+    draw_opponent_board new_board;
+    new_state
+  with _ -> 
+    set_color red;
+    moveto ((size_x () / 2) - 150) (size_y () - 60);
+    draw_string "That's an invalid attack. Press enter to continue.";
+    keyboard_read_enter ();
+    update_board state
 
-(* ANSITerminal.erase ANSITerminal.Screen; Util.plfs [ ([
-   ANSITerminal.Bold ], "\nYour opponent's board:\n") ]; s |>
-   State.get_opponent |> Person.get_board |>
-   Battleship.get_opponent_board |> Battleship.print_board;
-   Util.print_board_legend (); Util.plfs [ ([], "\n\nWhere would you
-   like to attack?\n") ]; let pos = Selectlocation.read_pos () in try
-   State.attack s pos with _ -> Util.plfs [ ([ ANSITerminal.red ],
-   "\nThat is an invalid position.\n") ]; attack s *)
-
-let write_player_text i = ()
-
-let close_window () = close_graph ()
