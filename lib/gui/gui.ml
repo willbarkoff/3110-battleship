@@ -23,7 +23,7 @@ let foreground_text = red
 
 let hit_color = red
 
-let error_color = rgb 82 3 9
+let error_color = rgb 204 0 0
 
 let miss_color = cyan
 
@@ -178,11 +178,11 @@ let draw_opponent_board (b : Battleship.board) =
           | Hit ->
               set_color hit_color;
               write_middle_tile a.position "H";
-              set_color black
+              set_color foreground_text
           | Miss ->
               set_color miss_color;
               write_middle_tile a.position "M";
-              set_color black
+              set_color foreground_text
           | Untargeted -> ())
         arr)
     b
