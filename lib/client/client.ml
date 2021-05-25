@@ -18,7 +18,7 @@ let rec play in_chan out_chan =
   let open Ui in
   let state =
     in_chan |> read_message |> get_state_from_message
-    |> show_player_board |> attack ~debug:false |> show_opponent_board
+    |> show_player_board |> attack |> show_opponent_board
   in
   flush out_chan;
   if State.finished_game state then finish state
@@ -34,9 +34,10 @@ let rec play_gui in_chan out_chan =
   state |> State.get_current_player |> Person.get_board
   |> display_player_board_text "Your current board:"
        "Press enter to continue";
-       let toggle_player_gui state =
-        Gui.toggle_player ();
-        State.toggle_player state in
+  let toggle_player_gui state =
+    Gui.toggle_player ();
+    State.toggle_player state
+  in
 
   (* print out here is your opponents board *)
   let moved = state |> update_board in
