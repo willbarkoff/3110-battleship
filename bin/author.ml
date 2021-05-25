@@ -1,4 +1,4 @@
-let hours_worked = 75
+let hours_worked = 80
 
 let _ =
   if hours_worked >= 0 then
@@ -9,7 +9,7 @@ let _ =
         ([ ANSITerminal.Bold ], string_of_int hours_worked ^ " hours");
         ([], " on this submission.\n");
       ]
-  else
+  else begin
     Util.plfs
       [
         ([ ANSITerminal.red ], "X ");
@@ -17,4 +17,5 @@ let _ =
         ([ ANSITerminal.Bold ], "hours_worked");
         ([], " is unset. Set it before submitting.\n");
       ];
-  exit 1
+    exit 1
+  end
