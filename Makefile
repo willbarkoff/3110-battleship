@@ -6,7 +6,7 @@ WAV_FILES=$(shell find . -type f -name "*.wav" -not -path "./_build/*")
 DUNE_FILES=$(shell find . -type f -name "dune" -not -path "./_build/*")
 
 
-ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES) dune-project battleship.opam Makefile .ocamlinit
+ZIPFILES= $(ML_FILES) $(MLI_FILES) $(MLD_FILES) $(MD_FILES) $(WAV_FILES) $(DUNE_FILES) dune-project battleship.opam Makefile .ocamlinit
 EXEC=./_build/default/bin/main.exe
 
 RED=\033[0;31m
