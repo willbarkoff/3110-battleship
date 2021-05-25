@@ -62,8 +62,6 @@ let draw_board () =
   in
   (* Fix text size *)
   let write_char (x, y) =
-    Graphics.set_font
-      "-*-fixed-medium-r-semicondensed--17-*-*-*-*-*-iso8859-1";
     moveto (x - (tile_length / 2) + 10) (y + (tile_length / 2));
     draw_char (Char.chr (75 - (y / tile_length)))
   in
@@ -71,6 +69,8 @@ let draw_board () =
     moveto (x + (tile_length / 2) - 10) (y + (tile_length / 2) - 20);
     draw_string (string_of_int (x / tile_length))
   in
+  Graphics.set_font
+    "-*-fixed-medium-r-semicondensed--17-*-*-*-*-*-iso8859-1";
   Array.iter
     (fun arr ->
       write_char arr.(0).bot_left_corner;
