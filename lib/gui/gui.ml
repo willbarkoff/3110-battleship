@@ -217,8 +217,8 @@ let rec read_pos (b : Battleship.board) (ship : Battleship.ship) =
     set_color foreground;
     Unix.sleepf 1.0;
     clear_graph ();
-    draw_current_board turn b;
-    read_pos turn b ship
+    draw_current_board b;
+    read_pos b ship
 
 let rec read_pos_attack (b : Battleship.board) =
   try
