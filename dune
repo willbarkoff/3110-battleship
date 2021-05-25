@@ -1,6 +1,6 @@
 (env
  (dev
   (flags
-   (:standard -warn-error -A))))
+   (:standard -w "-32-34-37-38"))))
 
 (documentation)

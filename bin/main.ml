@@ -4,7 +4,6 @@
 
 open Util
 open Ui
-open Gui
 
 let title = "Battleship"
 
