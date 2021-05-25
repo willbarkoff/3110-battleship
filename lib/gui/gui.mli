@@ -38,12 +38,12 @@ val place : State.t -> Battleship.ship -> State.t
 (** [update_board s] updates the drawn board after an attack turn *)
 val update_board : State.t -> State.t
 
-(* [draw_gameboard] draws the empty gameboards on the graphics window*)
+(** [draw_gameboard] draws the empty gameboards on the graphics window*)
 val draw_gameboard : unit -> unit
 
-(* [toggle_player] toggles whose turn it is in the game from one player
-   to the other*)
+(** [toggle_player] toggles whose turn it is in the game from one player
+    to the other*)
 val toggle_player : unit -> unit
 
-(* [finish_board] display win or loss statistics *)
+(** [finish_board] display win or loss statistics *)
 val finish_board : State.t -> unit
