@@ -14,10 +14,11 @@
     it extremely difficult to directly test those functions.
 
     We believe that our test suite demonstrates the correctness of our
-    system because we included 50 unit tests covering
+    system because we included 56 unit tests covering
 
     - correct initialization of a player (2)
     - correct initialization of a state (3)
+    - getter functions for specific ships: name and size (6)
     - place_ship method inputs that result in a successful placement (5)
     - attack method inputs that result in a miss (10)
     - attack method inputs that result in a hit (17)
@@ -40,18 +41,26 @@
     specification of the [State] module to construct tests and expected
     outputs, including tests of corner cases. Then, we included glass
     box testing after running [make bisect] to cover any possibilities
-    of our implementation.
+    of our implementation. We were able to achieve 100% code coverage,
+    with acceptable reasons for marking some functions coverage off: The
+    functions ignored in bisect coverage either returned unit, or were
+    useful for debugging, printing to the terminal, the GUI, or sound
+    effects, all of which could not be included in unit tests.
 
-    We also omitted testing the networking component of our system. This
-    is because we do not believe there is a way to use OUnit to test the
-    correctness of the server we construct. The networking part of our
-    system was manually tested by creating multiple multiplayer games
-    and playing through them.
+    We also omitted unit testing the networking component of our system.
+    This is because we do not believe there is a way to use OUnit to
+    test the correctness of the server we construct. The networking part
+    of our system was manually tested by creating multiple multiplayer
+    games and playing through them. In addition to the networking
+    functionailty, the GUI was also manually tested through play
+    testing, for the same reason that there was not really a way to unit
+    test its functions that mainly updated an external window and
+    returned unit.
 
     In short, the [State] module, and by extension, the [Battleship],
     [Person], and [SelectLocation] modules, were tested by OUnit, while
     networking and ensuring user inputs were correctly read in from the
-    terminal window were tested manually. *)
+    GUI window were tested manually. *)
 
 open OUnit2
 
