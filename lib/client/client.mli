@@ -3,7 +3,10 @@
     handle any of the game logic or scoring, it simply provides a means
     to interact with the server.*)
 
-(** [message] represents a message sent over the network. *)
+(** A [message] represents a single message sent between the client and
+    the server.
+
+    @see {! Server.message}*)
 type message
 
 (** [play_internet_game addr] plays a game over the network with the
