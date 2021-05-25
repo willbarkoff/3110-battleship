@@ -67,23 +67,33 @@ let print_hr
     (String.make (fst (get_terminal_size ())) print_char);
   if succeeding_newline then print_newline ()
 
+let _ = Sdl.init [ `AUDIO ]
+
 (** This method is highly inspired by
     https://github.com/fccm/OCamlSDL2/blob/master/examples/ex_simple_wav.ml.
     Our method includes an extra [time] parameter that specifies how
-    long to play the .wav audio file for. *)
-let load_and_play_audio file time =
-  (* Initialize a particular audio driver *)
-  Sdl.init [ `AUDIO ];
-  let wav_spec = Audio.new_audio_spec () in
-  let wav_buffer, wav_len =
-    Audio.load_wav ~filename:file ~spec:wav_spec
-  in
-  let device = Audio.open_audio_device_simple wav_spec in
-  Audio.queue_audio device wav_buffer wav_len;
-  Audio.unpause_audio_device device;
-  Timer.delay ~ms:time;
-  Audio.close_audio_device device;
-  Audio.free_audio_spec wav_spec;
-  Audio.free_wav wav_buffer;
+    long to play the .wav audio file for.
 
-  Sdl.quit ()
+    We do this in another thread so the user doesn't need to wait for
+    the sound to play. *)
+let load_and_play_audio file time =
+  Thread.create
+    (fun (file, time) ->
+      let wav_spec = Audio.new_audio_spec () in
+      (* Initialize a particular audio driver *)
+      let wav_buffer, wav_len =
+        Audio.load_wav ~filename:file ~spec:wav_spec
+      in
+      let device = Audio.open_audio_device_simple wav_spec in
+      Audio.queue_audio device wav_buffer wav_len;
+      Audio.unpause_audio_device device;
+      Timer.delay ~ms:time;
+      Audio.close_audio_device device;
+      Audio.free_audio_spec wav_spec;
+      Audio.free_wav wav_buffer)
+    (file, time)
+
+let play_audio_sync file time =
+  Thread.join (load_and_play_audio file time)
+
+let play_audio_async file time = load_and_play_audio file time |> ignore

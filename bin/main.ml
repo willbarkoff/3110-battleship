@@ -58,9 +58,7 @@ let toggle_player_gui state =
   State.toggle_player state
 
 let rec play s =
-  let moved =
-    s |> show_player_board |> attack ~debug:false |> show_opponent_board
-  in
+  let moved = s |> show_player_board |> attack |> show_opponent_board in
   if State.finished_game moved then Ui.finish moved
   else moved |> toggle_player |> play
 

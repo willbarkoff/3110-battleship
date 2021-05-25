@@ -72,11 +72,16 @@ val print_hr :
   ANSITerminal.style list ->
   unit
 
-(** [load_and_play_audio file time] reads, loads, and plays a .wav file
+(** [play_audio_sync file time] reads, loads, and plays a .wav file,
+    then waits for it to complete before continuing execution.
 
     @param file determines the location of the .wav file to play. We can
     assume that the audio file locations will not change + the audio
     files are not corrupt because we have provided them, so there will
     not be a need to raise errors.
     @param time determines how long to play [file] for *)
-val load_and_play_audio : string -> int -> unit
+val play_audio_sync : string -> int -> unit
+
+(** [play_audio_async] is [play_audio_sync], except execution continues
+    while the sound plays. *)
+val play_audio_async : string -> int -> unit

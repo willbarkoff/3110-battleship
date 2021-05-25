@@ -226,7 +226,7 @@ let place_ship_with_audio
     (start_pos : position)
     (board : board)
     (direction : direction) =
-  load_and_play_audio "./audio_files/place_ship.wav" 2000;
+  play_audio_async "./audio_files/place_ship.wav" 2000;
   for i = 0 to Array.length board - 1 do
     if check_collision board.(i) ship start_pos direction then
       modify_occupied board.(i) ship start_pos direction
@@ -253,12 +253,12 @@ let place_ship
     place_ship_with_audio ship start_pos board direction [@coverage off]
 
 let attack_sound_hit board row col =
-  load_and_play_audio "./audio_files/attack.wav" 4000;
+  play_audio_async "./audio_files/attack.wav" 4000;
   board.(row).(col).attack <- Hit
   [@@coverage off]
 
 let attack_sound_miss board row col =
-  load_and_play_audio "./audio_files/miss.wav" 4000;
+  play_audio_async "./audio_files/miss.wav" 4000;
   board.(row).(col).attack <- Miss
   [@@coverage off]
 
