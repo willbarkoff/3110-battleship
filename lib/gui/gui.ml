@@ -60,7 +60,6 @@ let draw_board () =
     moveto i_x i_y;
     rlineto (f_x - i_x) (f_y - i_y)
   in
-  (* Fix text size *)
   let write_char (x, y) =
     moveto (x - (tile_length / 2) + 10) (y + (tile_length / 2));
     draw_char (Char.chr (75 - (y / tile_length)))
