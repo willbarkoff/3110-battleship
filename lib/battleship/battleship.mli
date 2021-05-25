@@ -3,7 +3,7 @@
     This module defines the rules of the game Battleship and creates the
     boards and ships for each Player. *)
 
-(* Variant for type of ship *)
+(** [ship_type] represents the type of a ship. *)
 type ship_type =
   | Carrier
   | Battleship
@@ -24,10 +24,6 @@ type attack_type =
   | Hit
   | Miss
   | Untargeted
-
-(** [string_of_attack_type at] returns a string representation of the
-    attack type [at].*)
-(* val string_of_attack_type : attack_type -> string *)
 
 (** Defines one specific block tile *)
 type block_tile = {

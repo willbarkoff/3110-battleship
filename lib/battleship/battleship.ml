@@ -126,27 +126,27 @@ let board () : board =
   in
   Array.init no_of_cols row
 
-(* [indices_of_position (c, i)] returns the array location of the
+(**[indices_of_position (c, i)] returns the array location of the
    position on the board *)
 let indicies_of_position (c, i) = (int_of_char c - 65, i - 1)
 
-(* [check_idx idx] checks whether the second value in position is a
+(**[check_idx idx] checks whether the second value in position is a
    valid value within the board. *)
 let check_idx (idx : int) : bool = idx > 0 && idx <= no_of_cols
 
-(* [check_char letter] checks whether the first value in position is a
+(**[check_char letter] checks whether the first value in position is a
    valid value within the board. *)
 let check_char (letter : char) : bool =
   let ascii = Char.code letter in
   ascii >= 65 && ascii < 65 + no_of_rows
 
-(* [char_generation op start start_idx offset] is the abstract function
+(**[char_generation op start start_idx offset] is the abstract function
    that generates the different letters when [direction] of ship is [Up]
    or [Down] *)
 let char_generation op (start : int) (start_idx : int) (offset : int) =
   (Char.chr (op start offset), start_idx)
 
-(* [int_generation op start_idx start_letter offset] is the abstract
+(**[int_generation op start_idx start_letter offset] is the abstract
    function that generates the different letters when [direction] of
    ship is [Left] or [Right] *)
 let int_generation
@@ -156,7 +156,7 @@ let int_generation
     (offset : int) =
   (start_letter, op start_idx offset)
 
-(* [gen_positions pos ship direction] generates the ship positions based
+(**[gen_positions pos ship direction] generates the ship positions based
    on a specific direction *)
 let gen_positions (pos : position) (ship : ship) =
   let ship_size = ship.size in
@@ -173,7 +173,7 @@ let gen_positions (pos : position) (ship : ship) =
   | Right ->
       List.init ship_size (int_generation ( + ) start_idx start_letter)
 
-(* [valid_pos pos ship board] checks if the board position is valid and
+(**[valid_pos pos ship board] checks if the board position is valid and
    if ship can be fit inside the board. *)
 let valid_pos (pos : position) (direction : direction) (ship : ship) =
   if not (check_char (fst pos) && check_idx (snd pos)) then
@@ -181,14 +181,14 @@ let valid_pos (pos : position) (direction : direction) (ship : ship) =
   let end_pos = List.hd (List.rev (gen_positions pos ship direction)) in
   check_char (fst end_pos) && check_idx (snd end_pos)
 
-(* [find arr pos idx] returns the index in which [arr] position matches
+(**[find arr pos idx] returns the index in which [arr] position matches
    [pos] *)
 let rec find arr pos idx =
   if idx >= Array.length arr then None
   else if arr.(idx).position = pos then Some idx
   else find arr pos (idx + 1)
 
-(* [check_collision arr ship pos direction] checks if [ship] is going to
+(**[check_collision arr ship pos direction] checks if [ship] is going to
    collide with another ship. *)
 let check_collision
     (arr : block_tile array)
@@ -206,7 +206,7 @@ let check_collision
   done;
   !result
 
-(* [modify_occupied arr ship pos direction] modifies the board when
+(**[modify_occupied arr ship pos direction] modifies the board when
    placing [ship] onto the board and gives those positions to the ship. *)
 let modify_occupied
     (arr : block_tile array)
