@@ -18,11 +18,11 @@ val get_opponent : t -> Person.player
 (** [place_ship s position ship direction] places a ship in the given
     direction for the current player.*)
 val place_ship :
+  ?debug:bool ->
   t ->
   Battleship.position ->
   Battleship.ship ->
   Battleship.direction ->
-  ?debug:bool ->
   t
 
 (** [toggle_player state] toggles the player in the given state*)
@@ -32,4 +32,4 @@ val toggle_player : t -> t
 val finished_game : t -> bool
 
 (** [attack t pos] performs an attack on the given position, [pos]. *)
-val attack : t -> Battleship.position -> ?debug:bool -> t
+val attack : ?debug:bool -> t -> Battleship.position -> t

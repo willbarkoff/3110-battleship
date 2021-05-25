@@ -8,7 +8,7 @@ val show_opponent_board : State.t -> State.t
 
 (** [attack s] prompts the play to attack, and updates the state [s]
     accordingly *)
-val attack : State.t -> ?debug:bool -> State.t
+val attack : State.t -> State.t
 
 (** [finish s] Displays a screen explaining that the game is finished *)
 val finish : State.t -> unit

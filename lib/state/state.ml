@@ -16,13 +16,13 @@ let get_opponent s =
 let toggle_player s =
   { s with current_player = (s.current_player + 1) mod 2 }
 
-let place_ship state pos ship dir ?(debug = false) =
+let place_ship ?debug:(d = (false [@coverage off])) state pos ship dir =
   let board = get_current_player state |> Person.get_board in
-  Battleship.place_ship ship pos board dir debug;
+  Battleship.place_ship ship pos board dir d;
   state
 
-let attack s pos ?(debug = false) =
-  Battleship.attack pos (get_opponent s |> Person.get_board) debug;
+let attack ?debug:(d = (false [@coverage off])) s pos =
+  Battleship.attack pos (get_opponent s |> Person.get_board) d;
   s
 
 let finished_game s =
