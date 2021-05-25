@@ -7,18 +7,9 @@ open Unix
 
 type server_func = in_channel -> out_channel -> unit
 
-let _exit = exit
-
 let rec accept_non_intr s =
   try accept ~cloexec:true s
   with Unix_error (EINTR, _, _) -> accept_non_intr s
-
-let rec waitpid_non_intr pid =
-  try waitpid [] pid
-  with Unix_error (EINTR, _, _) -> waitpid_non_intr pid
-
-(* external spawn : string -> string array -> string array option ->
-   bool -> int array -> int = "unix_spawn" *)
 
 let establish_server server_fun sockaddr =
   let sock =

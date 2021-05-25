@@ -13,6 +13,11 @@
     much based on it, with a few modifications to allow the sharing of
     memory of processes at runtime. *)
 
+(** [server_func] represents the type of a server's handler function.
+    When a connection is established, input is read from the
+    [in_channel], and output is written to the [out_channel].*)
 type server_func = in_channel -> out_channel -> unit
 
+(** [establish_server f addr] starts a TCP server at [addr]. It uses [f]
+    to handle incoming connections.*)
 val establish_server : server_func -> Unix.sockaddr -> unit
