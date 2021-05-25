@@ -1,3 +1,7 @@
+(** [main.ml] provides an entrypoint for the game. It does not have an
+    interface file, as it just runs the game, and nothing actually uses
+    it.*)
+
 open Util
 open Ui
 open Gui
