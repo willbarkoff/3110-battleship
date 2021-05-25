@@ -30,9 +30,7 @@ val print_lots_of_fancy_strings :
 (** [plfs s] is an alias for [print_lots_of_fancy_strings s] *)
 val plfs : (ANSITerminal.style list * string) list -> unit
 
-(** [explode s] takes the string [s] and returns it as a list of chars.
-    inspired by
-    https://stackoverflow.com/questions/10068713/string-to-list-of-char *)
+(** [explode s] takes the string [s] and returns it as a list of chars. *)
 val explode : string -> char list
 
 (** [implode lst] takes the list of characters [lst] and returns it as a

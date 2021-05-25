@@ -28,6 +28,8 @@ let print_lots_of_fancy_strings strs =
 
 let plfs = print_lots_of_fancy_strings
 
+(* inspired by
+   https://stackoverflow.com/questions/10068713/string-to-list-of-char *)
 let explode s = List.init (String.length s) (String.get s)
 
 let implode lst =
