@@ -68,29 +68,21 @@ let ship_print occupied_tile =
       | Battleship -> "B"
       | Cruiser -> "Cr")
   | _ -> failwith "precondition of occupied"
+  [@@coverage off]
 
 let get_ship_size ship = ship.size
 
 type ships = ship list
 
-let carrier =
-  { ship_type = Carrier; positions = []; size = 5 }
+let carrier = { ship_type = Carrier; positions = []; size = 5 }
 
-let battleship =
-  {
-    ship_type = Battleship;
-    positions = [];
-    size = 4;
-  }
+let battleship = { ship_type = Battleship; positions = []; size = 4 }
 
-let cruiser =
-  { ship_type = Cruiser; positions = []; size = 3 }
+let cruiser = { ship_type = Cruiser; positions = []; size = 3 }
 
-let submarine =
-  { ship_type = Submarine; positions = []; size = 3 }
+let submarine = { ship_type = Submarine; positions = []; size = 3 }
 
-let destroyer =
-  { ship_type = Destroyer; positions = []; size = 2 }
+let destroyer = { ship_type = Destroyer; positions = []; size = 2 }
 
 let ships = [ carrier; battleship; cruiser; submarine; destroyer ]
 
