@@ -29,6 +29,8 @@ let miss_color = cyan
 
 let tile_length = 60
 
+let player_turn = ref 1
+
 let set_background_color color =
   let fg = foreground in
   set_color color;
@@ -143,11 +145,11 @@ let write_middle_tile (pos : Battleship.position) str =
     (snd bot_left_pos + (tile_length / 2));
   draw_string str
 
-let draw_current_board turn (b : Battleship.board) =
+let draw_current_board (b : Battleship.board) =
   let open Battleship in
   draw_board ();
   moveto ((size_x () / 2) - 150) (size_y () - 40);
-  draw_string ("Player " ^ turn ^ "'s turn");
+  draw_string ("Player " ^ string_of_int !player_turn ^ "'s turn");
   Array.iter
     (fun arr ->
       Array.iter
@@ -173,7 +175,7 @@ let draw_opponent_board (b : Battleship.board) =
   let open Battleship in
   draw_board ();
   moveto ((size_x () / 2) - 150) (size_y () - 40);
-  draw_string ("Player " ^ turn ^ "'s turn");
+  draw_string ("Player " ^ string_of_int !player_turn ^ "'s turn");
   Array.iter
     (fun arr ->
       Array.iter
@@ -191,8 +193,8 @@ let draw_opponent_board (b : Battleship.board) =
         arr)
     b
 
-let display_player_board_text turn s1 s2 b =
-  draw_current_board turn b;
+let display_player_board_text s1 s2 b =
+  draw_current_board b;
   moveto ((size_x () / 2) - 150) (size_y () - 60);
   set_color foreground_text;
   draw_string s1;
@@ -200,10 +202,10 @@ let display_player_board_text turn s1 s2 b =
   draw_string s2;
   keyboard_read_enter ()
 
-let rec read_pos turn (b : Battleship.board) (ship : Battleship.ship) =
+let rec read_pos (b : Battleship.board) (ship : Battleship.ship) =
   try
     clear_graph ();
-    draw_current_board turn b;
+    draw_current_board b;
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     draw_string
       ("Choose a tile to place the " ^ Battleship.get_ship_name ship);
@@ -219,10 +221,10 @@ let rec read_pos turn (b : Battleship.board) (ship : Battleship.ship) =
     draw_current_board turn b;
     read_pos turn b ship
 
-let rec read_pos_attack turn (b : Battleship.board) =
+let rec read_pos_attack (b : Battleship.board) =
   try
     clear_graph ();
-    draw_opponent_board turn b;
+    draw_opponent_board b;
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     draw_string "Your opponent's board";
     moveto ((size_x () / 2) - 150) (size_y () - 80);
@@ -236,13 +238,13 @@ let rec read_pos_attack turn (b : Battleship.board) =
     set_color foreground;
     Unix.sleepf 1.0;
     clear_graph ();
-    draw_opponent_board turn b;
-    read_pos_attack turn b
+    draw_opponent_board b;
+    read_pos_attack b
 
-let rec read_orientation turn (b : Battleship.board) =
+let rec read_orientation (b : Battleship.board) =
   try
     clear_graph ();
-    draw_current_board turn b;
+    draw_current_board b;
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     draw_string "Type an Orientation (L, U, D, R): ";
     let key_char = keyboard_read () in
@@ -260,22 +262,22 @@ let rec read_orientation turn (b : Battleship.board) =
     set_color foreground;
     Unix.sleepf 1.0;
     clear_graph ();
-    draw_current_board turn b;
-    read_orientation turn b
+    draw_current_board b;
+    read_orientation b
 
-let rec place turn (state : State.t) (ship : Battleship.ship) =
+let rec place (state : State.t) (ship : Battleship.ship) =
   let b = state |> State.get_current_player |> Person.get_board in
   clear_graph ();
-  draw_current_board turn b;
+  draw_current_board b;
   try
-    let pos = read_pos turn b ship in
-    let o = read_orientation turn b in
+    let pos = read_pos b ship in
+    let o = read_orientation b in
     let new_state = State.place_ship state pos ship o in
     let new_board =
       new_state |> State.get_current_player |> Person.get_board
     in
     clear_graph ();
-    draw_current_board turn new_board;
+    draw_current_board new_board;
     new_state
   with _ ->
     clear_graph ();
@@ -283,9 +285,10 @@ let rec place turn (state : State.t) (ship : Battleship.ship) =
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     draw_string "That's an invalid placement. Press enter to continue.";
     keyboard_read_enter ();
-    place turn state ship
+    place state ship
 
 let toggle_player () =
+  if !player_turn = 1 then player_turn := 2 else player_turn := 1;
   moveto ((size_x () / 2) - 150) (size_y () - 60);
   set_color foreground_text;
   draw_string "Pass the computer to the next player.";
@@ -307,22 +310,22 @@ let new_window () =
   open_graph " 700x800";
   set_background_color background
 
-let rec update_board turn state =
+let rec update_board state =
   let b = state |> State.get_opponent |> Person.get_board in
   clear_graph ();
-  draw_opponent_board turn b;
+  draw_opponent_board b;
   try
-    let pos = read_pos_attack turn b in
+    let pos = read_pos_attack b in
     let new_state = State.attack state pos in
     let new_board =
       new_state |> State.get_opponent |> Person.get_board
     in
     clear_graph ();
-    draw_opponent_board turn new_board;
+    draw_opponent_board new_board;
     new_state
   with _ ->
     set_color error_color;
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     draw_string "That's an invalid attack. Press enter to continue.";
     keyboard_read_enter ();
-    update_board turn state
+    update_board state

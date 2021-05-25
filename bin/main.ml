@@ -26,8 +26,6 @@ let main_menu =
     Menu.prompt "Quit" Quit;
   ]
 
-let player_turn = ref 1
-
 let print_title () =
   ANSITerminal.set_cursor 1 1;
   Util.print_text_centered
@@ -59,7 +57,6 @@ let toggle_player state =
   State.toggle_player state
 
 let toggle_player_gui state =
-  if !player_turn = 1 then player_turn := 2 else player_turn := 1;
   Gui.toggle_player ();
   State.toggle_player state
 
@@ -76,10 +73,9 @@ let new_game () =
 
 let rec play_gui s =
   s |> State.get_current_player |> Person.get_board
-  |> Gui.display_player_board_text
-       (string_of_int !player_turn)
-       "Your current board:" "Press enter to continue";
-  let moved = s |> Gui.update_board !player_turn in
+  |> Gui.display_player_board_text "Your current board:"
+       "Press enter to continue";
+  let moved = s |> Gui.update_board in
   if State.finished_game moved then Gui.finish_board moved
   else moved |> toggle_player_gui |> play_gui
 
