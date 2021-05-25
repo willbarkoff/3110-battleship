@@ -69,12 +69,9 @@ let new_game () =
   |> place_ships |> toggle_player |> place_ships |> play
 
 let rec play_gui s =
-  (* print out here is your board *)
   s |> State.get_current_player |> Person.get_board
   |> Gui.display_player_board_text "Your current board:"
        "Press enter to continue";
-
-  (* print out here is your opponents board *)
   let moved = s |> Gui.update_board in
   if State.finished_game moved then Gui.finish_board moved
   else moved |> toggle_player_gui |> play_gui
