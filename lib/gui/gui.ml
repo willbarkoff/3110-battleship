@@ -15,7 +15,17 @@ type gui_tile = {
 
 type gui_board = gui_tile array array
 
-let background = cyan
+let background = rgb 18 52 86
+
+let foreground = white
+
+let foreground_text = red
+
+let hit_color = red
+
+let error_color = rgb 82 3 9
+
+let miss_color = cyan
 
 let tile_length = 60
 
@@ -142,13 +152,13 @@ let draw_current_board (b : Battleship.board) =
         (fun a ->
           match a.attack with
           | Hit ->
-              set_color red;
+              set_color hit_color;
               write_middle_tile a.position "H";
-              set_color black
+              set_color foreground
           | Miss ->
-              set_color blue;
+              set_color miss_color;
               write_middle_tile a.position "M";
-              set_color black
+              set_color foreground
           | Untargeted -> (
               match a.occupied with
               | Occupied _ ->
@@ -166,11 +176,11 @@ let draw_opponent_board (b : Battleship.board) =
         (fun a ->
           match a.attack with
           | Hit ->
-              set_color red;
+              set_color hit_color;
               write_middle_tile a.position "H";
               set_color black
           | Miss ->
-              set_color blue;
+              set_color miss_color;
               write_middle_tile a.position "M";
               set_color black
           | Untargeted -> ())
@@ -180,7 +190,7 @@ let draw_opponent_board (b : Battleship.board) =
 let display_player_board_text s1 s2 b =
   draw_current_board b;
   moveto ((size_x () / 2) - 150) (size_y () - 60);
-  set_color red;
+  set_color foreground_text;
   draw_string s1;
   moveto ((size_x () / 2) - 150) (size_y () - 80);
   draw_string s2;
@@ -197,9 +207,9 @@ let rec read_pos (b : Battleship.board) (ship : Battleship.ship) =
   with _ ->
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     clear_graph ();
-    set_color red;
+    set_color error_color;
     draw_string "Invalid Position. Try again...";
-    set_color black;
+    set_color foreground;
     Unix.sleepf 1.0;
     clear_graph ();
     draw_current_board b;
@@ -217,9 +227,9 @@ let rec read_pos_attack (b : Battleship.board) =
   with _ ->
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     clear_graph ();
-    set_color red;
+    set_color error_color;
     draw_string "Invalid Position. Try again...";
-    set_color black;
+    set_color foreground;
     Unix.sleepf 1.0;
     clear_graph ();
     draw_current_board b;
@@ -241,9 +251,9 @@ let rec read_orientation (b : Battleship.board) =
   with _ ->
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     clear_graph ();
-    set_color red;
+    set_color error_color;
     draw_string "Invalid Orientation. Try again...";
-    set_color black;
+    set_color foreground;
     Unix.sleepf 1.0;
     clear_graph ();
     draw_current_board b;
@@ -265,7 +275,7 @@ let rec place (state : State.t) (ship : Battleship.ship) =
     new_state
   with _ ->
     clear_graph ();
-    set_color red;
+    set_color error_color;
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     draw_string "That's an invalid placement. Press enter to continue.";
     keyboard_read_enter ();
@@ -273,7 +283,7 @@ let rec place (state : State.t) (ship : Battleship.ship) =
 
 let toggle_player () =
   moveto ((size_x () / 2) - 150) (size_y () - 60);
-  set_color red;
+  set_color foreground_text;
   draw_string "Pass the computer to the next player.";
   moveto ((size_x () / 2) - 150) (size_y () - 80);
   draw_string "Press enter when you're ready to continue.";
@@ -307,7 +317,7 @@ let rec update_board state =
     draw_opponent_board new_board;
     new_state
   with _ ->
-    set_color red;
+    set_color error_color;
     moveto ((size_x () / 2) - 150) (size_y () - 60);
     draw_string "That's an invalid attack. Press enter to continue.";
     keyboard_read_enter ();
