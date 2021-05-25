@@ -34,12 +34,14 @@ Next, install the required dependencies using `opam`:
 $ opam install ANSITerminal ounit2 dune core async ppx_let ocamlsdl2 graphics camlimages
 ```
 
-You will also need an XServer to display graphics.
+You will also need a window server that supports the X Window System.
 
 - On macOS:
   - Install XQuartz: https://www.xquartz.org/
 - On Windows:
   - Install XMing: https://sourceforge.net/projects/xming/
+- On Linux:
+  - Install any window server that supports the X Window System. Our favorites are [Gnome](https://www.gnome.org/) (preinstalled on Ubuntu Desktop) and [KDE](https://kde.org/) (preinstalled on Kubuntu). In addition, on lightweight systems (like a Raspberry Pi), [LXDE](https://www.lxde.org/) (preinstalled on Raspberry Pi OS, and Raspbian) works well too. 
 
 Finally, to run the program, run `make`. This will launch a local game, so that several users can play on the same computer.
 
