@@ -3,5 +3,4 @@
   (flags
    (:standard -warn-error -A))))
 
-(documentation
- (mld_files index))
+(documentation)

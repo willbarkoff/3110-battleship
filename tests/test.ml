@@ -1,17 +1,17 @@
-(** Test Plan
+(** {1 Test Plan}
 
-    Our tests mainly focused on extensively testing the State module. We
-    omitted testing the Battleship, Person, and SelectLocation modules:
-    The reason for mainly testing the State module is that with a game
-    such as Battleship that is played with discrete turns, an instance
-    of State.t describes everything that is going on in the game at one
-    specific instant. The State module includes every step that
-    progresses the game from one state to another, and every function in
-    these other 3 modules that is useful to the functionality of the
-    game is used by and encapsulated by the State module’s functions.
-    Additionally, a majority of the essential functions in these other 3
-    modules return a type unit, which makes it extremely difficult to
-    directly test those functions.
+    Our tests mainly focused on extensively testing the [State] module.
+    We omitted testing the [Battleship], [Person], and [SelectLocation]
+    modules: The reason for mainly testing the [State] module is that
+    with a game such as Battleship that is played with discrete turns,
+    an instance of [State.t] describes everything that is going on in
+    the game at one specific instant. The [State] module includes every
+    step that progresses the game from one state to another, and every
+    function in these other 3 modules that is useful to the
+    functionality of the game is used by and encapsulated by the [State]
+    module’s functions. Additionally, a majority of the essential
+    functions in these other 3 modules return a type unit, which makes
+    it extremely difficult to directly test those functions.
 
     We believe that our test suite demonstrates the correctness of our
     system because we included 50 unit tests covering
@@ -37,10 +37,10 @@
     demonstrates the correctness of our Battleship game functionality.
 
     Testing was developed with black box testing by using the
-    specification of the State module to construct tests and expected
+    specification of the [State] module to construct tests and expected
     outputs, including tests of corner cases. Then, we included glass
-    box testing after running make bisect to cover any possibilities of
-    our implementation.
+    box testing after running [make bisect] to cover any possibilities
+    of our implementation.
 
     We also omitted testing the networking component of our system. This
     is because we do not believe there is a way to use OUnit to test the
@@ -48,8 +48,8 @@
     system was manually tested by creating multiple multiplayer games
     and playing through them.
 
-    In short, the State module, and by extension, the Battleship,
-    Person, and SelectLocation modules, were tested by OUnit, while
+    In short, the [State] module, and by extension, the [Battleship],
+    [Person], and [SelectLocation] modules, were tested by OUnit, while
     networking and ensuring user inputs were correctly read in from the
     terminal window were tested manually. *)
 
