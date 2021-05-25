@@ -6,14 +6,6 @@
 (** Player in the game *)
 type player
 
-(** The types of actions possible in Battleship *)
-(* type action = | Place of string * Battleship.position *
-   Battleship.direction | Attack of Battleship.position | Quit *)
-
-(* * Raised when an empty input is encountered exception Empty
-
-   (** Raised when a malformed input is detected. *) exception Malformed *)
-
 (** Creates a player for the game *)
 val create_player : Battleship.board -> Battleship.ship list -> player
 
