@@ -248,9 +248,9 @@ let place_ship
         modify_occupied board.(i) ship start_pos direction
       else raise ShipCollision
     done;
-    () (*BISECT-IGNORE-BEGIN*))
-  else place_ship_with_audio ship start_pos board direction
-(*BISECT-IGNORE-END*)
+    ())
+  else
+    place_ship_with_audio ship start_pos board direction [@coverage off]
 
 let attack_sound_hit board row col =
   load_and_play_audio "./audio_files/attack.wav" 4000;
@@ -268,13 +268,10 @@ let attack pos (board : board) debug =
     match board.(row).(col).occupied with
     | Occupied _ ->
         if debug then board.(row).(col).attack <- Hit
-          (*BISECT-IGNORE-BEGIN*)
-        else attack_sound_hit board row col (*BISECT-IGNORE-END*)
+        else attack_sound_hit board row col [@coverage off]
     | Unoccupied ->
         if debug then board.(row).(col).attack <- Miss
-          (*BISECT-IGNORE-BEGIN*)
-        else attack_sound_miss board row col
-    (*BISECT-IGNORE-END*)
+        else attack_sound_miss board row col [@coverage off]
   with _ -> raise InvalidPosition
 
 let finished_game (board : board) =
